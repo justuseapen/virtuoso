@@ -1,6 +1,13 @@
 defmodule VirtuosoWeb.Router do
   use VirtuosoWeb, :router
 
+  pipeline :unprotected_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :put_secure_browser_headers
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -14,9 +21,11 @@ defmodule VirtuosoWeb.Router do
   end
 
   scope "/", VirtuosoWeb do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :unprotected_browser
 
     get "/", PageController, :index
+    get "/webhook", WebhookController, :verify
+    post "/webhook", WebhookController, :create
   end
 
   # Other scopes may use custom stacks.
