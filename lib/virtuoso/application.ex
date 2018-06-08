@@ -14,6 +14,8 @@ defmodule Virtuoso.Application do
       supervisor(VirtuosoWeb.Endpoint, []),
       # Start your own worker by calling: Virtuoso.Worker.start_link(arg1, arg2, arg3)
       # worker(Virtuoso.Worker, [arg1, arg2, arg3]),
+      supervisor(Registry, [:unique, Virtuoso.Conversation.Registry], [id: Virtuoso.Conversation.Registry]),
+      supervisor(Virtuoso.Conversation.Supervisor, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

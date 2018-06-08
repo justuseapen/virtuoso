@@ -2,6 +2,9 @@ defmodule VirtuosoWeb.WebhookController do
   use VirtuosoWeb, :controller
 
   def create(conn, params) do
+    params
+    |> Medium.handle()
+
     send_resp(conn, 200, "EVENT_RECEIVED")
   end
 
