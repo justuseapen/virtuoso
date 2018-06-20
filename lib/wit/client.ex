@@ -3,7 +3,7 @@ defmodule Wit.Client do
     WIT AI integration for intent handling and NLP
   """
 
-  @token Application.get_env(:virtuoso, :wit_ai_server_access_token)
+  @token Application.get_env(:virtuoso, :wit_server_access_token)
   @message_url "https://api.wit.ai/message?"
   @api_version "20171201"
 
