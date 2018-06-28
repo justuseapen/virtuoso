@@ -10,6 +10,8 @@ defmodule Virtuoso.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
+      description: description(),
+      package: package(),
       deps: deps()
     ]
   end
@@ -62,6 +64,21 @@ defmodule Virtuoso.Mixfile do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "test": ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  defp description do
+      """
+      Phoenix-based framework for chatbot development and orchestration.
+      """
+  end
+
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["Justus Eapen"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/justuseapen/virtuoso"}
     ]
   end
 end
