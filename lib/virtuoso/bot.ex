@@ -14,4 +14,21 @@ defmodule Virtuoso.Bot do
     impression
     |> bot.respond_to(conversation_state)
   end
+
+  @doc """
+  Given a module name, returns the full path of the bot.
+  """
+  def bot_directory_path(bot_module_name) do
+    bot_module_name
+    |> Macro.underscore
+    |> String.replace_suffix("", "/")
+    |> String.replace_prefix("", "lib/")
+  end
+
+  @doc """
+  Takes a bot's module name and humanizes it
+  """
+  def humanize(module_name) do
+    module_name |> String.replace("_", " ")
+  end
 end
