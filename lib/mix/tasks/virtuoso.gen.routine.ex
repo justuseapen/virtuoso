@@ -11,6 +11,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
   Generates `project/lib/bot/routine/new_routine.ex`
   """
   use Mix.Task
+  alias Virtuoso.Bot
 
   def run(args) do
     [bot_module_name | [routine_module_name]] = args
@@ -20,33 +21,19 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
       |> Macro.underscore
       |> String.replace_suffix("", ".ex")
       |> String.replace_prefix("", "routine/")
-      |> String.replace_prefix("", bot_directory(bot_module_name))
+      |> String.replace_prefix("", Bot.bot_directory_path(bot_module_name))
 
     template = bot_module_name |> routine_template(routine_module_name)
     Mix.Generator.create_file(routine_file_path, template)
   end
 
   @doc """
-  Given a module name, returns the full path of the bot.
-  """
-  def bot_directory(bot_module_name) do
-    bot_module_name
-    |> Macro.underscore
-    |> String.replace_suffix("", "/")
-    |> String.replace_prefix("", "lib/")
-  end
-
-  @doc """
   Given a BotName and RoutineName return a routine template string
   """
   def routine_template(bot_module_name, routine_module_name) do
-    bot_name =
-      bot_module_name
-      |> String.replace("_", " ")
+    bot_name = Bot.humanize(bot_module_name)
 
-    routine_name =
-      bot_module_name
-      |> String.replace("_", " ")
+    routine_name = Bot.humanize(routine_module_name)
 
     """
     defmodule #{bot_module_name}.Routine.#{routine_module_name} do
