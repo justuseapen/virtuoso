@@ -5,10 +5,6 @@
 # is restricted to this project.
 use Mix.Config
 
-# General application configuration
-config :virtuoso,
-  ecto_repos: [Virtuoso.Repo]
-
 # Configures the endpoint
 config :virtuoso, VirtuosoWeb.Endpoint,
   url: [host: "localhost"],
