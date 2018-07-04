@@ -24,14 +24,4 @@ defmodule VirtuosoWeb.ChannelCase do
       @endpoint VirtuosoWeb.Endpoint
     end
   end
-
-
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Virtuoso.Repo)
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Virtuoso.Repo, {:shared, self()})
-    end
-    :ok
-  end
-
 end
