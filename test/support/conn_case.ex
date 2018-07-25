@@ -25,4 +25,8 @@ defmodule VirtuosoWeb.ConnCase do
       @endpoint VirtuosoWeb.Endpoint
     end
   end
+
+  setup _tags do
+    {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
 end
