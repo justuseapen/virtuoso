@@ -1,0 +1,21 @@
+{
+  "default_stop_words": [
+    "defmodule",
+    "defrecord",
+    "defimpl",
+    "def.+(.+\/\/.+).+do"
+  ],
+
+  "custom_stop_words": [
+  ],
+  "skip_files": [ // files we want to exclude from coverage stats
+    // "folder_to_skip",
+    // "folder/file_to_skip.ex"
+  ],
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "output_dir": "cover/",
+    "template_path": "custom/path/to/template/",
+    // "minimum_coverage": 90 for now better leave commented till we have enough test coverage
+  }
+}
