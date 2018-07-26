@@ -49,7 +49,8 @@ defmodule Virtuoso.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_pubsub, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false}
     ]
   end
 
