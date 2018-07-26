@@ -1,4 +1,6 @@
 defmodule Medium.FbMessenger.Network do
+  # TODO: This Module should be able to accommodate n facebook pages
+
   @moduledoc """
   Handles network ops for fbmessenger medium
   """
@@ -14,7 +16,7 @@ defmodule Medium.FbMessenger.Network do
   end
   def send_messenger_response(response) do
     start_time = Timex.now()
-    url = "https://graph.facebook.com/v2.6/me/messages?access_token=#{@page_access_token}" |> IO.inspect
+    url = "https://graph.facebook.com/v2.6/me/messages?access_token=#{@page_access_token}"
 
     case HTTPoison.post(url, Poison.encode!(response), @headers) do
       {:ok, %HTTPoison.Response{status_code: 200}} ->

@@ -6,7 +6,7 @@ defmodule Virtuoso.Bot.Map do
 
   def bots do
     [
-      MementoMori
+      # Add the bot's ModuleName here
     ]
   end
 end
