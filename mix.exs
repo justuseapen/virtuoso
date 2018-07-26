@@ -12,7 +12,16 @@ defmodule Virtuoso.Mixfile do
       aliases: aliases(),
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        "coveralls": :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
+      # if you want to use espec,
+      # test_coverage: [tool: ExCoveralls, test_task: "espec"]
     ]
   end
 
@@ -50,7 +59,8 @@ defmodule Virtuoso.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:timex, "~> 3.1"},
-      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.8", only: :test}
     ]
   end
 

@@ -14,4 +14,4 @@ before_script:
 
 script:
   - mix credo
-  - mix test
+  - mix coveralls
