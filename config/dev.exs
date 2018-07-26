@@ -48,4 +48,8 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-import_config "dev.secret.exs"
+
+# Only load dev.secret.exs in dev environment.
+# This should prevent continuous integration to fail
+# when attempting to load a file which is not versioned.
+if Mix.env == "dev", do: import_config "dev.secret.exs"
