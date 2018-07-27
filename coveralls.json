@@ -13,5 +13,16 @@
     "output_dir": "cover/",
     "minimum_coverage": 5
   },
-  "skip_files": []
+  "skip_files": [
+    "test/support/conn_case.ex",
+    "test/support/channel_case.ex",
+    "lib/virtuoso_web/views/error_view.ex",
+    "lib/virtuoso_web/views/error_helpers.ex",
+    "lib/virtuoso_web/gettext.ex",
+    "lib/virtuoso_web/endpoint.ex",
+    "lib/virtuoso_web/channels/user_socket.ex",
+    "lib/virtuoso_web.ex",
+    "lib/virtuoso/application.ex",
+    "lib/virtuoso.ex"
+  ]
 }
