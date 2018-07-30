@@ -1,4 +1,6 @@
 defmodule Medium.FbMessenger.Network do
+  # TODO: This Module should be able to accommodate n facebook pages
+
   @moduledoc """
   Handles network ops for fbmessenger medium
   """

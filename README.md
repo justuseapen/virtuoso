@@ -2,44 +2,33 @@
 
 Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one place for all your bots.
 
+## ToDo
+- [ ] `mix virtuoso.gen.client` to add an integration
+  - Add config for page (page_access_token)
+
+### Demo Prep
+Demo should consist of the following:
+1. `mix phx.new $PROJECT_NAME`
+2. Add `{:virtuoso, "~> x.x.x"}` to `mix.exs`
+3. `mix deps.get`
+4. `mix virtuoso.gen.bot $BOT_NAME`
+5. `mix virtuoso.gen.client fb_messenger`
+6. Facebook app and page configuration
+7. ngrok the webhook and boom working bot
+
+#### FbMessenger Setup
+1. Create an app (and a test app)
+2. Setup Messenger (Get page access token)
+3. Create a page (you need a page access token)
+4.
+
 ## Medium
 Medium is our platform library. She is responsible for receiving messages from *any* platform and translating them into a universally understood language.
 
-### Supported Platforms
-- FbMessenger (needs documentation, rules, and postback accomodations)
+## Bot
+A Bot consists of three parts
+- FastThinking: Identifies user intent from impression structure
+- SlowThinking: Attempts to id intent from NLP analysis
+- Routines: Executes a routine based on user intent
 
-### Todo
-- Slack
-- Twitter
-- Twilio
 
-## Executive
-Delegates incoming impression to the appropriate Bot.
-
-## Cognition
-Think of Cognition as a nested router for your bot.
-
-When an impression is received by a bot, the first thing to do is to identify the intent of the user.
-
-Some platforms make the intent explicit in the structure of the response (such as pressing a button to respond to fb messenger bot) or in structure of the message itself (phone numbers fit into several immediately recognizable patterns).
-
-These types of messages are defined by templates that you set in the FastThinking context of your bot.
-
-Other messages require additional processing for your bot to understand. These get passed into the SlowThinking context. SlowThinking uses NLP libraries to evaluate probable intents and entities.
-
-*YOU MUST TRAIN YOUR NLP PROVIDER TO ACCURATELY GAUGE INTENTS FROM TEXT*
-
-Entities are concepts parsed from your input. All incoming messages have an intent and one or more entities. The question for your bot to answer is: "Which of these entities, if any, are relevant to the satisfaction of the user's intent?"
-
-### Todo
-- Wit NLP Client
-- Dialogue Flow Client
-
-## Homunculus
-Generates Bots and Routines. Named for the little men in our head.
-
-### Todo
-- New Bot Generator
-- New Routine Generator
-- Open API
-- Admin Portal
