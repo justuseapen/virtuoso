@@ -1,0 +1,28 @@
+{
+  "default_stop_words": [
+    "defmodule",
+    "defrecord",
+    "defimpl",
+    "def.+(.+\/\/.+).+do"
+  ],
+  "terminal_options": {
+    "file_column_width": 40
+  },
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "output_dir": "cover/",
+    "minimum_coverage": 5
+  },
+  "skip_files": [
+    "test/support/conn_case.ex",
+    "test/support/channel_case.ex",
+    "lib/virtuoso_web/views/error_view.ex",
+    "lib/virtuoso_web/views/error_helpers.ex",
+    "lib/virtuoso_web/gettext.ex",
+    "lib/virtuoso_web/endpoint.ex",
+    "lib/virtuoso_web/channels/user_socket.ex",
+    "lib/virtuoso_web.ex",
+    "lib/virtuoso/application.ex",
+    "lib/virtuoso.ex"
+  ]
+}

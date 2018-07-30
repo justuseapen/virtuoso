@@ -129,7 +129,7 @@ defmodule Virtuoso.Conversation do
   def handle_cast({:received, entry}, state) do
     Logger.info("Received a message for #{state.sender_id}")
 
-    Executive.handles_message({entry,state})
+    Executive.handles_message({entry, state})
 
     new_state =
       state
