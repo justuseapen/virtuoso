@@ -3,7 +3,7 @@ defmodule VirtuosoWeb.WebhookController do
 
   def create(conn, params) do
     params
-    |> Medium.handle()
+    |> Virtuoso.handle()
 
     send_resp(conn, 200, "EVENT_RECEIVED")
   end

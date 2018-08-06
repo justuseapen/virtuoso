@@ -1,4 +1,4 @@
-defmodule Medium.FbMessenger.Network do
+defmodule Virtuoso.FbMessenger.Network do
   @moduledoc """
   Handles network ops for fbmessenger medium
   """
