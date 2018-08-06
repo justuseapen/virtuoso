@@ -1,7 +1,7 @@
-defmodule Medium.NetworkTest do
+defmodule Virtuoso.NetworkTest do
   use ExUnit.Case
 
-  alias Medium.FbMessenger.Network
+  alias Virtuoso.FbMessenger.Network
 
   test "send_messenger_response/0" do
     assert Network.send_messenger_response([]) == []

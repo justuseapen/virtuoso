@@ -1,4 +1,4 @@
-defmodule Medium.FbMessenger.Translation do
+defmodule Virtuoso.FbMessenger.Translation do
   @moduledoc """
   Handles translating payloads received from FB
   """

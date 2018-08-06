@@ -1,10 +1,10 @@
-defmodule Medium.FbMessenger do
+defmodule Virtuoso.FbMessenger do
   @moduledoc"""
   Translates fb message events into Virtuoso-friendly internal representations (Impressions)
   """
 
-  alias Medium.FbMessenger.Message
-  alias Medium.FbMessenger.Network
+  alias Virtuoso.FbMessenger.Message
+  alias Virtuoso.FbMessenger.Network
 
   @doc """
   Entry point for regular facebook messages (free text)

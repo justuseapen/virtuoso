@@ -1,12 +1,12 @@
-defmodule Medium.FbMessenger.Message do
+defmodule Virtuoso.FbMessenger.Message do
   @moduledoc """
   Handles message events from Facebook Messenger
   """
 
   alias Virtuoso.Conversation
   alias Virtuoso.Executive
-  alias Medium.FbMessenger.Translation
-  alias Medium.FbMessenger.Network
+  alias Virtuoso.FbMessenger.Translation
+  alias Virtuoso.FbMessenger.Network
 
   def received_message(%{"messaging" => [entry | _]}) do
     sender_id = entry["sender"]["id"]

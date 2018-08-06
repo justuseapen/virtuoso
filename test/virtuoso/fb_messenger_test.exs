@@ -1,7 +1,7 @@
-defmodule Medium.FbMessengerTest do
+defmodule Virtuoso.FbMessengerTest do
   use ExUnit.Case
 
-  alias Medium.FbMessenger
+  alias Virtuoso.FbMessenger
 
   @fb_message_entries [
     %{
@@ -12,7 +12,7 @@ defmodule Medium.FbMessengerTest do
         "recipient" => %{
           "id" => "<PAGE_ID>"
         },
-        "timestamp" => 1458692752478,
+        "timestamp" => 1_458_692_752_478,
         "message" => %{
           "mid" => "mid.1457764197618:41d102a3e1ae206a38",
           "text" => "hello, world!",
