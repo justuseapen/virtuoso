@@ -2,9 +2,6 @@
 
 Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one place for all your bots.
 
-## Medium
-Medium is our platform library. She is responsible for receiving messages from *any* platform and translating them into a universally understood language.
-
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)
 
@@ -15,9 +12,6 @@ Medium is our platform library. She is responsible for receiving messages from *
 
 ## Executive
 Delegates incoming impression to the appropriate Bot.
-
-## Cognition
-Think of Cognition as a nested router for your bot.
 
 When an impression is received by a bot, the first thing to do is to identify the intent of the user.
 
@@ -32,14 +26,6 @@ Other messages require additional processing for your bot to understand. These g
 Entities are concepts parsed from your input. All incoming messages have an intent and one or more entities. The question for your bot to answer is: "Which of these entities, if any, are relevant to the satisfaction of the user's intent?"
 
 ### Todo
-- Wit NLP Client
 - Dialogue Flow Client
-
-## Homunculus
-Generates Bots and Routines. Named for the little men in our head.
-
-### Todo
-- New Bot Generator
-- New Routine Generator
 - Open API
 - Admin Portal
