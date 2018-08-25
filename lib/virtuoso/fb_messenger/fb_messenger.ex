@@ -27,7 +27,7 @@ defmodule Virtuoso.FbMessenger do
     %{
       "messaging_type" => "RESPONSE",
       "recipient" => %{"id" => sender_id},
-      "sender_action": "typing_on"
+      "sender_action" => "typing_on"
     }
     |> Network.send_messenger_response()
 
@@ -41,7 +41,7 @@ defmodule Virtuoso.FbMessenger do
     %{
       "messaging_type" => "RESPONSE",
       "recipient" => %{"id" => sender_id},
-      "sender_action": "typing_off"
+      "sender_action" => "typing_off"
     }
     |> Network.send_messenger_response()
   end

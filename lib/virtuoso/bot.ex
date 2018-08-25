@@ -7,7 +7,7 @@ defmodule Virtuoso.Bot do
 
   def get(recipient_id) do
     Map.bots
-    |> Enum.find(fn(bot) -> bot.recipient_id == recipient_id end)
+    |> Enum.find(fn(bot) -> Enum.member?(bot.recipient_ids, recipient_id) end)
   end
 
   def handles_message(bot, impression, conversation_state) do
