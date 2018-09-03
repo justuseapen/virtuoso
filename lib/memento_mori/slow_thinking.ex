@@ -3,7 +3,7 @@ defmodule MementoMori.SlowThinking do
   If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
   """
 
-  @nlp Wit.Client
+  @nlp Application.get_env(:virtuoso, :nlp)
 
   def run(impression) do
     impression
@@ -27,8 +27,8 @@ defmodule MementoMori.SlowThinking do
     end
   end
 
-  defp gets_entities(%{body: wit_response}) do
-    wit_response
+  defp gets_entities(%{body: nlp_response}) do
+    nlp_response
     |> Poison.decode!()
     |> Map.fetch("entities")
     |> elem(1)

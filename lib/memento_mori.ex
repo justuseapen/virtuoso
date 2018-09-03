@@ -6,12 +6,15 @@ defmodule MementoMori do
   alias MementoMori.SlowThinking
   alias MementoMori.Routine
 
-  @recipient_id "217557272146428"
+  @recipient_ids [
+    "TEST_RECIPIENT",
+    Application.get_env(:virtuoso, :memento_mori_fb_page_recipient_id)
+  ]
 
   @doc """
   Getter for receiver_id
   """
-  def recipient_id(), do: @recipient_id
+  def recipient_ids(), do: @recipient_ids
 
   @doc """
   Main pipeline for the bot.

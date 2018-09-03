@@ -8,8 +8,8 @@ defmodule Virtuoso.FbMessenger.Translation do
   """
   def translate_entry(%{
     "message" => %{
-      "mid" => fb_mid,
-      "seq" => seq,
+      "mid" => _fb_mid,
+      "seq" => _seq,
       "text" => text
     },
     "recipient" => %{
@@ -18,7 +18,7 @@ defmodule Virtuoso.FbMessenger.Translation do
     "sender" => %{
       "id" => sender_id
     },
-    "timestamp" => timestamp
+    "timestamp" => _timestamp
   }) do
     %{
       message: text,

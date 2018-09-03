@@ -13,7 +13,6 @@ defmodule Virtuoso.FbMessenger.Network do
     [send_messenger_response(h)|send_messenger_response(t)]
   end
   def send_messenger_response(response) do
-    start_time = Timex.now()
     url = "https://graph.facebook.com/v2.6/me/messages?access_token=#{@page_access_token}"
 
     case HTTPoison.post(url, Poison.encode!(response), @headers) do

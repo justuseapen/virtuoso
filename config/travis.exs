@@ -8,3 +8,5 @@ config :virtuoso, VirtuosoWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+config :virtuoso, :nlp, Virtuoso.NLPMock
+config :virtuoso, :fb_messenger_network, Virtuoso.FbMessenger.Network.Mock

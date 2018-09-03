@@ -28,9 +28,7 @@ defmodule Wit.Client do
     {:ok, response}
   end
 
-  @doc """
-  Creates a request URL according to Wit specs
-  """
+  # Creates a request URL according to Wit specs
   defp create_url(endpoint, %{} = params) do
     params
     |> Map.keys

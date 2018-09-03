@@ -13,9 +13,28 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   def run(args) do
     [bot_module_name|_] = args
 
-    bot_module_name |> create_bot_directory
-    bot_module_name |> create_routine_directory
+    bot_module_name
+    |> generate_bot_directories
+    |> generate_routine_interface
+    |> generate_cognition_layers
+  end
 
+  def generate_bot_directories(bot_module_name) do
+    bot_module_name
+    |> _create_bot_directory
+    |> create_routine_directory
+  end
+
+  def _create_bot_directory(bot_module_name) do
+   with :ok <- bot_module_name
+    |> Virtuoso.Bot.bot_directory_path
+    |> Generator.create_directory do
+      bot_module_name
+    end
+  end
+
+
+  def generate_cognition_layers(bot_module_name) do
     bot_module_name
     |> Bot.bot_directory_path
     |> String.replace_suffix("", "fast_thinking.ex")
@@ -25,24 +44,24 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     |> Bot.bot_directory_path
     |> String.replace_suffix("", "slow_thinking.ex")
     |> Generator.create_file(slow_thinking_template(bot_module_name))
-
-    bot_module_name
-    |> Bot.bot_directory_path
-    |> String.replace_suffix("", "routine.ex")
-    |> Generator.create_file(routine_template(bot_module_name))
   end
 
-  def create_bot_directory(bot_module_name) do
-    bot_module_name
-    |> Virtuoso.Bot.bot_directory_path
-    |> Generator.create_directory
+  def generate_routine_interface(bot_module_name) do
+    with :ok <- bot_module_name
+    |> Bot.bot_directory_path
+    |> String.replace_suffix("", "routine.ex")
+    |> Generator.create_file(routine_template(bot_module_name)) do
+      bot_module_name
+    end
   end
 
   def create_routine_directory(bot_module_name) do
-    bot_module_name
+    with :ok <- bot_module_name
     |> Virtuoso.Bot.bot_directory_path
     |> String.replace_suffix("", "routine")
-    |> Generator.create_directory
+    |> Generator.create_directory do
+      bot_module_name
+    end
   end
 
   def fast_thinking_template(bot_module_name) do
@@ -138,5 +157,4 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     end
     """
   end
-
 end

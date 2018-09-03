@@ -104,10 +104,6 @@ defmodule Virtuoso.Conversation do
   def init(sender_id) do
     Logger.info("Starting conversation for #{sender_id}")
 
-    send(self(), {:fetch_facebook_profile_data, sender_id})
-
-    send(self(), :watch)
-
     self() |> schedule_timeout()
 
     state = %State{

@@ -5,29 +5,24 @@ defmodule Virtuoso.FbMessengerTest do
 
   @fb_message_entries [
     %{
-      "messaging" => %{
-        "sender" => %{
-          "id" => "<PSID>"
-        },
-        "recipient" => %{
-          "id" => "<PAGE_ID>"
-        },
-        "timestamp" => 1_458_692_752_478,
-        "message" => %{
-          "mid" => "mid.1457764197618:41d102a3e1ae206a38",
-          "text" => "hello, world!",
-          "quick_reply" => %{
-            "payload" => "<DEVELOPER_DEFINED_PAYLOAD>"
-          }
-        }
-      }
-    }
+      "id" => "217_557_272_146_428",
+      "messaging" => [
+        %{
+          "message" => %{
+            "mid" => "MementoMoriId",
+            "seq" => 60_729,
+            "text" => "yo"
+          },
+          "recipient" => %{"id" => "TEST_RECIPIENT"},
+          "sender" => %{"id" => "TEST_SENDER"},
+          "timestamp" => 1_533_595_043_166}
+      ],
+      "time" => 1_533_595_072_532}
   ]
 
   describe "process_messages/1" do
     test "" do
-      # FbMessenger.process_messages(@fb_message_entries)
-      # ** (ArgumentError) argument error
+      FbMessenger.process_messages(@fb_message_entries)
     end
   end
 
