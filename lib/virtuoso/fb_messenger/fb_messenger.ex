@@ -4,7 +4,7 @@ defmodule Virtuoso.FbMessenger do
   """
 
   alias Virtuoso.FbMessenger.Message
-  alias Virtuoso.FbMessenger.Network
+  @network Application.get_env(:virtuoso, :fb_messenger_network)
 
   @doc """
   Entry point for regular facebook messages (free text)
@@ -29,7 +29,7 @@ defmodule Virtuoso.FbMessenger do
       "recipient" => %{"id" => sender_id},
       "sender_action" => "typing_on"
     }
-    |> Network.send_messenger_response()
+    |> @network.send_messenger_response()
 
     sender_id
   end
@@ -43,6 +43,6 @@ defmodule Virtuoso.FbMessenger do
       "recipient" => %{"id" => sender_id},
       "sender_action" => "typing_off"
     }
-    |> Network.send_messenger_response()
+    |> @network.send_messenger_response()
   end
 end
