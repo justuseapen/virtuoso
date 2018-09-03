@@ -8,7 +8,7 @@ defmodule BotMock do
     ]
   end
 
-  def respond_to(impression, conversation_state) do
+  def respond_to(_impression, _conversation_state) do
     'yo'
   end
 end
