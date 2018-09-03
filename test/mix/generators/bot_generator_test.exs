@@ -13,6 +13,9 @@ defmodule Mix.Tasks.Virtuoso.Gen.BotTest do
     test "generates a basic bot with a greeting routine." do
       in_tmp('test', fn ->
         Gen.Bot.run(["GraceKelly"])
+        assert_file "lib/grace_kelly.ex", fn file ->
+          assert file =~ "def recipient_ids(), do: @recipient_ids"
+        end
         assert_file "lib/grace_kelly/fast_thinking.ex", fn file ->
           assert file =~ "def run(impression), do: impression"
         end

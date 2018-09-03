@@ -21,11 +21,12 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def generate_bot_directories(bot_module_name) do
     bot_module_name
-    |> _create_bot_directory
+    |> _generate_bot_directory
+    |> _generate_bot_interface
     |> create_routine_directory
   end
 
-  def _create_bot_directory(bot_module_name) do
+  def _generate_bot_directory(bot_module_name) do
    with :ok <- bot_module_name
     |> Virtuoso.Bot.bot_directory_path
     |> Generator.create_directory do
@@ -33,6 +34,15 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     end
   end
 
+  def _generate_bot_interface(bot_module_name) do
+    with :ok <- bot_module_name
+    |> Macro.underscore
+    |> String.replace_prefix("", "#{File.cwd!}/lib/")
+    |> String.replace_suffix("", ".ex")
+    |> Generator.create_file(bot_interface_template(bot_module_name)) do
+      bot_module_name
+    end
+  end
 
   def generate_cognition_layers(bot_module_name) do
     bot_module_name
@@ -62,6 +72,38 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     |> Generator.create_directory do
       bot_module_name
     end
+  end
+
+  def bot_interface_template(bot_module_name) do
+    """
+    defmodule #{bot_module_name} do
+      @moduledoc \"""
+      Who is this bot?
+      \"""
+      alias #{bot_module_name}.FastThinking
+      alias #{bot_module_name}.SlowThinking
+      alias #{bot_module_name}.Routine
+
+      @recipient_ids [
+        Application.get_env(:virtuoso, :#{bot_module_name |> Macro.underscore}_recipient_ids)
+      ]
+
+      @doc \"""
+      Getter for receiver_ids
+      \"""
+      def recipient_ids(), do: @recipient_ids
+
+      @doc \"""
+      Main pipeline for the bot.
+      \"""
+      def respond_to(impression, conversation_state) do
+        impression
+        |> FastThinking.run()
+        |> SlowThinking.run()
+        |> Routine.runner(conversation_state)
+      end
+    end
+    """
   end
 
   def fast_thinking_template(bot_module_name) do
