@@ -5,8 +5,6 @@ defmodule Virtuoso.Bot.Map do
   """
 
   def bots do
-    [
-      MementoMori
-    ]
+    Application.get_env(:virtuoso, :bots)
   end
 end

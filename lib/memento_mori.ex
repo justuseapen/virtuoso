@@ -7,7 +7,6 @@ defmodule MementoMori do
   alias MementoMori.Routine
 
   @recipient_ids [
-    "TEST_RECIPIENT",
     Application.get_env(:virtuoso, :memento_mori_fb_page_recipient_id)
   ]
 
