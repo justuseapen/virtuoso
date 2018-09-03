@@ -4,7 +4,7 @@ defmodule Virtuoso.Mixfile do
   def project do
     [
       app: :virtuoso,
-      version: "0.0.22",
+      version: "0.0.23",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,

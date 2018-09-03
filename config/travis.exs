@@ -10,3 +10,6 @@ config :virtuoso, VirtuosoWeb.Endpoint,
 config :logger, level: :warn
 config :virtuoso, :nlp, Virtuoso.NLPMock
 config :virtuoso, :fb_messenger_network, Virtuoso.FbMessenger.Network.Mock
+config :virtuoso, :bots, [
+  BotMock
+]
