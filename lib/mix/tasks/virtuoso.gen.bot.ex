@@ -28,7 +28,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def _generate_bot_directory(bot_module_name) do
    with :ok <- bot_module_name
-    |> Virtuoso.Bot.bot_directory_path
+    |> Bot.bot_directory_path
     |> Generator.create_directory do
       bot_module_name
     end
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def create_routine_directory(bot_module_name) do
     with :ok <- bot_module_name
-    |> Virtuoso.Bot.bot_directory_path
+    |> Bot.bot_directory_path
     |> String.replace_suffix("", "routine")
     |> Generator.create_directory do
       bot_module_name

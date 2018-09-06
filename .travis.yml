@@ -11,6 +11,7 @@ env:
 
 before_script:
   - cp config/travis.exs config/test.exs
+  - mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez --force
 
 script:
   - mix credo

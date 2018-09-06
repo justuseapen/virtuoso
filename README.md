@@ -3,6 +3,15 @@
 
 Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one place for all your bots.
 
+### Quick Start
+1. `mix phx.new project_name`
+2. `cd project_name`
+3. Add `{:virtuoso, ">= 0.0.24"}`
+4. `mix deps.get`
+5. `mix virtuoso.gen.bot BotName`
+5. `mix virtuoso.gen.client BotName FbMessenger`
+6. `mix virtuoso.gen.routine BotName HelloWorld`
+
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)
 
