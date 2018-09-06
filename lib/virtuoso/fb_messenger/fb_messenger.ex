@@ -4,7 +4,8 @@ defmodule Virtuoso.FbMessenger do
   """
 
   alias Virtuoso.FbMessenger.Message
-  @network Application.get_env(:virtuoso, :fb_messenger_network)
+  @network Application.get_env(:virtuoso, :fb_messenger_network) || Virtuoso.FbMessenger.Network
+
 
   @doc """
   Entry point for regular facebook messages (free text)

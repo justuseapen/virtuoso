@@ -17,8 +17,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.ClientTest do
     test "generates a fb client for an existing bot." do
       in_tmp('test', fn ->
         send self(), {:mix_shell_input, :yes?, true}
-        Phx.New.run(["grace_kelly"])
-        File.cd("grace_kelly")
         Gen.Client.run(["GraceKelly", "FbMessenger"])
         assert_file "lib/grace_kelly_web/controllers/webhook_controller.ex", fn file ->
           assert file =~ """
