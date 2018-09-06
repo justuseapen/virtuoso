@@ -144,13 +144,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> maybe_get_intents
       end
 
-      # You're trying to do too much at once
-      # In the NLP class do the following
-      #   Get response
-      #   Atomize the hash
-      #   Separate the intents from other entities
-      #   Return the hash %{ intents: [], entities: [] }
-
       def maybe_get_entities(%{intent: _intent} = impression), do: impression
       def maybe_get_entities(%{message: message} = impression) do
         with {:ok, response} <- @nlp.get(message) do

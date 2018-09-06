@@ -30,8 +30,19 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 
 Test your webhook.
 
-8. Add your page access token to your config
-9. Add config for `config :virtuoso, bots: [ BotName ]
+### Config
+dev.exs at the bottom:
+`config :virtuoso, bots: [ BotName ]
+`import_config "dev.secret.exs"`
+
+dev.secret.exs:
+```
+config :virtuoso, wit_server_access_token: ""
+
+config :project_name,
+  fb_page_recipient_id: "",
+  fb_page_access_token: ""
+```
 
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)
