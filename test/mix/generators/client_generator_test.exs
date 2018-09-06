@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.ClientTest do
   use ExUnit.Case
   import MixHelper
   alias Mix.Tasks.Virtuoso.Gen
-
+  alias Mix.Tasks.Phx
   # Check if app_web/controllers exists
   # if yes, generate webhook controller
   # if no, throw error
@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.ClientTest do
     test "generates a fb client for an existing bot." do
       in_tmp('test', fn ->
         send self(), {:mix_shell_input, :yes?, true}
-        Mix.Tasks.Phx.New.run(["grace_kelly"])
+        Phx.New.run(["grace_kelly"])
         File.cd("grace_kelly")
         Gen.Client.run(["GraceKelly", "FbMessenger"])
         assert_file "lib/grace_kelly_web/controllers/webhook_controller.ex", fn file ->
