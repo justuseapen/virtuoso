@@ -11,6 +11,16 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 5. `mix virtuoso.gen.bot BotName`
 5. `mix virtuoso.gen.client BotName FbMessenger`
 6. `mix virtuoso.gen.routine BotName HelloWorld`
+7. Add webhook to router
+
+```
+get "/webhook", WebhookController, :verify
+post "/webhook", WebhookController, :create
+```
+
+Test your webhook.
+
+8. Add your page access token to your config
 
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)
