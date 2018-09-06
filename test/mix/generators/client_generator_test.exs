@@ -8,7 +8,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.ClientTest do
   use ExUnit.Case
   import MixHelper
   alias Mix.Tasks.Virtuoso.Gen
-  alias Mix.Tasks.Phx
   # Check if app_web/controllers exists
   # if yes, generate webhook controller
   # if no, throw error

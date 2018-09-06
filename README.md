@@ -31,14 +31,16 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 Test your webhook.
 
 8. Add your page access token to your config
+9. Add config for `config :virtuoso, bots: [ BotName ]
 
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)
 
 ### Todo
-- Slack
 - Twitter
+- Slack
 - Twilio
+- Gossip
 
 ## Executive
 Delegates incoming impression to the appropriate Bot.

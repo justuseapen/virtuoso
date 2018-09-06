@@ -33,6 +33,7 @@ defmodule VirtuosoWeb.Router do
 
    get "/", DashboardController, :index
   end
+
   # Other scopes may use custom stacks.
   # scope "/api", VirtuosoWeb do
   #   pipe_through :api
