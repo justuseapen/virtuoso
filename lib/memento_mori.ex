@@ -6,9 +6,7 @@ defmodule MementoMori do
   alias MementoMori.SlowThinking
   alias MementoMori.Routine
 
-  @recipient_ids [
-    Application.get_env(:memento_mori, :fb_page_recipient_id)
-  ]
+  @recipient_ids Application.get_env(:memento_mori, :fb_page_recipient_ids)
 
   @tokens %{
     fb_page_access_token: Application.get_env(:memento_mori, :fb_page_access_token)

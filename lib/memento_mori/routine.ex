@@ -13,11 +13,10 @@ defmodule MementoMori.Routine do
   """
   def runner(%{intent: intent} = impression, _conversation_state) do
     intent
-    |> String.replace(" ", "")
     |> Macro.camelize
     |> String.replace_prefix("", @module_name_expanded)
     |> String.to_existing_atom
-    |> apply(:run, impression)
+    |> apply(:run, [impression])
   end
   def runner(_impression, _conversation_state) do
     @default_routine.run()

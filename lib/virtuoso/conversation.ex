@@ -66,7 +66,9 @@ defmodule Virtuoso.Conversation do
     ensure_process(sender_id)
     GenServer.cast(pid(sender_id), {:received, entry})
     conversation_pid = pid(sender_id)
+
     {entry, conversation_pid}
+    |> Executive.handles_message()
   end
 
   @doc """

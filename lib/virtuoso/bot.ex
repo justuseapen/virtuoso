@@ -17,7 +17,6 @@ defmodule Virtuoso.Bot do
     bot =
       id
       |> get
-
     bot.token(client)
   end
 
