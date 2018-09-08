@@ -21,11 +21,9 @@ defmodule Virtuoso.FbMessenger.Translation do
       "mid" => _fb_message_id,
       "sticker_id" => _sticker_id
     },
-    "recipient" => %{ "id" => recipient_id },
-    "sender" => %{ "id" => sender_id },
+    "recipient" => %{"id" => recipient_id},
+    "sender" => %{"id" => sender_id},
     "timestamp" => timestamp}) do
-
-      #TODO: Need to handle emoji's and stickers here.
 
     %Impression{
       url: url,

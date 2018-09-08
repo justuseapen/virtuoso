@@ -13,7 +13,7 @@ defmodule MementoMori.SlowThinking do
 
   def maybe_get_entities(%{intent: _intent} = impression), do: impression
   # message is nil when the incoming message is an image
-  def maybe_get_entities(%{message: nil} = impression),do: impression
+  def maybe_get_entities(%{message: nil} = impression), do: impression
   def maybe_get_entities(%{message: message} = impression) do
     with {:ok, response} <- @nlp.get(message) do
       response
