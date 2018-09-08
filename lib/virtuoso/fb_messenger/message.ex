@@ -5,7 +5,6 @@ defmodule Virtuoso.FbMessenger.Message do
 
   alias Virtuoso.Bot
   alias Virtuoso.Conversation
-  alias Virtuoso.Executive
   alias Virtuoso.FbMessenger.Translation
   alias Virtuoso.FbMessenger.Network
 
@@ -17,7 +16,6 @@ defmodule Virtuoso.FbMessenger.Message do
     entry
     |> Translation.translate_entry()
     |> Conversation.received_message()
-    |> Executive.handles_message()
     |> build_response(sender_id)
     |> Network.send_messenger_response(token)
   end
