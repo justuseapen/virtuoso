@@ -3,6 +3,11 @@ defmodule MementoMori.Routine.TimeLeft do
   How much time do you have left?
   """
 
+  @frame {
+    {:age, 0},
+    {:birth_year, 2018}
+  }
+
   def run(impression) do
     # Get age from impression
     age = 25
