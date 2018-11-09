@@ -9,9 +9,11 @@ defmodule Virtuoso.FbMessenger.Network do
   @headers [{"Content-Type", "application/json"}]
 
   def send_messenger_response([]), do: []
-  def send_messenger_response([h|t]) do
-    [send_messenger_response(h)|send_messenger_response(t)]
+
+  def send_messenger_response([h | t]) do
+    [send_messenger_response(h) | send_messenger_response(t)]
   end
+
   def send_messenger_response(response) do
     url = "https://graph.facebook.com/v2.6/me/messages?access_token=#{@page_access_token}"
 
@@ -19,10 +21,12 @@ defmodule Virtuoso.FbMessenger.Network do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         Conversation.sent_message(response["recipient"]["id"], response)
         :ok
+
       error ->
         error
     end
   end
+
   def send_messenger_response(response, token) do
     url = "https://graph.facebook.com/v2.6/me/messages?access_token=#{token}"
 
@@ -30,6 +34,7 @@ defmodule Virtuoso.FbMessenger.Network do
       {:ok, %HTTPoison.Response{status_code: 200}} ->
         Conversation.sent_message(response["recipient"]["id"], response)
         :ok
+
       error ->
         error
     end

@@ -8,7 +8,11 @@ defmodule VirtuosoWeb.WebhookController do
     send_resp(conn, 200, "EVENT_RECEIVED")
   end
 
-  def verify(conn, %{"hub.mode" => mode, "hub.verify_token" => token, "hub.challenge" => challenge}) do
+  def verify(conn, %{
+        "hub.mode" => mode,
+        "hub.verify_token" => token,
+        "hub.challenge" => challenge
+      }) do
     with :ok <- verify_mode(mode),
          :ok <- verify_token(token),
          {:ok, challenge} <- verify_challenge(challenge) do

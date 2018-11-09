@@ -8,5 +8,6 @@ defmodule MementoMori.FastThinking do
     impression
     |> Map.merge(%{intent: "time_left"})
   end
+
   def run(impression), do: impression
 end

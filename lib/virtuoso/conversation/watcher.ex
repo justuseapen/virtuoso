@@ -42,6 +42,7 @@ defmodule Virtuoso.Conversation.Watcher do
     case Map.get(state.conversations, pid, nil) do
       nil ->
         {:noreply, state}
+
       sender_id ->
         delete_child(sender_id)
         {:noreply, drop_conversation(state, pid)}

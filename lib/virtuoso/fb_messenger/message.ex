@@ -25,7 +25,7 @@ defmodule Virtuoso.FbMessenger.Message do
       "messaging_type" => "RESPONSE",
       "recipient" => %{"id" => sender_id},
       "message" => %{
-        "text" => text,
+        "text" => text
       }
     }
   end

@@ -5,4 +5,3 @@ defmodule Virtuoso.FbMessenger.Network.Mock do
     :ok
   end
 end
-

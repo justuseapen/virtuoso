@@ -1,13 +1,13 @@
 defmodule Virtuoso.Bot do
-  @moduledoc"""
+  @moduledoc """
   External Interface for Bot context
   """
 
   alias Virtuoso.Bot.Map
 
   def get(recipient_id) do
-    Map.bots
-    |> Enum.find(fn(bot) -> Enum.member?(bot.recipient_ids, recipient_id) end)
+    Map.bots()
+    |> Enum.find(fn bot -> Enum.member?(bot.recipient_ids, recipient_id) end)
   end
 
   @doc """
@@ -17,6 +17,7 @@ defmodule Virtuoso.Bot do
     bot =
       id
       |> get
+
     bot.token(client)
   end
 
@@ -30,7 +31,7 @@ defmodule Virtuoso.Bot do
   """
   def bot_directory_path(bot_module_name) do
     bot_module_name
-    |> Macro.underscore
+    |> Macro.underscore()
     |> String.replace_suffix("", "/")
     |> String.replace_prefix("", "lib/")
   end
