@@ -6,9 +6,9 @@ defmodule Virtuoso.Mixfile do
       app: :virtuoso,
       version: "0.0.27",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       description: description(),
       package: package(),
@@ -42,7 +42,7 @@ defmodule Virtuoso.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -75,9 +75,9 @@ defmodule Virtuoso.Mixfile do
   end
 
   defp description do
-      """
-      Phoenix-based framework for chatbot development and orchestration.
-      """
+    """
+    Phoenix-based framework for chatbot development and orchestration.
+    """
   end
 
   defp package do

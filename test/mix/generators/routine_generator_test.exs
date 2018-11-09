@@ -1,4 +1,4 @@
-Code.require_file "../../support/mix_helper.exs", __DIR__
+Code.require_file("../../support/mix_helper.exs", __DIR__)
 
 defmodule Mix.Tasks.Virtuoso.Gen.RoutineTest do
   @moduledoc """
@@ -13,9 +13,10 @@ defmodule Mix.Tasks.Virtuoso.Gen.RoutineTest do
     test "generates a basic bot with a greeting routine." do
       in_tmp('test', fn ->
         Gen.Routine.run(["GraceKelly", "GraceQuotes"])
-        assert_file "lib/grace_kelly/routine/grace_quotes.ex", fn file ->
+
+        assert_file("lib/grace_kelly/routine/grace_quotes.ex", fn file ->
           assert file =~ "defmodule GraceKelly.Routine.GraceQuotes do"
-        end
+        end)
       end)
     end
   end

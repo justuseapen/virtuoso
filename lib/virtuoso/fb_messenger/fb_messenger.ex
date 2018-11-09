@@ -1,5 +1,5 @@
 defmodule Virtuoso.FbMessenger do
-  @moduledoc"""
+  @moduledoc """
   Translates fb message events into Virtuoso-friendly internal representations (Impressions)
   """
 
@@ -7,11 +7,10 @@ defmodule Virtuoso.FbMessenger do
   alias Virtuoso.FbMessenger.Message
   @network Application.get_env(:virtuoso, :fb_messenger_network) || Virtuoso.FbMessenger.Network
 
-
   @doc """
   Entry point for regular facebook messages (free text)
   """
-  def process_messages([%{"messaging" => messaging}|_] = entries) do
+  def process_messages([%{"messaging" => messaging} | _] = entries) do
     sender_id = hd(messaging)["sender"]["id"]
     recipient_id = hd(messaging)["recipient"]["id"]
     token = Bot.get_token_by_recipient_id(recipient_id, :fb)
@@ -28,7 +27,6 @@ defmodule Virtuoso.FbMessenger do
   Sends a message to Facebook to signal typing.
   """
   def start_typing_indicator(sender_id, token) do
-
     %{
       "messaging_type" => "RESPONSE",
       "recipient" => %{"id" => sender_id},

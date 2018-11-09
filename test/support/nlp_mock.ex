@@ -10,9 +10,8 @@ defmodule Virtuoso.NLPMock do
           confidence: 1.0
         }
       }
-      |> Poison.encode!
+      |> Poison.encode!()
 
     {:ok, %{body: body}}
   end
 end
-

@@ -7,19 +7,22 @@ defmodule Wit.Client do
   @message_url "https://api.wit.ai/message?"
   @api_version "20171201"
 
-  @doc"""
+  @doc """
   Requests a Wit AI NLP analysis. Returns a response object.
   """
   def get(text) do
-    options = [params: %{
-      "q" => URI.encode(text),
-      "v" => @api_version,
-    }]
+    options = [
+      params: %{
+        "q" => URI.encode(text),
+        "v" => @api_version
+      }
+    ]
 
-    headers = ["Authorization": "Bearer #{@token}", "Accept": "Application/json; Charset=utf-8"]
+    headers = [Authorization: "Bearer #{@token}", Accept: "Application/json; Charset=utf-8"]
 
-    url = @message_url
-    |> create_url(options |> hd |> elem(1))
+    url =
+      @message_url
+      |> create_url(options |> hd |> elem(1))
 
     response =
       url
@@ -31,12 +34,13 @@ defmodule Wit.Client do
   # Creates a request URL according to Wit specs
   defp create_url(endpoint, %{} = params) do
     params
-    |> Map.keys
-    |> Enum.reverse
-    |> Enum.reduce(endpoint, fn(key, url) ->
+    |> Map.keys()
+    |> Enum.reverse()
+    |> Enum.reduce(endpoint, fn key, url ->
       _append_to_url(url, key, Map.get(params, key))
     end)
   end
+
   defp _append_to_url(url, _key, ""), do: url
   defp _append_to_url(url, key, param), do: "#{url}&#{key}=#{param}"
 end

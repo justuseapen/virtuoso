@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   alias Virtuoso.Bot
 
   def run(args) do
-    [bot_module_name|_] = args
+    [bot_module_name | _] = args
 
     bot_module_name
     |> generate_bot_directories
@@ -27,55 +27,60 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def _generate_bot_directory(bot_module_name) do
-   with :ok <- bot_module_name
-    |> Bot.bot_directory_path
-    |> Generator.create_directory do
+    with :ok <-
+           bot_module_name
+           |> Bot.bot_directory_path()
+           |> Generator.create_directory() do
       bot_module_name
     end
   end
 
   def _generate_bot_interface(bot_module_name) do
-    with :ok <- bot_module_name
-    |> Macro.underscore
-    |> String.replace_prefix("", "#{File.cwd!}/lib/")
-    |> String.replace_suffix("", ".ex")
-    |> Generator.create_file(bot_interface_template(bot_module_name)) do
+    with :ok <-
+           bot_module_name
+           |> Macro.underscore()
+           |> String.replace_prefix("", "#{File.cwd!()}/lib/")
+           |> String.replace_suffix("", ".ex")
+           |> Generator.create_file(bot_interface_template(bot_module_name)) do
       bot_module_name
     end
   end
 
   def generate_cognition_layers(bot_module_name) do
     bot_module_name
-    |> Bot.bot_directory_path
+    |> Bot.bot_directory_path()
     |> String.replace_suffix("", "fast_thinking.ex")
     |> Generator.create_file(fast_thinking_template(bot_module_name))
 
     bot_module_name
-    |> Bot.bot_directory_path
+    |> Bot.bot_directory_path()
     |> String.replace_suffix("", "slow_thinking.ex")
     |> Generator.create_file(slow_thinking_template(bot_module_name))
   end
 
   def generate_routine_interface(bot_module_name) do
-    with :ok <- bot_module_name
-    |> Bot.bot_directory_path
-    |> String.replace_suffix("", "routine.ex")
-    |> Generator.create_file(routine_template(bot_module_name)) do
+    with :ok <-
+           bot_module_name
+           |> Bot.bot_directory_path()
+           |> String.replace_suffix("", "routine.ex")
+           |> Generator.create_file(routine_template(bot_module_name)) do
       bot_module_name
     end
   end
 
   def create_routine_directory(bot_module_name) do
-    with :ok <- bot_module_name
-    |> Bot.bot_directory_path
-    |> String.replace_suffix("", "routine")
-    |> Generator.create_directory do
+    with :ok <-
+           bot_module_name
+           |> Bot.bot_directory_path()
+           |> String.replace_suffix("", "routine")
+           |> Generator.create_directory() do
       bot_module_name
     end
   end
 
   def bot_interface_template(bot_module_name) do
-    bot_dir = bot_module_name |> Macro.underscore
+    bot_dir = bot_module_name |> Macro.underscore()
+
     """
     defmodule #{bot_module_name} do
       @moduledoc \"""

@@ -15,9 +15,11 @@ defmodule Virtuoso.FbMessengerTest do
           },
           "recipient" => %{"id" => "TEST_RECIPIENT"},
           "sender" => %{"id" => "TEST_SENDER"},
-          "timestamp" => 1_533_595_043_166}
+          "timestamp" => 1_533_595_043_166
+        }
       ],
-      "time" => 1_533_595_072_532}
+      "time" => 1_533_595_072_532
+    }
   ]
 
   describe "process_messages/1" do

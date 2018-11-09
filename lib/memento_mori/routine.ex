@@ -3,7 +3,7 @@ defmodule MementoMori.Routine do
   Interface for all of MM's routines.
   """
 
-  @module_name_expanded  "Elixir.MementoMori.Routine."
+  @module_name_expanded "Elixir.MementoMori.Routine."
   @default_routine MementoMori.Routine.Greeting
 
   @doc """
@@ -13,11 +13,12 @@ defmodule MementoMori.Routine do
   """
   def runner(%{intent: intent} = impression, _conversation_state) do
     intent
-    |> Macro.camelize
+    |> Macro.camelize()
     |> String.replace_prefix("", @module_name_expanded)
-    |> String.to_existing_atom
+    |> String.to_existing_atom()
     |> apply(:run, [impression])
   end
+
   def runner(_impression, _conversation_state) do
     @default_routine.run()
   end

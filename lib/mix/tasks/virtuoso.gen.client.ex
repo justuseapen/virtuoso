@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
   Given the application module will generate a webhook
   """
   def run(args) do
-    [app_module|[_client_module]] = args
+    [app_module | [_client_module]] = args
 
     app_module
     |> _get_bot_web_controller_directory
@@ -26,9 +26,9 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
   def _get_bot_web_controller_directory(app_module) do
     app_dir =
       app_module
-      |> Macro.underscore
+      |> Macro.underscore()
 
-    File.cwd!
+    File.cwd!()
     |> String.replace_suffix("", "/lib/#{app_dir}_web/controllers/")
   end
 

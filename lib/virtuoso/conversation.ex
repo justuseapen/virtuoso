@@ -43,7 +43,8 @@ defmodule Virtuoso.Conversation do
   """
   @type sender_id :: String.t()
 
-  @timeout_period 60 * 1000 # one minute
+  # one minute
+  @timeout_period 60 * 1000
 
   @doc false
   def start_link(sender_id) do
@@ -112,7 +113,7 @@ defmodule Virtuoso.Conversation do
       last_recieved_at: Timex.now(),
       messages: [],
       pid: pid(sender_id),
-      sender_id: sender_id,
+      sender_id: sender_id
     }
 
     {:ok, state}
@@ -136,6 +137,7 @@ defmodule Virtuoso.Conversation do
 
     {:noreply, new_state}
   end
+
   def handle_cast({:sent, response}, state) do
     Logger.info("Sent a message to #{state.sender_id}")
 
@@ -147,7 +149,7 @@ defmodule Virtuoso.Conversation do
   end
 
   defp schedule_timeout(pid) do
-    Logger.debug(fn () -> "Scheduling timeout for #{inspect(pid)}" end)
+    Logger.debug(fn -> "Scheduling timeout for #{inspect(pid)}" end)
     :erlang.send_after(@timeout_period, pid, :timeout)
   end
 end

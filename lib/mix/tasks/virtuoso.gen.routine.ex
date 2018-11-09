@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
 
     routine_file_path =
       routine_module_name
-      |> Macro.underscore
+      |> Macro.underscore()
       |> String.replace_suffix("", ".ex")
       |> String.replace_prefix("", "routine/")
       |> String.replace_prefix("", Bot.bot_directory_path(bot_module_name))

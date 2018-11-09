@@ -18,7 +18,7 @@ defmodule Virtuoso.Conversation.Supervisor do
   """
   @spec start_child(Conversation.sender_id()) :: {:ok, pid}
   def start_child(sender_id) do
-    child_spec = worker(Conversation, [sender_id], [id: sender_id, restart: :transient])
+    child_spec = worker(Conversation, [sender_id], id: sender_id, restart: :transient)
     Supervisor.start_child(__MODULE__, child_spec)
   end
 
@@ -33,8 +33,9 @@ defmodule Virtuoso.Conversation.Supervisor do
   @doc false
   def init(_) do
     children = [
-      worker(Watcher, []),
+      worker(Watcher, [])
     ]
+
     supervise(children, strategy: :one_for_one)
   end
 end
