@@ -52,7 +52,7 @@ defmodule Virtuoso.Mixfile do
       {:cowboy, ">= 1.0.0"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
+      {:httpoison, "~> 1.0"},
       {:phoenix, "~> 1.3"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},

@@ -29,7 +29,8 @@ defmodule Virtuoso.FbMessenger.Translation do
       url: url,
       sender_id: sender_id,
       recipient_id: recipient_id,
-      timestamp: timestamp
+      timestamp: timestamp,
+      origin: :messenger
     }
   end
 
@@ -51,7 +52,8 @@ defmodule Virtuoso.FbMessenger.Translation do
       message: text,
       sender_id: sender_id,
       recipient_id: recipient_id,
-      timestamp: timestamp
+      timestamp: timestamp,
+      origin: :messenger
     }
   end
 end

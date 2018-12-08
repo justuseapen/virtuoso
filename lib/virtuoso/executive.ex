@@ -5,14 +5,15 @@ defmodule Virtuoso.Executive do
 
   alias Virtuoso.Bot
 
-  def handles_message({%{recipient_id: recipient_id} = impression, conversation_state}) do
+  def handles_message({%{recipient_id: recipient_id, origin: origin} = impression, conversation_state}) do
     recipient_id
-    |> identify()
+    |> identify(origin)
     |> get_subroutine(impression, conversation_state)
   end
 
   # Matches recipient_id to corresponding bot
-  defp identify(receiver_id), do: Virtuoso.Bot.get(receiver_id)
+  defp identify(receiver_id, :messenger), do: Virtuoso.Bot.get(receiver_id)
+  defp identify(receiver_id, :webapp), do: Virtuoso.Bot.get
 
   # Gets the relevant subroutine from the relevant bot
   defp get_subroutine(bot, impression, conversation_state) do

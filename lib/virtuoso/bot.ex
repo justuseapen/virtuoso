@@ -9,6 +9,10 @@ defmodule Virtuoso.Bot do
     Map.bots()
     |> Enum.find(fn bot -> Enum.member?(bot.recipient_ids, recipient_id) end)
   end
+  def get do
+    Map.bots()
+    |> Enum.find(fn bot -> bot end)
+  end
 
   @doc """
   Returns token by recipient id
