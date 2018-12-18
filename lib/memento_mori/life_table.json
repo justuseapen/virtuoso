@@ -1,0 +1,1082 @@
+﻿{
+  "0": {
+    "age": "0",
+    "male_death_probability": "0.006383",
+    "male_lives_remaining": "100,000",
+    "male_life_expectancy": "76.15",
+    "female_death_probability": "0.005374",
+    "female_lives_remaining": "100,000",
+    "female_life_expectancy": "80.97"
+  },
+  "1": {
+    "age": "1",
+    "male_death_probability": "0.000453",
+    "male_lives_remaining": "99,362",
+    "male_life_expectancy": "75.63",
+    "female_death_probability": "0.000353",
+    "female_lives_remaining": "99,463",
+    "female_life_expectancy": "80.41"
+  },
+  "2": {
+    "age": "2",
+    "male_death_probability": "0.000282",
+    "male_lives_remaining": "99,317",
+    "male_life_expectancy": "74.67",
+    "female_death_probability": "0.000231",
+    "female_lives_remaining": "99,427",
+    "female_life_expectancy": "79.44"
+  },
+  "3": {
+    "age": "3",
+    "male_death_probability": "0.000230",
+    "male_lives_remaining": "99,289",
+    "male_life_expectancy": "73.69",
+    "female_death_probability": "0.000165",
+    "female_lives_remaining": "99,405",
+    "female_life_expectancy": "78.45"
+  },
+  "4": {
+    "age": "4",
+    "male_death_probability": "0.000169",
+    "male_lives_remaining": "99,266",
+    "male_life_expectancy": "72.71",
+    "female_death_probability": "0.000129",
+    "female_lives_remaining": "99,388",
+    "female_life_expectancy": "77.47"
+  },
+  "5": {
+    "age": "5",
+    "male_death_probability": "0.000155",
+    "male_lives_remaining": "99,249",
+    "male_life_expectancy": "71.72",
+    "female_death_probability": "0.000116",
+    "female_lives_remaining": "99,375",
+    "female_life_expectancy": "76.48"
+  },
+  "6": {
+    "age": "6",
+    "male_death_probability": "0.000145",
+    "male_lives_remaining": "99,234",
+    "male_life_expectancy": "70.73",
+    "female_death_probability": "0.000107",
+    "female_lives_remaining": "99,364",
+    "female_life_expectancy": "75.48"
+  },
+  "7": {
+    "age": "7",
+    "male_death_probability": "0.000135",
+    "male_lives_remaining": "99,219",
+    "male_life_expectancy": "69.74",
+    "female_death_probability": "0.000101",
+    "female_lives_remaining": "99,353",
+    "female_life_expectancy": "74.49"
+  },
+  "8": {
+    "age": "8",
+    "male_death_probability": "0.000120",
+    "male_lives_remaining": "99,206",
+    "male_life_expectancy": "68.75",
+    "female_death_probability": "0.000096",
+    "female_lives_remaining": "99,343",
+    "female_life_expectancy": "73.50"
+  },
+  "9": {
+    "age": "9",
+    "male_death_probability": "0.000105",
+    "male_lives_remaining": "99,194",
+    "male_life_expectancy": "67.76",
+    "female_death_probability": "0.000092",
+    "female_lives_remaining": "99,334",
+    "female_life_expectancy": "72.51"
+  },
+  "10": {
+    "age": "10",
+    "male_death_probability": "0.000094",
+    "male_lives_remaining": "99,184",
+    "male_life_expectancy": "66.76",
+    "female_death_probability": "0.000091",
+    "female_lives_remaining": "99,325",
+    "female_life_expectancy": "71.51"
+  },
+  "11": {
+    "age": "11",
+    "male_death_probability": "0.000099",
+    "male_lives_remaining": "99,174",
+    "male_life_expectancy": "65.77",
+    "female_death_probability": "0.000096",
+    "female_lives_remaining": "99,316",
+    "female_life_expectancy": "70.52"
+  },
+  "12": {
+    "age": "12",
+    "male_death_probability": "0.000134",
+    "male_lives_remaining": "99,164",
+    "male_life_expectancy": "64.78",
+    "female_death_probability": "0.000111",
+    "female_lives_remaining": "99,306",
+    "female_life_expectancy": "69.53"
+  },
+  "13": {
+    "age": "13",
+    "male_death_probability": "0.000207",
+    "male_lives_remaining": "99,151",
+    "male_life_expectancy": "63.79",
+    "female_death_probability": "0.000138",
+    "female_lives_remaining": "99,295",
+    "female_life_expectancy": "68.53"
+  },
+  "14": {
+    "age": "14",
+    "male_death_probability": "0.000309",
+    "male_lives_remaining": "99,131",
+    "male_life_expectancy": "62.80",
+    "female_death_probability": "0.000174",
+    "female_lives_remaining": "99,281",
+    "female_life_expectancy": "67.54"
+  },
+  "15": {
+    "age": "15",
+    "male_death_probability": "0.000419",
+    "male_lives_remaining": "99,100",
+    "male_life_expectancy": "61.82",
+    "female_death_probability": "0.000214",
+    "female_lives_remaining": "99,264",
+    "female_life_expectancy": "66.56"
+  },
+  "16": {
+    "age": "16",
+    "male_death_probability": "0.000530",
+    "male_lives_remaining": "99,059",
+    "male_life_expectancy": "60.84",
+    "female_death_probability": "0.000254",
+    "female_lives_remaining": "99,243",
+    "female_life_expectancy": "65.57"
+  },
+  "17": {
+    "age": "17",
+    "male_death_probability": "0.000655",
+    "male_lives_remaining": "99,006",
+    "male_life_expectancy": "59.88",
+    "female_death_probability": "0.000294",
+    "female_lives_remaining": "99,217",
+    "female_life_expectancy": "64.59"
+  },
+  "18": {
+    "age": "18",
+    "male_death_probability": "0.000791",
+    "male_lives_remaining": "98,941",
+    "male_life_expectancy": "58.91",
+    "female_death_probability": "0.000330",
+    "female_lives_remaining": "99,188",
+    "female_life_expectancy": "63.61"
+  },
+  "19": {
+    "age": "19",
+    "male_death_probability": "0.000934",
+    "male_lives_remaining": "98,863",
+    "male_life_expectancy": "57.96",
+    "female_death_probability": "0.000364",
+    "female_lives_remaining": "99,156",
+    "female_life_expectancy": "62.63"
+  },
+  "20": {
+    "age": "20",
+    "male_death_probability": "0.001085",
+    "male_lives_remaining": "98,771",
+    "male_life_expectancy": "57.01",
+    "female_death_probability": "0.000399",
+    "female_lives_remaining": "99,120",
+    "female_life_expectancy": "61.65"
+  },
+  "21": {
+    "age": "21",
+    "male_death_probability": "0.001228",
+    "male_lives_remaining": "98,663",
+    "male_life_expectancy": "56.08",
+    "female_death_probability": "0.000436",
+    "female_lives_remaining": "99,080",
+    "female_life_expectancy": "60.67"
+  },
+  "22": {
+    "age": "22",
+    "male_death_probability": "0.001339",
+    "male_lives_remaining": "98,542",
+    "male_life_expectancy": "55.14",
+    "female_death_probability": "0.000469",
+    "female_lives_remaining": "99,037",
+    "female_life_expectancy": "59.70"
+  },
+  "23": {
+    "age": "23",
+    "male_death_probability": "0.001403",
+    "male_lives_remaining": "98,410",
+    "male_life_expectancy": "54.22",
+    "female_death_probability": "0.000497",
+    "female_lives_remaining": "98,990",
+    "female_life_expectancy": "58.73"
+  },
+  "24": {
+    "age": "24",
+    "male_death_probability": "0.001433",
+    "male_lives_remaining": "98,272",
+    "male_life_expectancy": "53.29",
+    "female_death_probability": "0.000522",
+    "female_lives_remaining": "98,941",
+    "female_life_expectancy": "57.76"
+  },
+  "25": {
+    "age": "25",
+    "male_death_probability": "0.001451",
+    "male_lives_remaining": "98,131",
+    "male_life_expectancy": "52.37",
+    "female_death_probability": "0.000546",
+    "female_lives_remaining": "98,890",
+    "female_life_expectancy": "56.79"
+  },
+  "26": {
+    "age": "26",
+    "male_death_probability": "0.001475",
+    "male_lives_remaining": "97,989",
+    "male_life_expectancy": "51.44",
+    "female_death_probability": "0.000572",
+    "female_lives_remaining": "98,836",
+    "female_life_expectancy": "55.82"
+  },
+  "27": {
+    "age": "27",
+    "male_death_probability": "0.001502",
+    "male_lives_remaining": "97,844",
+    "male_life_expectancy": "50.52",
+    "female_death_probability": "0.000604",
+    "female_lives_remaining": "98,779",
+    "female_life_expectancy": "54.85"
+  },
+  "28": {
+    "age": "28",
+    "male_death_probability": "0.001538",
+    "male_lives_remaining": "97,698",
+    "male_life_expectancy": "49.59",
+    "female_death_probability": "0.000644",
+    "female_lives_remaining": "98,719",
+    "female_life_expectancy": "53.88"
+  },
+  "29": {
+    "age": "29",
+    "male_death_probability": "0.001581",
+    "male_lives_remaining": "97,547",
+    "male_life_expectancy": "48.67",
+    "female_death_probability": "0.000690",
+    "female_lives_remaining": "98,656",
+    "female_life_expectancy": "52.92"
+  },
+  "30": {
+    "age": "30",
+    "male_death_probability": "0.001626",
+    "male_lives_remaining": "97,393",
+    "male_life_expectancy": "47.75",
+    "female_death_probability": "0.000740",
+    "female_lives_remaining": "98,588",
+    "female_life_expectancy": "51.95"
+  },
+  "31": {
+    "age": "31",
+    "male_death_probability": "0.001669",
+    "male_lives_remaining": "97,235",
+    "male_life_expectancy": "46.82",
+    "female_death_probability": "0.000792",
+    "female_lives_remaining": "98,515",
+    "female_life_expectancy": "50.99"
+  },
+  "32": {
+    "age": "32",
+    "male_death_probability": "0.001712",
+    "male_lives_remaining": "97,072",
+    "male_life_expectancy": "45.90",
+    "female_death_probability": "0.000841",
+    "female_lives_remaining": "98,437",
+    "female_life_expectancy": "50.03"
+  },
+  "33": {
+    "age": "33",
+    "male_death_probability": "0.001755",
+    "male_lives_remaining": "96,906",
+    "male_life_expectancy": "44.98",
+    "female_death_probability": "0.000886",
+    "female_lives_remaining": "98,354",
+    "female_life_expectancy": "49.07"
+  },
+  "34": {
+    "age": "34",
+    "male_death_probability": "0.001800",
+    "male_lives_remaining": "96,736",
+    "male_life_expectancy": "44.06",
+    "female_death_probability": "0.000929",
+    "female_lives_remaining": "98,267",
+    "female_life_expectancy": "48.11"
+  },
+  "35": {
+    "age": "35",
+    "male_death_probability": "0.001855",
+    "male_lives_remaining": "96,562",
+    "male_life_expectancy": "43.14",
+    "female_death_probability": "0.000977",
+    "female_lives_remaining": "98,175",
+    "female_life_expectancy": "47.16"
+  },
+  "36": {
+    "age": "36",
+    "male_death_probability": "0.001920",
+    "male_lives_remaining": "96,383",
+    "male_life_expectancy": "42.22",
+    "female_death_probability": "0.001034",
+    "female_lives_remaining": "98,080",
+    "female_life_expectancy": "46.20"
+  },
+  "37": {
+    "age": "37",
+    "male_death_probability": "0.001988",
+    "male_lives_remaining": "96,198",
+    "male_life_expectancy": "41.30",
+    "female_death_probability": "0.001098",
+    "female_lives_remaining": "97,978",
+    "female_life_expectancy": "45.25"
+  },
+  "38": {
+    "age": "38",
+    "male_death_probability": "0.002060",
+    "male_lives_remaining": "96,006",
+    "male_life_expectancy": "40.38",
+    "female_death_probability": "0.001171",
+    "female_lives_remaining": "97,870",
+    "female_life_expectancy": "44.30"
+  },
+  "39": {
+    "age": "39",
+    "male_death_probability": "0.002141",
+    "male_lives_remaining": "95,809",
+    "male_life_expectancy": "39.46",
+    "female_death_probability": "0.001253",
+    "female_lives_remaining": "97,756",
+    "female_life_expectancy": "43.35"
+  },
+  "40": {
+    "age": "40",
+    "male_death_probability": "0.002240",
+    "male_lives_remaining": "95,603",
+    "male_life_expectancy": "38.54",
+    "female_death_probability": "0.001347",
+    "female_lives_remaining": "97,633",
+    "female_life_expectancy": "42.41"
+  },
+  "41": {
+    "age": "41",
+    "male_death_probability": "0.002362",
+    "male_lives_remaining": "95,389",
+    "male_life_expectancy": "37.63",
+    "female_death_probability": "0.001452",
+    "female_lives_remaining": "97,502",
+    "female_life_expectancy": "41.46"
+  },
+  "42": {
+    "age": "42",
+    "male_death_probability": "0.002509",
+    "male_lives_remaining": "95,164",
+    "male_life_expectancy": "36.72",
+    "female_death_probability": "0.001571",
+    "female_lives_remaining": "97,360",
+    "female_life_expectancy": "40.52"
+  },
+  "43": {
+    "age": "43",
+    "male_death_probability": "0.002684",
+    "male_lives_remaining": "94,925",
+    "male_life_expectancy": "35.81",
+    "female_death_probability": "0.001706",
+    "female_lives_remaining": "97,207",
+    "female_life_expectancy": "39.59"
+  },
+  "44": {
+    "age": "44",
+    "male_death_probability": "0.002890",
+    "male_lives_remaining": "94,671",
+    "male_life_expectancy": "34.90",
+    "female_death_probability": "0.001857",
+    "female_lives_remaining": "97,041",
+    "female_life_expectancy": "38.65"
+  },
+  "45": {
+    "age": "45",
+    "male_death_probability": "0.003121",
+    "male_lives_remaining": "94,397",
+    "male_life_expectancy": "34.00",
+    "female_death_probability": "0.002022",
+    "female_lives_remaining": "96,861",
+    "female_life_expectancy": "37.72"
+  },
+  "46": {
+    "age": "46",
+    "male_death_probability": "0.003386",
+    "male_lives_remaining": "94,102",
+    "male_life_expectancy": "33.11",
+    "female_death_probability": "0.002204",
+    "female_lives_remaining": "96,665",
+    "female_life_expectancy": "36.80"
+  },
+  "47": {
+    "age": "47",
+    "male_death_probability": "0.003707",
+    "male_lives_remaining": "93,784",
+    "male_life_expectancy": "32.22",
+    "female_death_probability": "0.002411",
+    "female_lives_remaining": "96,452",
+    "female_life_expectancy": "35.88"
+  },
+  "48": {
+    "age": "48",
+    "male_death_probability": "0.004091",
+    "male_lives_remaining": "93,436",
+    "male_life_expectancy": "31.34",
+    "female_death_probability": "0.002648",
+    "female_lives_remaining": "96,220",
+    "female_life_expectancy": "34.96"
+  },
+  "49": {
+    "age": "49",
+    "male_death_probability": "0.004531",
+    "male_lives_remaining": "93,054",
+    "male_life_expectancy": "30.46",
+    "female_death_probability": "0.002910",
+    "female_lives_remaining": "95,965",
+    "female_life_expectancy": "34.06"
+  },
+  "50": {
+    "age": "50",
+    "male_death_probability": "0.005013",
+    "male_lives_remaining": "92,632",
+    "male_life_expectancy": "29.60",
+    "female_death_probability": "0.003193",
+    "female_lives_remaining": "95,686",
+    "female_life_expectancy": "33.15"
+  },
+  "51": {
+    "age": "51",
+    "male_death_probability": "0.005524",
+    "male_lives_remaining": "92,168",
+    "male_life_expectancy": "28.75",
+    "female_death_probability": "0.003491",
+    "female_lives_remaining": "95,380",
+    "female_life_expectancy": "32.26"
+  },
+  "52": {
+    "age": "52",
+    "male_death_probability": "0.006059",
+    "male_lives_remaining": "91,659",
+    "male_life_expectancy": "27.90",
+    "female_death_probability": "0.003801",
+    "female_lives_remaining": "95,047",
+    "female_life_expectancy": "31.37"
+  },
+  "53": {
+    "age": "53",
+    "male_death_probability": "0.006611",
+    "male_lives_remaining": "91,103",
+    "male_life_expectancy": "27.07",
+    "female_death_probability": "0.004119",
+    "female_lives_remaining": "94,686",
+    "female_life_expectancy": "30.49"
+  },
+  "54": {
+    "age": "54",
+    "male_death_probability": "0.007187",
+    "male_lives_remaining": "90,501",
+    "male_life_expectancy": "26.25",
+    "female_death_probability": "0.004449",
+    "female_lives_remaining": "94,296",
+    "female_life_expectancy": "29.61"
+  },
+  "55": {
+    "age": "55",
+    "male_death_probability": "0.007800",
+    "male_lives_remaining": "89,851",
+    "male_life_expectancy": "25.43",
+    "female_death_probability": "0.004813",
+    "female_lives_remaining": "93,877",
+    "female_life_expectancy": "28.74"
+  },
+  "56": {
+    "age": "56",
+    "male_death_probability": "0.008456",
+    "male_lives_remaining": "89,150",
+    "male_life_expectancy": "24.63",
+    "female_death_probability": "0.005201",
+    "female_lives_remaining": "93,425",
+    "female_life_expectancy": "27.88"
+  },
+  "57": {
+    "age": "57",
+    "male_death_probability": "0.009144",
+    "male_lives_remaining": "88,396",
+    "male_life_expectancy": "23.83",
+    "female_death_probability": "0.005583",
+    "female_lives_remaining": "92,939",
+    "female_life_expectancy": "27.02"
+  },
+  "58": {
+    "age": "58",
+    "male_death_probability": "0.009865",
+    "male_lives_remaining": "87,588",
+    "male_life_expectancy": "23.05",
+    "female_death_probability": "0.005952",
+    "female_lives_remaining": "92,420",
+    "female_life_expectancy": "26.17"
+  },
+  "59": {
+    "age": "59",
+    "male_death_probability": "0.010622",
+    "male_lives_remaining": "86,724",
+    "male_life_expectancy": "22.27",
+    "female_death_probability": "0.006325",
+    "female_lives_remaining": "91,870",
+    "female_life_expectancy": "25.32"
+  },
+  "60": {
+    "age": "60",
+    "male_death_probability": "0.011458",
+    "male_lives_remaining": "85,802",
+    "male_life_expectancy": "21.51",
+    "female_death_probability": "0.006749",
+    "female_lives_remaining": "91,289",
+    "female_life_expectancy": "24.48"
+  },
+  "61": {
+    "age": "61",
+    "male_death_probability": "0.012350",
+    "male_lives_remaining": "84,819",
+    "male_life_expectancy": "20.75",
+    "female_death_probability": "0.007238",
+    "female_lives_remaining": "90,673",
+    "female_life_expectancy": "23.64"
+  },
+  "62": {
+    "age": "62",
+    "male_death_probability": "0.013235",
+    "male_lives_remaining": "83,772",
+    "male_life_expectancy": "20.00",
+    "female_death_probability": "0.007776",
+    "female_lives_remaining": "90,017",
+    "female_life_expectancy": "22.81"
+  },
+  "63": {
+    "age": "63",
+    "male_death_probability": "0.014097",
+    "male_lives_remaining": "82,663",
+    "male_life_expectancy": "19.27",
+    "female_death_probability": "0.008368",
+    "female_lives_remaining": "89,317",
+    "female_life_expectancy": "21.99"
+  },
+  "64": {
+    "age": "64",
+    "male_death_probability": "0.014979",
+    "male_lives_remaining": "81,498",
+    "male_life_expectancy": "18.53",
+    "female_death_probability": "0.009032",
+    "female_lives_remaining": "88,569",
+    "female_life_expectancy": "21.17"
+  },
+  "65": {
+    "age": "65",
+    "male_death_probability": "0.015967",
+    "male_lives_remaining": "80,277",
+    "male_life_expectancy": "17.81",
+    "female_death_probability": "0.009794",
+    "female_lives_remaining": "87,769",
+    "female_life_expectancy": "20.36"
+  },
+  "66": {
+    "age": "66",
+    "male_death_probability": "0.017109",
+    "male_lives_remaining": "78,995",
+    "male_life_expectancy": "17.09",
+    "female_death_probability": "0.010673",
+    "female_lives_remaining": "86,910",
+    "female_life_expectancy": "19.55"
+  },
+  "67": {
+    "age": "67",
+    "male_death_probability": "0.018392",
+    "male_lives_remaining": "77,644",
+    "male_life_expectancy": "16.38",
+    "female_death_probability": "0.011676",
+    "female_lives_remaining": "85,982",
+    "female_life_expectancy": "18.76"
+  },
+  "68": {
+    "age": "68",
+    "male_death_probability": "0.019836",
+    "male_lives_remaining": "76,216",
+    "male_life_expectancy": "15.68",
+    "female_death_probability": "0.012815",
+    "female_lives_remaining": "84,978",
+    "female_life_expectancy": "17.98"
+  },
+  "69": {
+    "age": "69",
+    "male_death_probability": "0.021465",
+    "male_lives_remaining": "74,704",
+    "male_life_expectancy": "14.98",
+    "female_death_probability": "0.014105",
+    "female_lives_remaining": "83,889",
+    "female_life_expectancy": "17.20"
+  },
+  "70": {
+    "age": "70",
+    "male_death_probability": "0.023351",
+    "male_lives_remaining": "73,100",
+    "male_life_expectancy": "14.30",
+    "female_death_probability": "0.015616",
+    "female_lives_remaining": "82,706",
+    "female_life_expectancy": "16.44"
+  },
+  "71": {
+    "age": "71",
+    "male_death_probability": "0.025482",
+    "male_lives_remaining": "71,393",
+    "male_life_expectancy": "13.63",
+    "female_death_probability": "0.017318",
+    "female_lives_remaining": "81,414",
+    "female_life_expectancy": "15.69"
+  },
+  "72": {
+    "age": "72",
+    "male_death_probability": "0.027794",
+    "male_lives_remaining": "69,574",
+    "male_life_expectancy": "12.97",
+    "female_death_probability": "0.019118",
+    "female_lives_remaining": "80,004",
+    "female_life_expectancy": "14.96"
+  },
+  "73": {
+    "age": "73",
+    "male_death_probability": "0.030282",
+    "male_lives_remaining": "67,640",
+    "male_life_expectancy": "12.33",
+    "female_death_probability": "0.020996",
+    "female_lives_remaining": "78,475",
+    "female_life_expectancy": "14.24"
+  },
+  "74": {
+    "age": "74",
+    "male_death_probability": "0.033022",
+    "male_lives_remaining": "65,592",
+    "male_life_expectancy": "11.70",
+    "female_death_probability": "0.023033",
+    "female_lives_remaining": "76,827",
+    "female_life_expectancy": "13.54"
+  },
+  "75": {
+    "age": "75",
+    "male_death_probability": "0.036201",
+    "male_lives_remaining": "63,426",
+    "male_life_expectancy": "11.08",
+    "female_death_probability": "0.025413",
+    "female_lives_remaining": "75,058",
+    "female_life_expectancy": "12.85"
+  },
+  "76": {
+    "age": "76",
+    "male_death_probability": "0.039858",
+    "male_lives_remaining": "61,130",
+    "male_life_expectancy": "10.48",
+    "female_death_probability": "0.028197",
+    "female_lives_remaining": "73,150",
+    "female_life_expectancy": "12.17"
+  },
+  "77": {
+    "age": "77",
+    "male_death_probability": "0.043891",
+    "male_lives_remaining": "58,693",
+    "male_life_expectancy": "9.89",
+    "female_death_probability": "0.031313",
+    "female_lives_remaining": "71,088",
+    "female_life_expectancy": "11.51"
+  },
+  "78": {
+    "age": "78",
+    "male_death_probability": "0.048311",
+    "male_lives_remaining": "56,117",
+    "male_life_expectancy": "9.33",
+    "female_death_probability": "0.034782",
+    "female_lives_remaining": "68,862",
+    "female_life_expectancy": "10.86"
+  },
+  "79": {
+    "age": "79",
+    "male_death_probability": "0.053228",
+    "male_lives_remaining": "53,406",
+    "male_life_expectancy": "8.77",
+    "female_death_probability": "0.038689",
+    "female_lives_remaining": "66,466",
+    "female_life_expectancy": "10.24"
+  },
+  "80": {
+    "age": "80",
+    "male_death_probability": "0.058897",
+    "male_lives_remaining": "50,564",
+    "male_life_expectancy": "8.24",
+    "female_death_probability": "0.043258",
+    "female_lives_remaining": "63,895",
+    "female_life_expectancy": "9.63"
+  },
+  "81": {
+    "age": "81",
+    "male_death_probability": "0.065365",
+    "male_lives_remaining": "47,585",
+    "male_life_expectancy": "7.72",
+    "female_death_probability": "0.048490",
+    "female_lives_remaining": "61,131",
+    "female_life_expectancy": "9.04"
+  },
+  "82": {
+    "age": "82",
+    "male_death_probability": "0.072491",
+    "male_lives_remaining": "44,475",
+    "male_life_expectancy": "7.23",
+    "female_death_probability": "0.054223",
+    "female_lives_remaining": "58,167",
+    "female_life_expectancy": "8.48"
+  },
+  "83": {
+    "age": "83",
+    "male_death_probability": "0.080288",
+    "male_lives_remaining": "41,251",
+    "male_life_expectancy": "6.75",
+    "female_death_probability": "0.060446",
+    "female_lives_remaining": "55,013",
+    "female_life_expectancy": "7.93"
+  },
+  "84": {
+    "age": "84",
+    "male_death_probability": "0.088916",
+    "male_lives_remaining": "37,939",
+    "male_life_expectancy": "6.30",
+    "female_death_probability": "0.067338",
+    "female_lives_remaining": "51,688",
+    "female_life_expectancy": "7.41"
+  },
+  "85": {
+    "age": "85",
+    "male_death_probability": "0.098576",
+    "male_lives_remaining": "34,566",
+    "male_life_expectancy": "5.87",
+    "female_death_probability": "0.075133",
+    "female_lives_remaining": "48,207",
+    "female_life_expectancy": "6.91"
+  },
+  "86": {
+    "age": "86",
+    "male_death_probability": "0.109438",
+    "male_lives_remaining": "31,158",
+    "male_life_expectancy": "5.45",
+    "female_death_probability": "0.084033",
+    "female_lives_remaining": "44,585",
+    "female_life_expectancy": "6.43"
+  },
+  "87": {
+    "age": "87",
+    "male_death_probability": "0.121619",
+    "male_lives_remaining": "27,748",
+    "male_life_expectancy": "5.06",
+    "female_death_probability": "0.094177",
+    "female_lives_remaining": "40,838",
+    "female_life_expectancy": "5.98"
+  },
+  "88": {
+    "age": "88",
+    "male_death_probability": "0.135176",
+    "male_lives_remaining": "24,374",
+    "male_life_expectancy": "4.69",
+    "female_death_probability": "0.105633",
+    "female_lives_remaining": "36,992",
+    "female_life_expectancy": "5.54"
+  },
+  "89": {
+    "age": "89",
+    "male_death_probability": "0.150109",
+    "male_lives_remaining": "21,079",
+    "male_life_expectancy": "4.35",
+    "female_death_probability": "0.118407",
+    "female_lives_remaining": "33,085",
+    "female_life_expectancy": "5.14"
+  },
+  "90": {
+    "age": "90",
+    "male_death_probability": "0.166397",
+    "male_lives_remaining": "17,915",
+    "male_life_expectancy": "4.03",
+    "female_death_probability": "0.132476",
+    "female_lives_remaining": "29,167",
+    "female_life_expectancy": "4.76"
+  },
+  "91": {
+    "age": "91",
+    "male_death_probability": "0.183997",
+    "male_lives_remaining": "14,934",
+    "male_life_expectancy": "3.73",
+    "female_death_probability": "0.147801",
+    "female_lives_remaining": "25,303",
+    "female_life_expectancy": "4.41"
+  },
+  "92": {
+    "age": "92",
+    "male_death_probability": "0.202855",
+    "male_lives_remaining": "12,186",
+    "male_life_expectancy": "3.46",
+    "female_death_probability": "0.164331",
+    "female_lives_remaining": "21,563",
+    "female_life_expectancy": "4.09"
+  },
+  "93": {
+    "age": "93",
+    "male_death_probability": "0.222911",
+    "male_lives_remaining": "9,714",
+    "male_life_expectancy": "3.21",
+    "female_death_probability": "0.182012",
+    "female_lives_remaining": "18,020",
+    "female_life_expectancy": "3.80"
+  },
+  "94": {
+    "age": "94",
+    "male_death_probability": "0.244094",
+    "male_lives_remaining": "7,549",
+    "male_life_expectancy": "2.99",
+    "female_death_probability": "0.200783",
+    "female_lives_remaining": "14,740",
+    "female_life_expectancy": "3.54"
+  },
+  "95": {
+    "age": "95",
+    "male_death_probability": "0.265091",
+    "male_lives_remaining": "5,706",
+    "male_life_expectancy": "2.80",
+    "female_death_probability": "0.219758",
+    "female_lives_remaining": "11,781",
+    "female_life_expectancy": "3.30"
+  },
+  "96": {
+    "age": "96",
+    "male_death_probability": "0.285508",
+    "male_lives_remaining": "4,193",
+    "male_life_expectancy": "2.63",
+    "female_death_probability": "0.238630",
+    "female_lives_remaining": "9,192",
+    "female_life_expectancy": "3.09"
+  },
+  "97": {
+    "age": "97",
+    "male_death_probability": "0.304926",
+    "male_lives_remaining": "2,996",
+    "male_life_expectancy": "2.48",
+    "female_death_probability": "0.257065",
+    "female_lives_remaining": "6,998",
+    "female_life_expectancy": "2.90"
+  },
+  "98": {
+    "age": "98",
+    "male_death_probability": "0.322919",
+    "male_lives_remaining": "2,083",
+    "male_life_expectancy": "2.34",
+    "female_death_probability": "0.274706",
+    "female_lives_remaining": "5,199",
+    "female_life_expectancy": "2.73"
+  },
+  "99": {
+    "age": "99",
+    "male_death_probability": "0.339065",
+    "male_lives_remaining": "1,410",
+    "male_life_expectancy": "2.22",
+    "female_death_probability": "0.291189",
+    "female_lives_remaining": "3,771",
+    "female_life_expectancy": "2.57"
+  },
+  "100": {
+    "age": "100",
+    "male_death_probability": "0.356018",
+    "male_lives_remaining": "932",
+    "male_life_expectancy": "2.11",
+    "female_death_probability": "0.308660",
+    "female_lives_remaining": "2,673",
+    "female_life_expectancy": "2.42"
+  },
+  "101": {
+    "age": "101",
+    "male_death_probability": "0.373819",
+    "male_lives_remaining": "600",
+    "male_life_expectancy": "2.00",
+    "female_death_probability": "0.327180",
+    "female_lives_remaining": "1,848",
+    "female_life_expectancy": "2.27"
+  },
+  "102": {
+    "age": "102",
+    "male_death_probability": "0.392510",
+    "male_lives_remaining": "376",
+    "male_life_expectancy": "1.89",
+    "female_death_probability": "0.346810",
+    "female_lives_remaining": "1,243",
+    "female_life_expectancy": "2.14"
+  },
+  "103": {
+    "age": "103",
+    "male_death_probability": "0.412135",
+    "male_lives_remaining": "228",
+    "male_life_expectancy": "1.79",
+    "female_death_probability": "0.367619",
+    "female_lives_remaining": "812",
+    "female_life_expectancy": "2.00"
+  },
+  "104": {
+    "age": "104",
+    "male_death_probability": "0.432742",
+    "male_lives_remaining": "134",
+    "male_life_expectancy": "1.69",
+    "female_death_probability": "0.389676",
+    "female_lives_remaining": "514",
+    "female_life_expectancy": "1.88"
+  },
+  "105": {
+    "age": "105",
+    "male_death_probability": "0.454379",
+    "male_lives_remaining": "76",
+    "male_life_expectancy": "1.59",
+    "female_death_probability": "0.413057",
+    "female_lives_remaining": "313",
+    "female_life_expectancy": "1.76"
+  },
+  "106": {
+    "age": "106",
+    "male_death_probability": "0.477098",
+    "male_lives_remaining": "42",
+    "male_life_expectancy": "1.50",
+    "female_death_probability": "0.437840",
+    "female_lives_remaining": "184",
+    "female_life_expectancy": "1.64"
+  },
+  "107": {
+    "age": "107",
+    "male_death_probability": "0.500953",
+    "male_lives_remaining": "22",
+    "male_life_expectancy": "1.41",
+    "female_death_probability": "0.464111",
+    "female_lives_remaining": "103",
+    "female_life_expectancy": "1.53"
+  },
+  "108": {
+    "age": "108",
+    "male_death_probability": "0.526000",
+    "male_lives_remaining": "11",
+    "male_life_expectancy": "1.33",
+    "female_death_probability": "0.491957",
+    "female_lives_remaining": "55",
+    "female_life_expectancy": "1.43"
+  },
+  "109": {
+    "age": "109",
+    "male_death_probability": "0.552300",
+    "male_lives_remaining": "5",
+    "male_life_expectancy": "1.25",
+    "female_death_probability": "0.521475",
+    "female_lives_remaining": "28",
+    "female_life_expectancy": "1.33"
+  },
+  "110": {
+    "age": "110",
+    "male_death_probability": "0.579915",
+    "male_lives_remaining": "2",
+    "male_life_expectancy": "1.17",
+    "female_death_probability": "0.552763",
+    "female_lives_remaining": "13",
+    "female_life_expectancy": "1.24"
+  },
+  "111": {
+    "age": "111",
+    "male_death_probability": "0.608911",
+    "male_lives_remaining": "1",
+    "male_life_expectancy": "1.10",
+    "female_death_probability": "0.585929",
+    "female_lives_remaining": "6",
+    "female_life_expectancy": "1.15"
+  },
+  "112": {
+    "age": "112",
+    "male_death_probability": "0.639357",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "1.03",
+    "female_death_probability": "0.621085",
+    "female_lives_remaining": "2",
+    "female_life_expectancy": "1.06"
+  },
+  "113": {
+    "age": "113",
+    "male_death_probability": "0.671325",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.96",
+    "female_death_probability": "0.658350",
+    "female_lives_remaining": "1",
+    "female_life_expectancy": "0.98"
+  },
+  "114": {
+    "age": "114",
+    "male_death_probability": "0.704891",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.89",
+    "female_death_probability": "0.697851",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.90"
+  },
+  "115": {
+    "age": "115",
+    "male_death_probability": "0.740135",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.83",
+    "female_death_probability": "0.739722",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.83"
+  },
+  "116": {
+    "age": "116",
+    "male_death_probability": "0.777142",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.77",
+    "female_death_probability": "0.777142",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.77"
+  },
+  "117": {
+    "age": "117",
+    "male_death_probability": "0.815999",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.71",
+    "female_death_probability": "0.815999",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.71"
+  },
+  "118": {
+    "age": "118",
+    "male_death_probability": "0.856799",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.66",
+    "female_death_probability": "0.856799",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.66"
+  },
+  "119": {
+    "age": "119",
+    "male_death_probability": "0.899639",
+    "male_lives_remaining": "0",
+    "male_life_expectancy": "0.61",
+    "female_death_probability": "0.899639",
+    "female_lives_remaining": "0",
+    "female_life_expectancy": "0.61"
+  }
+}
