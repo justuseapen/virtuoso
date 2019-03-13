@@ -11,14 +11,17 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
   @doc """
   Given the application module will generate a webhook
   """
-  def run(_args) do
-    _get_bot_web_controller_directory() |> _generate_webhook()
+  def run(args) do
+    [client_module] = args
+    _get_bot_web_controller_directory() |> _generate_webhook(client_module)
   end
 
-  def _generate_webhook(dir) do
+  def _generate_webhook(dir, client_module) do
+    client_module_path = client_module |> Macro.underscore()
+
     dir
-    |> String.replace_suffix("", "webhook_controller.ex")
-    |> Generator.create_file(webhook_controller_template())
+    |> String.replace_suffix("", "#{client_module_path}_webhook_controller.ex")
+    |> Generator.create_file(webhook_controller_template(client_module))
   end
 
   def _get_bot_web_controller_directory() do
@@ -26,11 +29,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
     |> String.replace_suffix("", "/lib/#{@otp_app[:path]}_web/controllers/")
   end
 
-  def webhook_controller_template() do
+  def webhook_controller_template(client_module) do
     web_module = "#{@otp_app[:alias]}Web"
 
     """
-    defmodule #{web_module}.WebhookController do
+    defmodule #{web_module}.#{client_module}WebhookController do
       use #{web_module}, :controller
 
       def create(conn, params) do

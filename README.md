@@ -9,7 +9,7 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 3. Add `{:virtuoso, ">= 0.0.24"}` to mix.exs
 4. `mix deps.get`
 5. `mix virtuoso.gen.bot BotName`
-5. `mix virtuoso.gen.client BotName FbMessenger`
+5. `mix virtuoso.gen.client FbMessenger`
 6. `mix virtuoso.gen.routine BotName HelloWorld`
 7. Add webhook to router and skip csrf:
 

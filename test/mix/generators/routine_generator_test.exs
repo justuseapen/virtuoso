@@ -14,8 +14,8 @@ defmodule Mix.Tasks.Virtuoso.Gen.RoutineTest do
       in_tmp('test', fn ->
         Gen.Routine.run(["GraceKelly", "GraceQuotes"])
 
-        assert_file("lib/grace_kelly/routine/grace_quotes.ex", fn file ->
-          assert file =~ "defmodule GraceKelly.Routine.GraceQuotes do"
+        assert_file("lib/virtuoso/bots/grace_kelly/routine/grace_quotes.ex", fn file ->
+          assert file =~ "defmodule Virtuoso.Bots.GraceKelly.Routine.GraceQuotes do"
         end)
       end)
     end

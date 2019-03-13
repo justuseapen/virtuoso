@@ -14,11 +14,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.BotTest do
       in_tmp('test', fn ->
         Gen.Bot.run(["GraceKelly"])
 
-        assert_file("lib/grace_kelly.ex", fn file ->
+        assert_file("lib/virtuoso/bots/grace_kelly/grace_kelly.ex", fn file ->
           assert file =~ "def recipient_ids(), do: @recipient_ids"
         end)
 
-        assert_file("lib/grace_kelly/fast_thinking.ex", fn file ->
+        assert_file("lib/virtuoso/bots/grace_kelly/fast_thinking.ex", fn file ->
           assert file =~ "def run(impression), do: impression"
         end)
       end)
