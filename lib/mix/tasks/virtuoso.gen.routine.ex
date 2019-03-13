@@ -13,6 +13,8 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
   use Mix.Task
   alias Virtuoso.Bot
 
+  @otp_app Mix.Phoenix.otp_app() |> to_string() |> Mix.Phoenix.inflect()
+
   def run(args) do
     [bot_module_name | [routine_module_name]] = args
 
@@ -36,7 +38,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
     routine_name = Bot.humanize(routine_module_name)
 
     """
-    defmodule #{bot_module_name}.Routine.#{routine_module_name} do
+    defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine.#{routine_module_name} do
       @moduledoc \"""
       #{bot_name}'s #{routine_name} routine.
       \"""

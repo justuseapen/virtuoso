@@ -10,6 +10,8 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   alias Mix.Generator
   alias Virtuoso.Bot
 
+  @otp_app Mix.Phoenix.otp_app() |> to_string() |> Mix.Phoenix.inflect()
+
   def run(args) do
     [bot_module_name | _] = args
 
@@ -36,10 +38,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def _generate_bot_interface(bot_module_name) do
+    bot_dir = bot_name(bot_module_name)[:path]
+
     with :ok <-
-           bot_module_name
-           |> Macro.underscore()
-           |> String.replace_prefix("", "#{File.cwd!()}/lib/")
+           bot_dir
+           |> String.replace_prefix("", "#{File.cwd!()}/lib/#{@otp_app[:path]}/bots/#{bot_name(bot_module_name)[:path]}/")
            |> String.replace_suffix("", ".ex")
            |> Generator.create_file(bot_interface_template(bot_module_name)) do
       bot_module_name
@@ -79,16 +82,16 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def bot_interface_template(bot_module_name) do
-    bot_dir = bot_module_name |> Macro.underscore()
+    bot_dir = bot_name(bot_module_name)[:path]
 
     """
-    defmodule #{bot_module_name} do
+    defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name} do
       @moduledoc \"""
       Who is this bot?
       \"""
-      alias #{bot_module_name}.FastThinking
-      alias #{bot_module_name}.SlowThinking
-      alias #{bot_module_name}.Routine
+      alias #{@otp_app[:alias]}.Bots.#{bot_module_name}.FastThinking
+      alias #{@otp_app[:alias]}.Bots.#{bot_module_name}.SlowThinking
+      alias #{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine
 
       @recipient_ids [
         Application.get_env(:#{bot_dir}, :fb_page_recipient_id)
@@ -123,7 +126,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def fast_thinking_template(bot_module_name) do
     """
-    defmodule #{bot_module_name}.FastThinking do
+    defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name}.FastThinking do
       @moduledoc \"""
       FastThinking checks for intents and entities expressly implied by the impression structure or contents.
       This allows us to bypass SlowThinking when it is performant to do so.
@@ -136,7 +139,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def slow_thinking_template(bot_module_name) do
     """
-    defmodule #{bot_module_name}.SlowThinking do
+    defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name}.SlowThinking do
       @moduledoc \"""
       If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
       \"""
@@ -180,12 +183,12 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
 
   def routine_template(bot_module_name) do
     """
-    defmodule #{bot_module_name}.Routine do
+    defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine do
       @moduledoc \"""
       Interface for all of #{Bot.humanize(bot_module_name)}'s routines.
       \"""
 
-      @module_name_expanded  "Elixir.#{bot_module_name}.Routine."
+      @module_name_expanded  "Elixir.#{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine."
       @default_routine Application.get_env(:#{Macro.underscore(bot_module_name)}, :default_routine)
 
       @doc \"""
@@ -206,5 +209,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       end
     end
     """
+  end
+
+  def bot_name(bot_module_name) do
+    bot_module_name
+    |> to_string()
+    |> Mix.Phoenix.inflect()
   end
 end

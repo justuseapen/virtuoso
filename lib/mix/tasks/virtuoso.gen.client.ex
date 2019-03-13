@@ -6,34 +6,28 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
   use Mix.Task
   alias Mix.Generator
 
+  @otp_app Mix.Phoenix.otp_app() |> to_string() |> Mix.Phoenix.inflect()
+
   @doc """
   Given the application module will generate a webhook
   """
-  def run(args) do
-    [app_module | [_client_module]] = args
-
-    app_module
-    |> _get_bot_web_controller_directory
-    |> _generate_webhook(app_module)
+  def run(_args) do
+    _get_bot_web_controller_directory() |> _generate_webhook()
   end
 
-  def _generate_webhook(dir, app) do
+  def _generate_webhook(dir) do
     dir
     |> String.replace_suffix("", "webhook_controller.ex")
-    |> Generator.create_file(webhook_controller_template(app))
+    |> Generator.create_file(webhook_controller_template())
   end
 
-  def _get_bot_web_controller_directory(app_module) do
-    app_dir =
-      app_module
-      |> Macro.underscore()
-
+  def _get_bot_web_controller_directory() do
     File.cwd!()
-    |> String.replace_suffix("", "/lib/#{app_dir}_web/controllers/")
+    |> String.replace_suffix("", "/lib/#{@otp_app[:path]}_web/controllers/")
   end
 
-  def webhook_controller_template(app) do
-    web_module = "#{app}Web"
+  def webhook_controller_template() do
+    web_module = "#{@otp_app[:alias]}Web"
 
     """
     defmodule #{web_module}.WebhookController do

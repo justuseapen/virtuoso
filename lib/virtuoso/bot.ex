@@ -5,6 +5,8 @@ defmodule Virtuoso.Bot do
 
   alias Virtuoso.Bot.Map
 
+  @otp_app Mix.Phoenix.otp_app() |> to_string() |> Mix.Phoenix.inflect()
+
   def get(recipient_id) do
     Map.bots()
     |> Enum.find(fn bot -> Enum.member?(bot.recipient_ids, recipient_id) end)
@@ -33,7 +35,7 @@ defmodule Virtuoso.Bot do
     bot_module_name
     |> Macro.underscore()
     |> String.replace_suffix("", "/")
-    |> String.replace_prefix("", "lib/")
+    |> String.replace_prefix("", "lib/#{@otp_app[:path]}/bots/")
   end
 
   @doc """
