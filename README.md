@@ -8,9 +8,9 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 2. `cd project_name`
 3. Add `{:virtuoso, ">= 0.0.24"}` to mix.exs
 4. `mix deps.get`
-5. `mix virtuoso.gen.bot BotName`
+5. `mix virtuoso.gen.bot <bot-module-name>`
 5. `mix virtuoso.gen.client FbMessenger`
-6. `mix virtuoso.gen.routine BotName HelloWorld`
+6. `mix virtuoso.gen.routine <bot-module-name> HelloWorld`
 7. Add webhook to router and skip csrf:
 
 ```
@@ -23,8 +23,8 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 
   scope "/", ProjectNameWeb do
     pipe_through :unprotected_browser
-    get "/webhook", WebhookController, :verify
-    post "/webhook", WebhookController, :create
+    get "/webhook", FbMessengerWebhookController, :verify
+    post "/webhook", FbMessengerWebhookController, :create
   end
 ```
 
@@ -32,7 +32,7 @@ Test your webhook.
 
 ### Config
 dev.exs at the bottom:
-`config :virtuoso, bots: [ BotName ]
+`config :virtuoso, bots: [ <bot-module-name> ]
 `import_config "dev.secret.exs"`
 
 dev.secret.exs:
@@ -41,7 +41,8 @@ config :virtuoso, wit_server_access_token: ""
 
 config :project_name,
   fb_page_recipient_id: "",
-  fb_page_access_token: ""
+  fb_page_access_token: "",
+  default_routine: <ProjectName>.Bots.<bot-module-name>.Routine.<routine-module-name>
 ```
 
 ### Supported Platforms

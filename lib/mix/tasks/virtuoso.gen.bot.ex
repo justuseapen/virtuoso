@@ -82,7 +82,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def bot_interface_template(bot_module_name) do
-    bot_dir = bot_name(bot_module_name)[:path]
+    _bot_dir = bot_name(bot_module_name)[:path]
+    # `Application.get_env(:#{bot_dir}, :fb_page_recipient_id)` should return nil
+    # if we want to get env var based on bot name, each bot should have its own
+    # application module. For now we can have all configs using
+    # `Application.get_env(:my_app, :<config-var>)`
 
     """
     defmodule #{@otp_app[:alias]}.Bots.#{bot_module_name} do
@@ -94,11 +98,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       alias #{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine
 
       @recipient_ids [
-        Application.get_env(:#{bot_dir}, :fb_page_recipient_id)
+        Application.get_env(:#{@otp_app[:path]}, :fb_page_recipient_id)
       ]
 
       @tokens %{
-        fb_page_access_token: Application.get_env(:#{bot_dir}, :fb_page_access_token)
+        fb_page_access_token: Application.get_env(:#{@otp_app[:path]}, :fb_page_access_token)
       }
 
       @doc \"""
@@ -189,7 +193,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
 
       @module_name_expanded  "Elixir.#{@otp_app[:alias]}.Bots.#{bot_module_name}.Routine."
-      @default_routine Application.get_env(:#{Macro.underscore(bot_module_name)}, :default_routine)
+      @default_routine Application.get_env(:#{@otp_app[:path]}, :default_routine)
 
       @doc \"""
       Initiates a routine given a corresponding intent string.
