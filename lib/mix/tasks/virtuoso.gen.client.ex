@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
       |> Macro.underscore()
 
     File.cwd!()
-    |> String.replace_suffix("", "/lib/#{app_dir}_web/controllers/")
+    |> String.replace_suffix("", "/#{Mix.Phoenix.web_path(Mix.Phoenix.context_app())}/controllers/")
   end
 
   def webhook_controller_template(app) do
@@ -38,7 +38,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
     """
     defmodule #{web_module}.WebhookController do
       use #{web_module}, :controller
-      # #{context_app = Mix.Phoenix.context_app()}
 
       def create(conn, params) do
         params
