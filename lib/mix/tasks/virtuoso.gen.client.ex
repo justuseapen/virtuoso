@@ -38,6 +38,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
     """
     defmodule #{web_module}.WebhookController do
       use #{web_module}, :controller
+      # #{context_app = Mix.Phoenix.context_app()}
 
       def create(conn, params) do
         params
