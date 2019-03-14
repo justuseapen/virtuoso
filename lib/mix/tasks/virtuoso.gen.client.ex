@@ -9,32 +9,23 @@ defmodule Mix.Tasks.Virtuoso.Gen.Client do
   @doc """
   Given the application module will generate a webhook
   """
-  def run(args) do
-    [app_module | [_client_module]] = args
-
-    app_module
-    |> _get_bot_web_controller_directory
-    |> _generate_webhook(app_module)
+  def run(_args) do
+    _generate_webhook(_get_bot_web_controller_directory())
   end
 
-  def _generate_webhook(dir, app) do
+  def _generate_webhook(dir) do
     dir
     |> String.replace_suffix("", "webhook_controller.ex")
-    |> Generator.create_file(webhook_controller_template(app))
+    |> Generator.create_file(webhook_controller_template())
   end
 
-  def _get_bot_web_controller_directory(app_module) do
-    app_dir =
-      app_module
-      |> Macro.underscore()
-
-    File.cwd!()
-    |> String.replace_suffix("", "/lib/#{app_dir}_web/controllers/")
+  def _get_bot_web_controller_directory() do
+    web_path = Mix.Phoenix.context_app() |> Mix.Phoenix.web_path()
+    String.replace_suffix(File.cwd!(), "", "/#{web_path}/controllers/")
   end
 
-  def webhook_controller_template(app) do
-    web_module = "#{app}Web"
-
+  def webhook_controller_template() do
+    web_module = (Mix.Phoenix.context_app() |> to_string() |> Mix.Phoenix.inflect())[:web_module]
     """
     defmodule #{web_module}.WebhookController do
       use #{web_module}, :controller

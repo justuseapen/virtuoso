@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.ClientTest do
         send(self(), {:mix_shell_input, :yes?, true})
         Gen.Client.run(["GraceKelly", "FbMessenger"])
 
-        assert_file("lib/grace_kelly_web/controllers/webhook_controller.ex", fn file ->
+        assert_file("lib/virtuoso_web/controllers/webhook_controller.ex", fn file ->
           assert file =~ """
                  def verify(conn, %{\"hub.mode\" => mode, \"hub.verify_token\" => token, \"hub.challenge\" => challenge}) do
                  """
