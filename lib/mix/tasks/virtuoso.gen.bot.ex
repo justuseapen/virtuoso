@@ -79,8 +79,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def bot_interface_template(bot_module_name) do
-    bot_dir = bot_module_name |> Macro.underscore()
-
     """
     defmodule #{bot_module_name} do
       @moduledoc \"""
