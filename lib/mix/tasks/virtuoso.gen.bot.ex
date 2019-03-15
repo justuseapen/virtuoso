@@ -79,8 +79,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
   end
 
   def bot_interface_template(bot_module_name) do
-    bot_dir = bot_module_name |> Macro.underscore()
-
     """
     defmodule #{bot_module_name} do
       @moduledoc \"""
@@ -91,11 +89,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       alias #{bot_module_name}.Routine
 
       @recipient_ids [
-        Application.get_env(:#{bot_dir}, :fb_page_recipient_id)
+        Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_recipient_id)
       ]
 
       @tokens %{
-        fb_page_access_token: Application.get_env(:#{bot_dir}, :fb_page_access_token)
+        fb_page_access_token: Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_access_token)
       }
 
       @doc \"""
@@ -186,7 +184,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
 
       @module_name_expanded  "Elixir.#{bot_module_name}.Routine."
-      @default_routine Application.get_env(:#{Macro.underscore(bot_module_name)}, :default_routine)
+      @default_routine Application.get_env(:#{Mix.Phoenix.context_app()}, :default_routine)
 
       @doc \"""
       Initiates a routine given a corresponding intent string.
