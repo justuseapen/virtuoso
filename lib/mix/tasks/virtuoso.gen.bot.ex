@@ -200,7 +200,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> apply(:run, impression)
       end
       def runner(_impression, _conversation_state) do
-        @default_routine |> to_string()
+        "Elixir." <> (to_string(@default_routine))
         |> String.to_existing_atom()
         |> apply(:run, [])
       end
