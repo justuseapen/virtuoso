@@ -6,10 +6,10 @@ defmodule MementoMori do
   alias MementoMori.SlowThinking
   alias MementoMori.Routine
 
-  @recipient_ids Application.get_env(:memento_mori, :fb_page_recipient_ids)
+  @recipient_ids Application.get_env(:virtuoso, :fb_page_recipient_ids)
 
   @tokens %{
-    fb_page_access_token: Application.get_env(:memento_mori, :fb_page_access_token)
+    fb_page_access_token: Application.get_env(:virtuoso, :fb_page_access_token)
   }
 
   @doc """

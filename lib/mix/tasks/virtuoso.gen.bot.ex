@@ -89,7 +89,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       alias #{bot_module_name}.Routine
 
       @recipient_ids [
-        Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_recipient_id)
+        Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_recipient_ids)
       ]
 
       @tokens %{
