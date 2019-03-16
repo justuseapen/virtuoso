@@ -38,8 +38,7 @@ dev.exs at the bottom:
 dev.secret.exs:
 ```
 config :virtuoso,
-  wit_server_access_token: "",
-  nlp: ""
+  wit_server_access_token: ""
 
 config :project_name,
   fb_page_recipient_id: "",
