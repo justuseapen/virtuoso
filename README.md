@@ -37,11 +37,13 @@ dev.exs at the bottom:
 
 dev.secret.exs:
 ```
-config :virtuoso, wit_server_access_token: ""
+config :virtuoso,
+  wit_server_access_token: ""
 
 config :project_name,
   fb_page_recipient_id: "",
-  fb_page_access_token: ""
+  fb_page_access_token: "",
+  <bot-name>_default_routine: ""
 ```
 
 ### Supported Platforms

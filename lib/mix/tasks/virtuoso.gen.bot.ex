@@ -184,7 +184,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
 
       @module_name_expanded  "Elixir.#{bot_module_name}.Routine."
-      @default_routine Application.get_env(:#{Mix.Phoenix.context_app()}, :default_routine)
+      @default_routine Application.get_env(:#{Mix.Phoenix.context_app()}, :#{Macro.underscore(bot_module_name)}_default_routine)
 
       @doc \"""
       Initiates a routine given a corresponding intent string.
@@ -200,7 +200,9 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> apply(:run, impression)
       end
       def runner(_impression, _conversation_state) do
-        @default_routine.run()
+        "Elixir." <> (to_string(@default_routine))
+        |> String.to_existing_atom()
+        |> apply(:run, [])
       end
     end
     """
