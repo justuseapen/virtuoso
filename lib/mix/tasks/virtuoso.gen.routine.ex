@@ -41,6 +41,9 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
       #{bot_name}'s #{routine_name} routine.
       \"""
 
+      def run(_impression) do
+        run()
+      end
       def run() do
         "Yo."
       end

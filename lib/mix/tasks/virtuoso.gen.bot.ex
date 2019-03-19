@@ -89,11 +89,11 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       alias #{bot_module_name}.Routine
 
       @recipient_ids [
-        Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_recipient_id)
+        Application.get_env(:#{Macro.underscore(bot_module_name)}, :fb_page_recipient_id)
       ]
 
       @tokens %{
-        fb_page_access_token: Application.get_env(:#{Mix.Phoenix.context_app()}, :fb_page_access_token)
+        fb_page_access_token: Application.get_env(:#{Macro.underscore(bot_module_name)}, :fb_page_access_token)
       }
 
       @doc \"""
@@ -127,6 +127,14 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       This allows us to bypass SlowThinking when it is performant to do so.
       \"""
 
+      @doc \"""
+      Add new function definitions, pattern matching against the impression in order to catch common user intents.
+      def run(%{message: "Hello Bot"} = impression) do
+        impression
+        |> Map.merge(%{intent: "hello_world"})
+      end
+      \"""
+
       def run(impression), do: impression
     end
     """
@@ -148,6 +156,8 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       end
 
       def maybe_get_entities(%{intent: _intent} = impression), do: impression
+      # message is nil when the incoming message is an image
+      def maybe_get_entities(%{message: nil} = impression), do: impression
       def maybe_get_entities(%{message: message} = impression) do
         with {:ok, response} <- @nlp.get(message) do
           response
@@ -169,6 +179,10 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> Map.merge(impression)
       end
 
+      defp get_most_likely_intent(%{entities: %{"intent" => [%{"value" => intent}|_t]}} = impression) do
+        impression
+        |> Map.merge(%{intent: intent})
+      end
       defp get_most_likely_intent(impression) do
         impression
       end
@@ -184,7 +198,7 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
 
       @module_name_expanded  "Elixir.#{bot_module_name}.Routine."
-      @default_routine Application.get_env(:#{Mix.Phoenix.context_app()}, :#{Macro.underscore(bot_module_name)}_default_routine)
+      @default_routine Application.get_env(:#{Macro.underscore(bot_module_name)}, :default_routine)
 
       @doc \"""
       Initiates a routine given a corresponding intent string.
@@ -193,11 +207,10 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
       def runner(%{intent: intent} = impression, _conversation_state) do
         intent
-        |> String.replace(" ", "")
-        |> Macro.camelize
+        |> Macro.camelize()
         |> String.replace_prefix("", @module_name_expanded)
-        |> String.to_existing_atom
-        |> apply(:run, impression)
+        |> String.to_existing_atom()
+        |> apply(:run, [impression])
       end
       def runner(_impression, _conversation_state) do
         "Elixir." <> (to_string(@default_routine))
