@@ -3,7 +3,10 @@ defmodule MementoMori.Routine.Greeting do
   Memento Mori's greeting routine.
   """
 
+  def run(_impression) do
+    run()
+  end
   def run() do
-    "Yo."
+    "Hello"
   end
 end

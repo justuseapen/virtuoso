@@ -36,7 +36,11 @@ defmodule MementoMori.SlowThinking do
     |> Map.merge(impression)
   end
 
-  defp get_most_likely_intent(impression) do
+  defp get_most_likely_intent(%{entities: %{"intent" => [%{"value" => intent}|_t]}} = impression) do
+    impression
+    |> Map.merge(%{intent: intent})
+  end
+  defp get_most_likely_intent(%{entities: %{}} = impression) do
     impression
   end
 end
