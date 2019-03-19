@@ -6,7 +6,7 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 ### Quick Start
 1. `mix phx.new project_name`
 2. `cd project_name`
-3. Add `{:virtuoso, ">= 0.0.24"}` to mix.exs
+3. Add `{:virtuoso, ">= 0.0.28"}` to mix.exs
 4. `mix deps.get`
 5. `mix virtuoso.gen.bot BotName`
 5. `mix virtuoso.gen.client`
@@ -40,10 +40,10 @@ dev.secret.exs:
 config :virtuoso,
   wit_server_access_token: ""
 
-config :project_name,
+config :bot_name,
   fb_page_recipient_id: "",
   fb_page_access_token: "",
-  <bot-name>_default_routine: ""
+  default_routine: BotName.Routine.RoutineName
 ```
 
 ### Supported Platforms
