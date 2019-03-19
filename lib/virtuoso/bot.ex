@@ -14,9 +14,7 @@ defmodule Virtuoso.Bot do
   Returns token by recipient id
   """
   def get_token_by_recipient_id(id, client) do
-    bot =
-      id
-      |> get
+    bot = id |> get
 
     bot.token(client)
   end
