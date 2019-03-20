@@ -23,14 +23,14 @@ defmodule Virtuoso.FbMessengerTest do
   ]
 
   describe "process_messages/1" do
-    test "" do
-      FbMessenger.process_messages(@fb_message_entries)
-    end
+    # TODO
   end
 
   describe "start_typing_indicator/1" do
+    # TODO
   end
 
   describe "stop_typing_indicator/1" do
+    # TODO
   end
 end

@@ -11,6 +11,7 @@ config :logger, level: :warn
 
 config :virtuoso, :fb_messenger_network, Virtuoso.FbMessenger.Network.Mock
 config :virtuoso, :nlp, Virtuoso.NLPMock
+config :virtuoso, :facebook_graph_api, Virtuoso.FacebookGraphApi.HttpMock
 
 config :virtuoso, :bots, [
   BotMock
