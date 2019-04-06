@@ -1,0 +1,34 @@
+defmodule FbMessengerTest do
+  use ExUnit.Case
+
+  @fb_message_entries [
+    %{
+      "id" => "217_557_272_146_428",
+      "messaging" => [
+        %{
+          "message" => %{
+            "mid" => "MementoMoriId",
+            "seq" => 60_729,
+            "text" => "yo"
+          },
+          "recipient" => %{"id" => "TEST_RECIPIENT"},
+          "sender" => %{"id" => "TEST_SENDER"},
+          "timestamp" => 1_533_595_043_166
+        }
+      ],
+      "time" => 1_533_595_072_532
+    }
+  ]
+
+  describe "process_messages/1" do
+    # TODO
+  end
+
+  describe "start_typing_indicator/1" do
+    # TODO
+  end
+
+  describe "stop_typing_indicator/1" do
+    # TODO
+  end
+end
