@@ -11,6 +11,6 @@ defmodule FbMessenger do
   Accepts params and delegates based on incoming message structure
   """
   def handle(%{"object" => _object, "entry" => entries}) do
-    FbMessenger.FbMessenger.process_messages(entries)
+    FbMessenger.Messages.process_messages(entries)
   end
 end

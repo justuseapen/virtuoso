@@ -1,4 +1,4 @@
-defmodule FbMessenger do
+defmodule FbMessenger.Messages do
   @moduledoc """
   Translates fb message events into FbMessenger-friendly internal representations (Impressions)
   """

@@ -50,6 +50,7 @@ defmodule FbMessenger.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 0.13"},
