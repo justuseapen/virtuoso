@@ -53,7 +53,7 @@ defmodule FbMessenger.Mixfile do
       {:plug_cowboy, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
+      {:httpoison, "~> 1.2"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
