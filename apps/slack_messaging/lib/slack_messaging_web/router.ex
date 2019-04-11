@@ -5,10 +5,13 @@ defmodule SlackMessagingWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", SlackMessagingWeb do
+  scope "/api", SlackMessagingWeb, as: :api do
     pipe_through :api
 
-    get("/auth", SlackAuthController, :request)
+    scope "/v1", V1, as: :v1 do
+      get("/auth/:provider", SlackAuthController, :request)
+    end
+
   end
 
 end
