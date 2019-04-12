@@ -50,9 +50,10 @@ defmodule Virtuoso.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
+      {:httpoison, "~> 1.2"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
@@ -60,7 +61,8 @@ defmodule Virtuoso.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:timex, "~> 3.1"},
       {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:excoveralls, "~> 0.8", only: :test},
+      {:slack, "~> 0.16.0"}
     ]
   end
 

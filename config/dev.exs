@@ -31,4 +31,4 @@ config :phoenix, :stacktrace_depth, 20
 config :virtuoso, :nlp, Wit.Client
 config :virtuoso, :fb_messenger_network, Virtuoso.FbMessenger.Network
 
-import_config "dev.secret.exs"
+# import_config "dev.secret.exs"
