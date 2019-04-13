@@ -3,9 +3,10 @@ defmodule VirtuosoWeb.V1.SlackAuthController do
 
   require Logger
 
-  @root_url Application.get_env(:slack_messaging, :root_url)
-  @client_id Application.get_env(:slack_messaging, :client_id)
-  @client_secret Application.get_env(:slack_messaging, :client_secret)
+  @redirect_uri Application.get_env(:virtuoso, :redirect_uri)
+  @client_id Application.get_env(:virtuoso, :client_id)
+  @client_secret Application.get_env(:virtuoso, :client_secret)
+  @slack_workspace_domain Application.get_env(:virtuoso, :slack_workspace_domain)
 
   def request(conn, %{"provider" => _provider, "code" => code, "state" => _state}) do
     can_perform_request? = slack_setup_successful?()
@@ -24,17 +25,11 @@ defmodule VirtuosoWeb.V1.SlackAuthController do
       _ ->
         Logger.info("Registered Slack user #{slack_account_details["user_id"]}")
 
-        redirect(conn, external: @root_url)
+        conn
+        |> put_status(302)
+        |> redirect(external: "https://#{@slack_workspace_domain}.slack.com")
 
     end
-  end
-
-  def request(conn, %{"provider" => provider}) do
-    conn
-    |> put_status(400)
-    |> json(%{
-      message: "Missing params"
-    })
   end
 
   defp get_slack_account_details(conn, code, false) do
@@ -44,13 +39,13 @@ defmodule VirtuosoWeb.V1.SlackAuthController do
   end
 
   defp get_slack_account_details(_conn, code, true) do
-    Logger.info("slack redirect url: #{@root_url}")
+    Logger.info("slack redirect url: #{@redirect_uri}")
 
     Slack.Web.Oauth.access(
       @client_id, @client_secret,
-      @code,
+      code,
       %{
-        redirect_uri: @root_url
+        redirect_uri: @redirect_uri
       }
     )
   end
@@ -58,7 +53,7 @@ defmodule VirtuosoWeb.V1.SlackAuthController do
   defp get_slack_account_details(_conn, nil, _can_perform_request?), do: "Missing code"
 
   defp slack_setup_successful?() do
-    if @root_url && @client_id && @client_secret, do: true, else: false
+    if @redirect_uri && @client_id && @client_secret, do: true, else: false
   end
 
 end

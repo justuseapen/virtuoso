@@ -21,6 +21,12 @@ config :logger, :console,
 config :virtuoso,
   facebook_graph_api: Virtuoso.FacebookGraphApi.Http
 
+config :virtuoso,
+  client_id: System.get_env("SLACK_CLIENT_ID"),
+  client_secret: System.get_env("SLACK_CLIENT_SECRET"),
+  redirect_uri: System.get_env("SLACK_REDIRECT_URI"),
+  slack_workspace_domain: System.get_env("SLACK_WORKSPACE_DOMAIN")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
