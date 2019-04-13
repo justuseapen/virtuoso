@@ -15,9 +15,13 @@ defmodule Virtuoso.FbMessenger.Message do
 
     entry
     |> Translation.translate_entry()
+    |> IO.inspect(label: 'TRANSLATION')
     |> Conversation.received_message()
+    |> IO.inspect(label: 'CONVERSATION')
     |> build_response(sender_id)
+    |> IO.inspect(label: 'BUILD_RESPONSE')
     |> Network.send_messenger_response(token)
+    |> IO.inspect(label: 'NETWORK')
   end
 
   def build_response(text, sender_id) do

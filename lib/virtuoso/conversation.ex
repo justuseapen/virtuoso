@@ -22,6 +22,7 @@ defmodule Virtuoso.Conversation do
     - `:last_recieved_at` - when the last message was received for this conversation
     - `:messages` - a list of sent and received responses
     - `:pid` - the conversation process identification tuple
+    - `:session_id` - sessionID from Watson Assistant
     - `:environment` - config enviroment var, used for ignoring Ecto-related code in process tests
     """
     defstruct [
@@ -29,6 +30,7 @@ defmodule Virtuoso.Conversation do
       :last_recieved_at,
       :messages,
       :pid,
+      :session_id,
       environment: @environment
     ]
   end
@@ -84,6 +86,14 @@ defmodule Virtuoso.Conversation do
   @doc """
   Ensure a process is alive before sending data to it
   """
+  def get_session(sender_id) do
+    ensure_process(sender_id)
+    GenServer.call(pid(sender_id), :get_session)
+  end
+
+  @doc """
+  Ensure a process is alive before sending data to it
+  """
   @spec ensure_process(sender_id()) :: :ok
   def ensure_process(sender_id) do
     case Registry.whereis_name({Virtuoso.Conversation.Registry, sender_id}) do
@@ -109,11 +119,23 @@ defmodule Virtuoso.Conversation do
 
     self() |> schedule_timeout()
 
+    thinker_client = Virtuoso.Thinker.module_thinker_client()
+
+    session_id =
+      case thinker_client.create_session do
+        {:ok, %{body: body} = response} ->
+          body
+          |> Poison.decode!
+          |> Map.fetch!("session_id")
+        {:undefined} -> sender_id
+      end
+
     state = %State{
       last_recieved_at: Timex.now(),
       messages: [],
       pid: pid(sender_id),
-      sender_id: sender_id
+      sender_id: sender_id,
+      session_id: session_id
     }
 
     {:ok, state}
@@ -148,6 +170,10 @@ defmodule Virtuoso.Conversation do
     {:noreply, new_state}
   end
 
+  def handle_call(:get_session, from, %{session_id: session_id} = state) do
+    {:reply, state, state}
+  end
+  
   defp schedule_timeout(pid) do
     Logger.debug(fn -> "Scheduling timeout for #{inspect(pid)}" end)
     :erlang.send_after(@timeout_period, pid, :timeout)

@@ -13,6 +13,7 @@ defmodule Virtuoso.FbMessenger do
   def process_messages([%{"messaging" => messaging} | _] = entries) do
     sender_id = hd(messaging)["sender"]["id"]
     recipient_id = hd(messaging)["recipient"]["id"]
+
     token = Bot.get_token_by_recipient_id(recipient_id, :fb)
 
     start_typing_indicator(sender_id, token)

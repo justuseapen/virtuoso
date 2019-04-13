@@ -14,7 +14,8 @@ defmodule Virtuoso.Bot do
   Returns token by recipient id
   """
   def get_token_by_recipient_id(id, client) do
-    bot = id |> get
+    bot = id
+      |> get
 
     bot.token(client)
   end
@@ -31,6 +32,16 @@ defmodule Virtuoso.Bot do
     bot_module_name
     |> Macro.underscore()
     |> String.replace_suffix("", "/")
+    |> String.replace_prefix("", "lib/")
+  end
+
+  @doc """
+  Given a module name, returns the full path of the bot.
+  """
+  def bot_directory_nlp_path(bot_module_name) do
+    bot_module_name
+    |> Macro.underscore()
+    |> String.replace_suffix("", "/slow_thinking/")
     |> String.replace_prefix("", "lib/")
   end
 
