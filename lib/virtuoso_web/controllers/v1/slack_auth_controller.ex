@@ -11,7 +11,7 @@ defmodule VirtuosoWeb.V1.SlackAuthController do
   def request(conn, %{"provider" => _provider, "code" => code, "state" => _state}) do
     can_perform_request? = slack_setup_successful?()
     slack_account_details = get_slack_account_details(conn, code, can_perform_request?)
-    IO.inspect slack_account_details
+
     case slack_account_details["ok"] do
       false ->
         Logger.info(":error Slack reponded with : \n#{inspect(slack_account_details["error"])}")
