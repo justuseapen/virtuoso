@@ -1,7 +1,7 @@
-defmodule SlackMessaging.Rtm do
+defmodule Virtuoso.SlackMessaging.Rtm do
   use Slack
 
-  alias SlackMessaging.Commands
+  alias Virtuoso.SlackMessaging.Commands
 
   require Logger
 
