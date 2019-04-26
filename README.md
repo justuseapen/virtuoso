@@ -49,13 +49,13 @@ config :virtuoso,
   wit_server_access_token: "",
   watson_assistant_version: "",
   watson_assistant_id: "",
-  watson_assistant_token: ""
+  watson_assistant_token: "",
+  default_nlp: :wit
 
 config :bot_name,
   fb_page_recipient_id: "",
   fb_page_access_token: "",
-  default_routine: BotName.Routine.RoutineName,
-  default_nlp: :wit
+  default_routine: BotName.Routine.RoutineName
 ```
 
 ### Supported Platforms

@@ -327,6 +327,10 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       Intent string gets converted into corresponding routine module name
       and calls run function in routine module dynamically.
       \"""
+      def runner(%{responses: responses} = impression, _conversation_state) do
+        responses
+        |> send_messenger
+      end
       def runner(%{intent: intent} = impression, _conversation_state) do
         intent
         |> Macro.camelize()
@@ -335,9 +339,14 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> apply(:run, [impression])
       end
       def runner(_impression, _conversation_state) do
-        "Elixir." <> (to_string(@default_routine))
-        |> String.to_existing_atom()
-        |> apply(:run, [])
+        @default_routine.run()
+      end
+
+      def send_messenger([response | t]) do
+        response
+      end
+      def send_messenger(%{text: text} = response) do
+        text
       end
     end
     """

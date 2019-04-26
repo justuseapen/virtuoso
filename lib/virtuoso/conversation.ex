@@ -150,8 +150,6 @@ defmodule Virtuoso.Conversation do
   def handle_cast({:received, entry}, state) do
     Logger.info("Received a message for #{state.sender_id}")
 
-    Executive.handles_message({entry, state})
-
     new_state =
       state
       |> Map.put(:last_recieved_at, Timex.now())
@@ -173,7 +171,7 @@ defmodule Virtuoso.Conversation do
   def handle_call(:get_session, from, %{session_id: session_id} = state) do
     {:reply, state, state}
   end
-  
+
   defp schedule_timeout(pid) do
     Logger.debug(fn -> "Scheduling timeout for #{inspect(pid)}" end)
     :erlang.send_after(@timeout_period, pid, :timeout)
