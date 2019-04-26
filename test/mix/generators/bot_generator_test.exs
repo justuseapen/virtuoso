@@ -25,15 +25,16 @@ defmodule Mix.Tasks.Virtuoso.Gen.BotTest do
         assert_file("lib/grace_kelly/slow_thinking.ex", fn file ->
           assert file =~ "def run(impression) do"
           assert file =~ "def module_thinking do"
+          assert file =~ "defp nlp do"
         end)
 
-        assert_file("lib/wit/grace_kelly/slow_thinking.ex", fn file ->
+        assert_file("lib/grace_kelly/slow_thinking/wit.ex", fn file ->
           assert file =~ "def run(impression) do"
           assert file =~ "def maybe_get_entities(%{intent: _intent} = impression), do: impression"
           assert file =~ "defp gets_entities(%{body: wit_response}) do"
         end)
 
-        assert_file("lib/watson/grace_kelly/slow_thinking.ex", fn file ->
+        assert_file("lib/grace_kelly/slow_thinking/watson.ex", fn file ->
           assert file =~ "def run(impression) do"
           assert file =~ "defp get_conversation_session(%{sender_id: sender_id} = impression) do"
           assert file =~ "defp think_and_answer(%{message: message, session_id: session_id} = impression) do"
