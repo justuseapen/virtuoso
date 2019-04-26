@@ -21,7 +21,7 @@ defmodule Virtuoso.FbMessenger.Message do
   end
 
   def build_response(%{text: text} = params, sender_id) do
-    build_response(text,sender_id)
+    build_response(text, sender_id)
   end
   def build_response(text, sender_id) do
     %{

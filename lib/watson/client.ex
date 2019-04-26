@@ -67,9 +67,10 @@ defmodule Watson.Client do
     }
 
     body = Poison.encode!(%{input: input})
-
+    res = HTTPoison.post(url, body, @headers)
+    
     {:ok, _response} =
-      HTTPoison.post(url, body, @headers)
+      res
       |> case do
         {:ok, %{body: raw, status_code: _code}} -> {:ok, raw}
         {:error, %{reason: reason}} -> {:error, reason}
