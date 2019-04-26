@@ -25,7 +25,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.BotTest do
         assert_file("lib/grace_kelly/slow_thinking.ex", fn file ->
           assert file =~ "def run(impression) do"
           assert file =~ "def module_thinking do"
-          assert file =~ "def module_client do"
         end)
 
         assert_file("lib/wit/grace_kelly/slow_thinking.ex", fn file ->

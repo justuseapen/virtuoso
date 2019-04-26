@@ -123,7 +123,7 @@ defmodule Virtuoso.Conversation do
 
     session_id =
       case thinker_client.create_session do
-        {:ok, %{body: body} = response} ->
+        {:ok, %{body: body} = _response} ->
           body
           |> Poison.decode!
           |> Map.fetch!("session_id")
@@ -168,7 +168,7 @@ defmodule Virtuoso.Conversation do
     {:noreply, new_state}
   end
 
-  def handle_call(:get_session, from, %{session_id: session_id} = state) do
+  def handle_call(:get_session, _from, %{session_id: _session_id} = state) do
     {:reply, state, state}
   end
 

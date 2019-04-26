@@ -9,7 +9,7 @@ defmodule Virtuoso.Thinker do
   Returns module Thinker used.
   """
   def module_thinker_client do
-    Module.concat([thinker, "Client"])
+    Module.concat([thinker(), "Client"])
   end
 
   @doc """
