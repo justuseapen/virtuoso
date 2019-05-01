@@ -2,7 +2,7 @@ defmodule Virtuoso.FbMessenger.Network do
   @moduledoc """
   Handles network ops for fbmessenger medium
   """
-  @facebook_graph_api Application.get_env(:virtuoso, :facebook_graph_api)
+  @facebook_graph_api Application.get_env(:virtuoso, :facebook_graph_api) || Virtuoso.FacebookGraphApi.Http
 
   def send_messenger_response([]), do: []
 

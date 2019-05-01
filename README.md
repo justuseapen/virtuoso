@@ -6,7 +6,7 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 ### Quick Start
 1. `mix phx.new project_name`
 2. `cd project_name`
-3. Add `{:virtuoso, ">= 0.0.28"}` to mix.exs
+3. Add `{:virtuoso, ">= 0.0.28"}, {:poison, "~> 3.0"}` to mix.exs
 4. `mix deps.get`
 5. `mix virtuoso.gen.bot BotName`
 5. `mix virtuoso.gen.client`
@@ -32,13 +32,25 @@ Test your webhook.
 
 ### Config
 dev.exs at the bottom:
-`config :virtuoso, bots: [ BotName ]
-`import_config "dev.secret.exs"`
+
+```
+config :virtuoso, bots: [ BotName ]
+
+import_config "dev.secret.exs"
+```
 
 dev.secret.exs:
+default_nlp: `:wit` or `:watson`
+
 ```
+use Mix.Config
+
 config :virtuoso,
-  wit_server_access_token: ""
+  wit_server_access_token: "",
+  watson_assistant_version: "",
+  watson_assistant_id: "",
+  watson_assistant_token: "",
+  default_nlp: :wit
 
 config :bot_name,
   fb_page_recipient_id: "",

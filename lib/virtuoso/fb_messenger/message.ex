@@ -20,6 +20,9 @@ defmodule Virtuoso.FbMessenger.Message do
     |> Network.send_messenger_response(token)
   end
 
+  def build_response(%{text: text} = _params, sender_id) do
+    build_response(text, sender_id)
+  end
   def build_response(text, sender_id) do
     %{
       "messaging_type" => "RESPONSE",

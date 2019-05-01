@@ -31,6 +31,13 @@ defmodule Wit.Client do
     {:ok, response}
   end
 
+  @doc """
+  Returns :undefined because wit don't controll session.
+  """
+  def create_session do
+    {:undefined}
+  end
+
   # Creates a request URL according to Wit specs
   defp create_url(endpoint, %{} = params) do
     params
