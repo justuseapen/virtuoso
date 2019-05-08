@@ -3,7 +3,6 @@ defmodule MementoMori do
   Remember Death
   """
   alias MementoMori.FastThinking
-  alias MementoMori.SlowThinking
   alias MementoMori.Routine
 
   @recipient_ids Application.get_env(:memento_mori, :fb_page_recipient_ids)
@@ -28,7 +27,7 @@ defmodule MementoMori do
   def respond_to(impression, conversation_state) do
     impression
     |> FastThinking.run()
-    |> SlowThinking.run()
+    |> Virtuoso.Thinker.module_thinker_slow_thinking(:wit).run()
     |> Routine.runner(conversation_state)
   end
 end

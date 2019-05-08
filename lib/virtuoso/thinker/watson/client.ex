@@ -1,4 +1,4 @@
-defmodule Watson.Client do
+defmodule Virtuoso.Thinker.Watson.Client do
   @moduledoc """
     IBM Watson Assistant AI integration for intent handling and NLP
   """
@@ -68,7 +68,7 @@ defmodule Watson.Client do
 
     body = Poison.encode!(%{input: input})
     res = HTTPoison.post(url, body, @headers)
-    
+
     {:ok, _response} =
       res
       |> case do

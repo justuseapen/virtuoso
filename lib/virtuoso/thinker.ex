@@ -3,20 +3,25 @@ defmodule Virtuoso.Thinker do
   Use a NLP API to determine which THINKER should be executed.
   """
 
-  @default_nlp Application.get_env(:virtuoso, :default_nlp) || :nil
+  @doc """
+  Returns module Thinker Client used.
+  """
+  def module_thinker_client(nlp) do
+    Module.concat(["Virtuoso", "Thinker", thinker(nlp), "Client"])
+  end
 
   @doc """
-  Returns module Thinker used.
+  Returns module Thinker Slowthink used.
   """
-  def module_thinker_client do
-    Module.concat([thinker(), "Client"])
+  def module_thinker_slow_thinking(nlp) do
+    Module.concat(["Virtuoso", "Thinker", thinker(nlp), "SlowThinking"])
   end
 
   @doc """
   Returns the Thinker used(:wit or :watson).
   """
-  defp thinker do
-    @default_nlp
+  defp thinker(nlp) do
+    nlp
     |> Atom.to_string
     |> Macro.camelize
   end

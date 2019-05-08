@@ -14,6 +14,7 @@ defmodule Virtuoso.Conversation do
     Struct for Conversation state
     """
     @environment Application.get_env(:virtuoso, :environment)
+    @nlp Application.get_env(:virtuoso, :default_nlp) || :wit
 
     @doc """
     Conversation state
@@ -31,7 +32,8 @@ defmodule Virtuoso.Conversation do
       :messages,
       :pid,
       :session_id,
-      environment: @environment
+      environment: @environment,
+      nlp: @nlp
     ]
   end
 
@@ -119,7 +121,7 @@ defmodule Virtuoso.Conversation do
 
     self() |> schedule_timeout()
 
-    thinker_client = Virtuoso.Thinker.module_thinker_client()
+    thinker_client = Virtuoso.Thinker.module_thinker_client(@nlp)
 
     session_id =
       case thinker_client.create_session do

@@ -1,4 +1,4 @@
-defmodule Wit.Client do
+defmodule Virtuoso.Thinker.Wit.Client do
   @moduledoc """
     WIT AI integration for intent handling and NLP
   """

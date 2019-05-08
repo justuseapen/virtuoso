@@ -60,7 +60,8 @@ defmodule Virtuoso.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:timex, "~> 3.1"},
       {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.8", only: :test}
+      {:excoveralls, "~> 0.8", only: :test},
+      {:temporary_env, "~> 2.0", only: :test, runtime: false}
     ]
   end
 

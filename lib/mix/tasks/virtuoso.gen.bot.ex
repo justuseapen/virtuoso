@@ -24,7 +24,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     |> _generate_bot_directory
     |> _generate_bot_interface
     |> create_routine_directory
-    |> create_slow_thinking_directory
   end
 
   def _generate_bot_directory(bot_module_name) do
@@ -52,21 +51,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     |> Bot.bot_directory_path()
     |> String.replace_suffix("", "fast_thinking.ex")
     |> Generator.create_file(fast_thinking_template(bot_module_name))
-
-    bot_module_name
-    |> Bot.bot_directory_path()
-    |> String.replace_suffix("", "slow_thinking.ex")
-    |> Generator.create_file(slow_thinking_template(bot_module_name))
-
-    bot_module_name
-    |> Bot.bot_directory_nlp_path()
-    |> String.replace_suffix("", "wit.ex")
-    |> Generator.create_file(slow_thinking_wit_template(bot_module_name))
-
-    bot_module_name
-    |> Bot.bot_directory_nlp_path()
-    |> String.replace_suffix("", "watson.ex")
-    |> Generator.create_file(slow_thinking_watson_template(bot_module_name))
   end
 
   def generate_routine_interface(bot_module_name) do
@@ -89,16 +73,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
     end
   end
 
-  def create_slow_thinking_directory(bot_module_name) do
-    with :ok <-
-           bot_module_name
-           |> Bot.bot_directory_path()
-           |> String.replace_suffix("", "slow_thinking")
-           |> Generator.create_directory() do
-      bot_module_name
-    end
-  end
-
   def bot_interface_template(bot_module_name) do
     """
     defmodule #{bot_module_name} do
@@ -106,7 +80,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       Who is this bot?
       \"""
       alias #{bot_module_name}.FastThinking
-      alias #{bot_module_name}.SlowThinking
       alias #{bot_module_name}.Routine
 
       @recipient_ids [
@@ -130,10 +103,10 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       @doc \"""
       Main pipeline for the bot.
       \"""
-      def respond_to(impression, conversation_state) do
+      def respond_to(impression, %{nlp: nlp} = conversation_state) do
         impression
         |> FastThinking.run()
-        |> SlowThinking.run()
+        |> Virtuoso.Thinker.module_thinker_slow_thinking(nlp).run()
         |> Routine.runner(conversation_state)
       end
     end
@@ -157,157 +130,6 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
       \"""
 
       def run(impression), do: impression
-    end
-    """
-  end
-
-  def slow_thinking_template(bot_module_name) do
-    """
-    defmodule #{bot_module_name}.SlowThinking do
-      @moduledoc \"""
-      If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
-      \"""
-
-      @default_nlp Application.get_env(:virtuoso, :default_nlp)
-
-      def run(impression) do
-        impression
-        |> module_thinking().run
-      end
-
-      def module_thinking do
-        Module.concat(["#{bot_module_name}","SlowThinking",@default_nlp])
-      end
-
-      defp nlp do
-        @default_nlp
-        |> Atom.to_string
-        |> Macro.camelize
-      end
-    end
-    """
-  end
-
-  def slow_thinking_wit_template(bot_module_name) do
-    """
-    defmodule #{bot_module_name}.SlowThinking.Wit do
-      @moduledoc \"""
-      If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
-      \"""
-
-      def run(impression) do
-        impression
-        |> maybe_get_entities
-        |> maybe_get_intents
-      end
-
-      def maybe_get_entities(%{intent: _intent} = impression), do: impression
-      # message is nil when the incoming message is an image
-      def maybe_get_entities(%{message: nil} = impression), do: impression
-      def maybe_get_entities(%{message: message} = impression) do
-        with {:ok, response} <- Wit.get(message) do
-          response
-          |> gets_entities
-          |> (&Map.merge(impression, %{entities: &1})).()
-        end
-      end
-
-      defp gets_entities(%{body: wit_response}) do
-        wit_response
-        |> Poison.decode!()
-        |> Map.fetch("entities")
-        |> elem(1)
-      end
-
-      def maybe_get_intents(impression) do
-        impression
-        |> get_most_likely_intent()
-        |> Map.merge(impression)
-      end
-
-      defp get_most_likely_intent(%{entities: %{"intent" => [%{"value" => intent}|_t]}} = impression) do
-        impression
-        |> Map.merge(%{intent: intent})
-      end
-      defp get_most_likely_intent(impression) do
-        impression
-      end
-    end
-    """
-  end
-
-
-  def slow_thinking_watson_template(bot_module_name) do
-    """
-    defmodule #{bot_module_name}.SlowThinking.Watson do
-      @moduledoc \"""
-      If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
-      \"""
-
-      def run(impression) do
-        impression
-        |> get_conversation_session
-        |> think_and_answer
-      end
-
-      defp get_conversation_session(%{sender_id: sender_id} = impression) do
-        with state = Virtuoso.Conversation.get_session(sender_id) do
-          with %{session_id: session_id} = state do
-            session_id
-            |> (&Map.merge(impression, %{session_id: &1})).()
-          end
-        end
-      end
-
-      defp think_and_answer(%{message: message, session_id: session_id} = impression) do
-        with {:ok, response} <- Watson.Client.think_and_answer(session_id, message) do
-          response
-          |> get_output(impression)
-          |> get_context(response)
-        end
-      end
-
-      defp get_output(%{output: %{generic: responses, entities: entities, intents: intents}} = response, impression) do
-        impression
-        |> add_responses(responses)
-        |> add_intents(intents)
-        |> add_entities(entities)
-      end
-
-      defp get_context(impression, %{context: %{skills: %{"main skill": %{user_defined: context}}}} = response) do
-        impression
-        |> add_context(context)
-      end
-      defp get_context(impression, _) do
-        impression
-      end
-
-      defp add_context(impression, user_defined) do
-        user_defined
-        |> (&Map.merge(impression, %{context: &1})).()
-      end
-
-      defp add_responses(impression, responses) do
-        responses
-        |> (&Map.merge(impression, %{responses: &1})).()
-      end
-
-      defp add_intents(impression, intents) do
-        intents
-        |> (&Map.merge(impression, %{intents: &1})).()
-      end
-
-      defp add_entities(impression, entities) do
-        entities
-        |> (&Map.merge(impression, %{entities: &1})).()
-      end
-
-      defp get_session(%{body: watson_response}) do
-        watson_response
-        |> Poison.decode!
-        |> Map.fetch!("session_id")
-      end
-
     end
     """
   end
