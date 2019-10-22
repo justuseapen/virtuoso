@@ -28,10 +28,13 @@ defmodule VirtuosoWeb.Router do
     post("/webhook", WebhookController, :create)
   end
 
-  scope "/admin", VirtuosoWeb.Admin do
-    pipe_through(:browser)
+  scope "/api", VirtuosoWeb do
+    pipe_through(:api)
 
-    get("/", DashboardController, :index)
+    scope "/admin", Admin do
+      pipe_through(:browser)
+      resources("/bots", DashboardController, only: [:create, :index])
+    end
   end
 
   # Other scopes may use custom stacks.

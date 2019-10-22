@@ -125,9 +125,11 @@ defmodule Virtuoso.Conversation do
       case thinker_client.create_session do
         {:ok, %{body: body} = _response} ->
           body
-          |> Poison.decode!
+          |> Poison.decode!()
           |> Map.fetch!("session_id")
-        {:undefined} -> sender_id
+
+        {:undefined} ->
+          sender_id
       end
 
     state = %State{

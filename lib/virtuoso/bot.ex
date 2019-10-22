@@ -4,17 +4,20 @@ defmodule Virtuoso.Bot do
   """
 
   alias Virtuoso.Bot.Map
+  alias Virtuoso.Utilities.Util
 
   def get(recipient_id) do
     Map.bots()
-    |> Enum.find(fn bot -> Enum.member?(bot.recipient_ids, recipient_id) end)
+    |> Enum.find(fn bot -> bot == recipient_id end)
+    |> Util.get_bot_module()
   end
 
   @doc """
   Returns token by recipient id
   """
   def get_token_by_recipient_id(id, client) do
-    bot = id
+    bot =
+      id
       |> get
 
     bot.token(client)

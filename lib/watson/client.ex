@@ -1,102 +1,76 @@
 defmodule Watson.Client do
   @moduledoc """
-    IBM Watson Assistant AI integration for intent handling and NLP
+  If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
   """
 
-  @api_version Application.get_env(:virtuoso, :watson_assistant_version)
-  @assistance_id Application.get_env(:virtuoso, :watson_assistant_id)
-  @token Application.get_env(:virtuoso, :watson_assistant_token)
-  @endpoint_url "https://gateway.watsonplatform.net/assistant/api/v2/assistants/#{@assistance_id}"
-
-  @options [
-    params: %{
-      "version" => @api_version
-    }
-  ]
-
-  @headers [
-    "Authorization": "Basic #{@token}",
-    "Content-Type": "application/json"
-  ]
-
-  @doc """
-  Requests a session ID from Watson Assistant AI NLP analysis. Returns a response number.
-  """
-  def create_session do
-    url =
-      @endpoint_url
-      |> _append_to_url("sessions")
-      |> create_url(@options |> hd |> elem(1))
-
-    {:ok, _response} = HTTPoison.post(url, [], @headers)
+  def run(impression) do
+    impression
+    |> get_conversation_session
+    |> think_and_answer
   end
 
-  @doc """
-  Delete a session ID from Watson Assistant.
-  """
-  def delete_session(session_id) do
-    url =
-      @endpoint_url
-      |> _append_to_url("sessions/#{session_id}")
-      |> create_url(@options |> hd |> elem(1))
-
-    {:ok, _response} = HTTPoison.delete(url, [], @headers)
-  end
-
-
-  @doc """
-  Requests a Watson Assistant AI NLP analysis. Returns a response object.
-  """
-  def think_and_answer(session_id, text) do
-    url =
-      @endpoint_url
-      |> _append_to_url("sessions/#{session_id}/message")
-      |> create_url(@options |> hd |> elem(1))
-
-    options = %{
-      debug: false,
-      restart: false,
-      alternate_intents: false,
-      return_context: true
-    }
-
-    input = %{
-      message_type: "text",
-      text: text,
-      options: options
-    }
-
-    body = Poison.encode!(%{input: input})
-    res = HTTPoison.post(url, body, @headers)
-    
-    {:ok, _response} =
-      res
-      |> case do
-        {:ok, %{body: raw, status_code: _code}} -> {:ok, raw}
-        {:error, %{reason: reason}} -> {:error, reason}
+  defp get_conversation_session(%{sender_id: sender_id} = impression) do
+    with state = Virtuoso.Conversation.get_session(sender_id) do
+      with %{session_id: session_id} = state do
+        session_id
+        |> (&Map.merge(impression, %{session_id: &1})).()
       end
-      |>  (fn {_code, body} ->
-        body
-        |> Poison.decode(keys: :atoms)
-        |> case do
-             {:ok, parsed} -> {:ok, parsed}
-             _ -> {:error, body}
-           end
-         end).()
+    end
   end
 
-  # Creates a request URL according to Wit specs
-  defp create_url(endpoint, %{} = params) do
-    params
-    |> Map.keys()
-    |> Enum.reverse()
-    |> Enum.reduce(endpoint, fn key, url ->
-      _append_to_url(url, key, Map.get(params, key))
-    end)
+  defp think_and_answer(%{message: message, session_id: session_id} = impression) do
+    with {:ok, response} <- Watson.Agent.think_and_answer(session_id, message) do
+      response
+      |> get_output(impression)
+      |> get_context(response)
+    end
   end
 
-  defp _append_to_url(url, method), do: "#{url}/#{method}"
-  defp _append_to_url(url, _key, ""), do: url
-  defp _append_to_url(url, key, param), do: "#{url}?#{key}=#{param}"
+  defp get_output(
+         %{output: %{generic: responses, entities: entities, intents: intents}} = response,
+         impression
+       ) do
+    impression
+    |> add_responses(responses)
+    |> add_intents(intents)
+    |> add_entities(entities)
+  end
 
+  defp get_context(
+         impression,
+         %{context: %{skills: %{"main skill": %{user_defined: context}}}} = response
+       ) do
+    impression
+    |> add_context(context)
+  end
+
+  defp get_context(impression, _) do
+    impression
+  end
+
+  defp add_context(impression, user_defined) do
+    user_defined
+    |> (&Map.merge(impression, %{context: &1})).()
+  end
+
+  defp add_responses(impression, responses) do
+    responses
+    |> (&Map.merge(impression, %{responses: &1})).()
+  end
+
+  defp add_intents(impression, intents) do
+    intents
+    |> (&Map.merge(impression, %{intents: &1})).()
+  end
+
+  defp add_entities(impression, entities) do
+    entities
+    |> (&Map.merge(impression, %{entities: &1})).()
+  end
+
+  defp get_session(%{body: watson_response}) do
+    watson_response
+    |> Poison.decode!()
+    |> Map.fetch!("session_id")
+  end
 end

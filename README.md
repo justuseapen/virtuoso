@@ -30,7 +30,7 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 
 Test your webhook.
 
-### Config
+### Config. If left unconfigured, the project has one default bot - MementoMori. Out of the box, it is a fast thinking bot with a Greeting routine.
 dev.exs at the bottom:
 
 ```
@@ -40,7 +40,6 @@ import_config "dev.secret.exs"
 ```
 
 dev.secret.exs:
-default_nlp: `:wit` or `:watson`
 
 ```
 use Mix.Config
@@ -50,12 +49,30 @@ config :virtuoso,
   watson_assistant_version: "",
   watson_assistant_id: "",
   watson_assistant_token: "",
-  default_nlp: :wit
+  default_nlp: Wit
 
 config :bot_name,
   fb_page_recipient_id: "",
   fb_page_access_token: "",
   default_routine: BotName.Routine.RoutineName
+```
+
+### For Admin Portal
+```
+  scope "/api", VirtuosoWeb do
+    pipe_through(:api)
+    scope "/admin", Admin do
+      pipe_through(:unprotected_browser)
+      resources("/bots", DashboardController, only: [:create, :index])
+    end
+  end
+
+  pipeline :unprotected_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :put_secure_browser_headers
+  end
 ```
 
 ### Supported Platforms

@@ -1,9 +1,10 @@
 defmodule Virtuoso.Bot.Map do
   @moduledoc """
-  Lists bots
+  Lists bots from bot.lock
   """
+  alias Virtuoso.Utilities.Util
 
   def bots do
-    Application.get_env(:virtuoso, :bots)
+    Util.get_current_state!() |> Poison.decode!() |> Map.keys()
   end
 end

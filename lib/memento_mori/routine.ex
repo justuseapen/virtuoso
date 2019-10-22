@@ -4,7 +4,7 @@ defmodule MementoMori.Routine do
   """
 
   @module_name_expanded "Elixir.MementoMori.Routine."
-  @default_routine MementoMori.Routine.Greeting
+  @default_routine MementoMori.Routine.Default
 
   @doc """
   Initiates a routine given a corresponding intent string.
@@ -19,7 +19,7 @@ defmodule MementoMori.Routine do
     |> apply(:run, [impression])
   end
 
-  def runner(_impression, _conversation_state) do
-    @default_routine.run()
+  def runner(impression, _conversation_state) do
+    @default_routine.run(impression)
   end
 end

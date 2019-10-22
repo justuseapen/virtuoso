@@ -1,6 +1,6 @@
-defmodule MementoMori.Routine.Greeting do
+defmodule MementoMori.Routine.Default do
   @moduledoc """
-  Memento Mori's greeting routine.
+      MementoMori's Default routine.
   """
   alias Virtuoso.Impression
 
@@ -13,6 +13,6 @@ defmodule MementoMori.Routine.Greeting do
   end
 
   def run() do
-    "Hey"
+    "So sorry, I didn't get it."
   end
 end

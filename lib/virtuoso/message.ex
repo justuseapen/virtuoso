@@ -1,26 +1,28 @@
-defmodule Virtuoso.FbMessenger.Message do
+defmodule Virtuoso.Message do
   @moduledoc """
   Handles message events from Facebook Messenger
   """
 
   alias Virtuoso.Bot
   alias Virtuoso.Conversation
-  alias Virtuoso.FbMessenger.Translation
-  alias Virtuoso.FbMessenger.Network
+  alias Virtuoso.Translation
 
-  def received_message(%{"messaging" => [entry | _]}) do
-    sender_id = entry["sender"]["id"]
-    recipient_id = entry["recipient"]["id"]
-    token = Bot.get_token_by_recipient_id(recipient_id, :fb)
+  def received_message(messaging) do
+    sender_id = messaging["sender"]["id"]
+    recipient_id = messaging["recipient"]["id"]
 
-    entry
+    messaging
     |> Translation.translate_entry()
     |> Conversation.received_message()
     |> build_response(sender_id)
-    |> Network.send_messenger_response(token)
   end
 
-  def build_response(%{text: text} = _params, sender_id) do
+  def build_response(%{text: text, impression: impression} = params, sender_id) do
+    build_response(text, sender_id)
+    |> Map.merge(%{"impression" => impression |> Map.from_struct()})
+  end
+
+  def build_response(%{text: text} = params, sender_id) do
     build_response(text, sender_id)
   end
 
