@@ -11,22 +11,6 @@ Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one plac
 5. `mix virtuoso.gen.bot BotName`
 5. `mix virtuoso.gen.client`
 6. `mix virtuoso.gen.routine BotName HelloWorld`
-7. Add webhook to router and skip csrf:
-
-```
-  pipeline :unprotected_browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :put_secure_browser_headers
-  end
-
-  scope "/", ProjectNameWeb do
-    pipe_through :unprotected_browser
-    get "/webhook", WebhookController, :verify
-    post "/webhook", WebhookController, :create
-  end
-```
 
 Test your webhook.
 
@@ -57,23 +41,44 @@ config :bot_name,
   default_routine: BotName.Routine.RoutineName
 ```
 
-### For Admin Portal
-```
-  scope "/api", VirtuosoWeb do
-    pipe_through(:api)
-    scope "/admin", Admin do
-      pipe_through(:unprotected_browser)
-      resources("/bots", DashboardController, only: [:create, :index])
+### For Admin testing dashboard add
+
+To setup Admin testing dashboard to your bot application
+follow following steps.
+
+1. Setup liveview in your applicaiton by refering to https://hexdocs.pm/phoenix_live_view/installation.html
+2.  Add `import VirtuosoWeb.Router` to your _app__web.ex's at router.ex in `def router` function
+e.g
+
+```elixir
+  def router do
+    quote do
+      use Phoenix.Router
+      import Plug.Conn
+      import Phoenix.Controller
+      import VirtuosoWeb.Router
     end
   end
-
-  pipeline :unprotected_browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :put_secure_browser_headers
-  end
 ```
+3.  Add `admin_routes_and_pipelines()` at the top of your `router.ex`
+e.g.
+
+```elixir
+defmodule YourAppWeb.Router do
+  use YourAppWeb, :router
+
+  admin_routes_and_pipelines()
+```
+
+4. Also make sure you remove or comment out websocket connect_info in endpoint.ex
+e.g.
+
+```elixir
+ socket "/live", Phoenix.LiveView.Socket# ,
+    # websocket: [connect_info: [session: @session_options]]
+```
+
+5. After above steps, you should be able to access dashboard at http://localhost:4000/admin/dashboard
 
 ### Supported Platforms
 - FbMessenger (needs documentation, rules, and postback accomodations)

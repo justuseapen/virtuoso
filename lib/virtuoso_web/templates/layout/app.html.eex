@@ -15,7 +15,7 @@
     <body>
         <div class="container">
             <header style="text-align:center;">
-                <h1> Local Testing Dashboard</h1>
+                <h1> Admin Testing Dashboard</h1>
             </header>
 
             <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
