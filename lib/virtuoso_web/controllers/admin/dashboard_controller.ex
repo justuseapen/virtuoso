@@ -4,9 +4,11 @@ defmodule VirtuosoWeb.Admin.DashboardController do
   """
   use VirtuosoWeb, :controller
   alias Virtuoso.Admin.Dashboard
+  alias Phoenix.LiveView
+  alias VirtuosoWeb.Admin.DashboardLive.Index
 
   @doc """
-      List out all default and user generated bots       
+  List out all default and user generated bots
   """
   def index(conn, _params) do
     with bots <- Dashboard.list_bots() do
@@ -18,5 +20,9 @@ defmodule VirtuosoWeb.Admin.DashboardController do
     response = Dashboard.send_message(params)
 
     render(conn, "show.json", dashboard: response)
+  end
+
+  def dashboard(conn, _params) do
+    LiveView.Controller.live_render(conn, Index, session: %{})
   end
 end

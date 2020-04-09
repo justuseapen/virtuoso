@@ -1,0 +1,64 @@
+<style>
+ .chat_messages{
+     display: table;
+     width: 100%;
+ }
+ .chat_row {
+     display: table-row;
+     height:20px;
+ }
+ .divTableHeading {
+     background-color: #EEE;
+     display: table-header-group;
+ }
+ .chat_user {
+     display: table-cell;
+     padding: 2px;
+ }
+ .chat_message {
+     display: table-cell;
+     padding: 2px;
+ }
+ .chat_messages_rows {
+     display: table-row-group;
+ }
+</style>
+
+<div class="container" style="width:100%;border:1px solid #eee;">
+    <div id="dashboard" style="margin-top:5%;overflow:hidden;">
+        <div class="sidebar" style="border-right: 1px solid #ccc;min-height:500px;padding:5px;float:left;width:20%">
+
+            <%= for bot <- @bots do %>
+                <div style="border: 0px solid #eee; padding:2px;">
+                    <%= bot.botname %>
+                </div>
+            <% end %>
+
+        </div>
+
+        <div class="messages" style="float:right;width:70%;">
+            <div class="chat_messages" style="max-height:500px;overflow: scroll;" >
+                <div class="chat_messages_rows">
+                    <%= for message <- @chat_messages do %>
+                        <div class="chat_row">
+                            <div class="chat_user"><%= message.user%> </div>
+                            <div class="chat_message"><pre><%= message.message %></pre></div>
+                        </div>
+                    <% end %>
+                    <div class="chat_row">
+                        <div class="chat_user">&nbsp;</div>
+                        <div class="chat_message">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+            <%= f = form_for :chat_message, "#", [phx_submit: :send_message, autocomplete: :off] %>
+            <div>
+                <span><%= select f, :bot, Enum.map(@bots, fn bot -> bot.botname end) %></span>
+                <span><%= text_input f, :message, [width: "100px"] %></span>
+                </span><%= submit "Send", phx_disable_with: "Loading..." %></span>
+            </div>
+            </form>
+
+        </div>
+    </div>
+</div>
