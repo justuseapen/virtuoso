@@ -360,11 +360,16 @@ defmodule Mix.Tasks.Virtuoso.Gen.Bot do
         |> send_messenger
       end
       def runner(%{intent: intent} = impression, _conversation_state) when not(is_nil(intent)) do
-        intent
-        |> Macro.camelize()
-        |> String.replace_prefix("", @module_name_expanded)
-        |> String.to_existing_atom()
-        |> apply(:run, [impression])
+        module = intent
+                  |> Macro.camelize()
+                  |> String.replace_prefix("", @module_name_expanded)
+                  |> String.to_existing_atom()
+                  
+        cond do
+          function_exported?(module, :__info__, 1) ->
+            apply(module, :run, [impression])
+          true -> @default_routine.run(impression)
+        end
       end
       def runner(impression, _conversation_state) do
         @default_routine.run(impression)

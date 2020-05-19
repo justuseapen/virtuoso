@@ -4,7 +4,7 @@ defmodule Virtuoso.Mixfile do
   def project do
     [
       app: :virtuoso,
-      version: "0.0.28",
+      version: "0.0.29",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -59,6 +59,7 @@ defmodule Virtuoso.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:timex, "~> 3.1"},
+      {:jason, "~> 1.0"},
       {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:phoenix_live_view, "~> 0.11.1"},
