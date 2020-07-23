@@ -41,11 +41,18 @@ defmodule Mix.Tasks.Virtuoso.Gen.Routine do
       #{bot_name}'s #{routine_name} routine.
       \"""
 
-      def run(_impression) do
+      alias Virtuoso.Impression
+
+      def run(%Impression{debug: debug} = impression) when debug == true do
+        %{text: run(), impression: impression}
+      end
+
+      def run(%Impression{} = impression) do
         run()
       end
+
       def run() do
-        "Yo."
+        "Yo"
       end
     end
     """

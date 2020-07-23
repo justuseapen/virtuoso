@@ -1,53 +1,51 @@
 defmodule Wit.Client do
   @moduledoc """
-    WIT AI integration for intent handling and NLP
+  If FastThinking failed to deduce entities and intents then SlowThinking may use a Virtuoso NLP client to determine which routine the bot should execute.
   """
 
-  @token Application.get_env(:virtuoso, :wit_server_access_token)
-  @message_url "https://api.wit.ai/message?"
-  @api_version "20171201"
-
-  @doc """
-  Requests a Wit AI NLP analysis. Returns a response object.
-  """
-  def get(text) do
-    options = [
-      params: %{
-        "q" => URI.encode(text),
-        "v" => @api_version
-      }
-    ]
-
-    headers = [Authorization: "Bearer #{@token}", Accept: "Application/json; Charset=utf-8"]
-
-    url =
-      @message_url
-      |> create_url(options |> hd |> elem(1))
-
-    response =
-      url
-      |> HTTPoison.get!(headers)
-
-    {:ok, response}
+  def run(impression) do
+    impression
+    |> maybe_get_entities
+    |> maybe_get_intents
   end
 
-  @doc """
-  Returns :undefined because wit don't controll session.
-  """
-  def create_session do
-    {:undefined}
+  def maybe_get_entities(%{intent: _intent} = impression), do: impression
+  # message is nil when the incoming message is an image
+  def maybe_get_entities(%{message: nil} = impression), do: impression
+
+  def maybe_get_entities(%{message: message} = impression) do
+    with {:ok, response} <- Wit.Agent.get(message) do
+      response
+      |> gets_entities
+      |> (&Map.merge(impression, %{entities: &1})).()
+    end
   end
 
-  # Creates a request URL according to Wit specs
-  defp create_url(endpoint, %{} = params) do
-    params
-    |> Map.keys()
-    |> Enum.reverse()
-    |> Enum.reduce(endpoint, fn key, url ->
-      _append_to_url(url, key, Map.get(params, key))
-    end)
+  defp gets_entities(%{body: nlp_response}) do
+    nlp_response
+    |> Poison.decode!()
+    |> Map.fetch("entities")
+    |> elem(1)
   end
 
-  defp _append_to_url(url, _key, ""), do: url
-  defp _append_to_url(url, key, param), do: "#{url}&#{key}=#{param}"
+  def maybe_get_intents(impression) do
+    impression
+    |> get_most_likely_intent()
+    |> Map.merge(impression)
+  end
+
+  defp get_most_likely_intent(
+         %{entities: %{"intent" => [%{"value" => intent} | _t]}} = impression
+       ) do
+    impression
+    |> Map.merge(%{intent: intent})
+  end
+
+  defp get_most_likely_intent(%{entities: %{}} = impression) do
+    impression
+  end
+
+  defp get_most_likely_intent(impression) do
+    impression
+  end
 end

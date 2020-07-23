@@ -2,7 +2,7 @@ defmodule Virtuoso.Executive do
   @moduledoc """
   Receives impressions and delegates to relevant bot and subroutine
   """
-
+  require Logger
   alias Virtuoso.Bot
 
   def handles_message({%{recipient_id: recipient_id} = impression, conversation_state}) do

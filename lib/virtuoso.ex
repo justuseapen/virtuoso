@@ -10,7 +10,14 @@ defmodule Virtuoso do
   @doc """
   Accepts params and delegates based on incoming message structure
   """
-  def handle(%{"object" => _object, "entry" => entries}) do
-    Virtuoso.FbMessenger.process_messages(entries)
+
+  alias Virtuoso.{Message}
+
+  def handle(%{"object" => object, "entry" => entry}) do
+    process_messages(object, entry)
+  end
+
+  def process_messages(object, entry) do
+    Message.received_message(entry["messaging"])
   end
 end

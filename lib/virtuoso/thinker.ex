@@ -3,7 +3,7 @@ defmodule Virtuoso.Thinker do
   Use a NLP API to determine which THINKER should be executed.
   """
 
-  @default_nlp Application.get_env(:virtuoso, :default_nlp) || :nil
+  @default_nlp Application.get_env(:virtuoso, :default_nlp) || nil
 
   @doc """
   Returns module Thinker used.
@@ -17,7 +17,7 @@ defmodule Virtuoso.Thinker do
   """
   defp thinker do
     @default_nlp
-    |> Atom.to_string
-    |> Macro.camelize
+    |> Atom.to_string()
+    |> Macro.camelize()
   end
 end

@@ -13,9 +13,9 @@ defmodule MementoMori.FastThinking do
   end
   """
 
-  def run(%{message: "25"} = impression) do
+  def run(%{message: "Hello"} = impression) do
     impression
-    |> Map.merge(%{intent: "time_left"})
+    |> Map.merge(%{intent: "Greeting"})
   end
 
   def run(impression), do: impression
