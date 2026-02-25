@@ -4,7 +4,7 @@ defmodule Virtuoso.Mixfile do
   def project do
     [
       app: :virtuoso,
-      version: "0.0.29",
+      version: "0.1.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -79,7 +79,9 @@ defmodule Virtuoso.Mixfile do
 
   defp description do
     """
-    Phoenix-based framework for chatbot development and orchestration.
+    Phoenix-based framework for chatbot and AI agent development and orchestration.
+    Supports classic NLP pipelines (Wit.ai, Watson) and modern LLM-powered agents
+    (Anthropic Claude, OpenAI GPT).
     """
   end
 

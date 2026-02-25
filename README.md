@@ -3,10 +3,25 @@
 
 Virtuoso is a bot orchestration framework built on Phoenix. Simply put, one place for all your bots.
 
-### Quick Start
+Virtuoso supports two modes of operation:
+
+- **Classic bots** — Rule-based intent matching (FastThinking) + NLP providers (Wit.ai, Watson) for the SlowThinking pipeline, dispatching to Routines.
+- **Modern agents** — LLM-powered agents (Anthropic Claude, OpenAI GPT) with tool use, replacing the entire FastThinking/SlowThinking/Routine pipeline with a single reasoning loop.
+
+### Quick Start (Modern Agent)
 1. `mix phx.new project_name`
 2. `cd project_name`
-3. Add `{:virtuoso, ">= 0.0.28"}, {:poison, "~> 3.0"}` to mix.exs
+3. Add `{:virtuoso, ">= 0.1.0"}, {:jason, "~> 1.0"}` to mix.exs
+4. `mix deps.get`
+5. `mix virtuoso.gen.agent MyAssistant`
+6. Set `ANTHROPIC_API_KEY` in your environment (or configure in `dev.secret.exs`)
+
+Your agent is ready. It comes with an example tool — edit `lib/my_assistant/agent.ex` to customize the system prompt, model, and tools.
+
+### Quick Start (Classic Bot)
+1. `mix phx.new project_name`
+2. `cd project_name`
+3. Add `{:virtuoso, ">= 0.1.0"}, {:poison, "~> 3.0"}` to mix.exs
 4. `mix deps.get`
 5. `mix virtuoso.gen.bot BotName`
 5. `mix virtuoso.gen.client`
@@ -104,7 +119,105 @@ Other messages require additional processing for your bot to understand. These g
 
 Entities are concepts parsed from your input. All incoming messages have an intent and one or more entities. The question for your bot to answer is: "Which of these entities, if any, are relevant to the satisfaction of the user's intent?"
 
+## Modern Agents
+
+Modern agents replace the FastThinking/SlowThinking/Routine pipeline with a single LLM-driven loop. The agent sends the conversation history to an LLM, which can respond with text or request tool calls. Tool results are fed back into the LLM until it produces a final response.
+
+### Generating an Agent
+
+```bash
+# Anthropic Claude (default)
+mix virtuoso.gen.agent MyAssistant
+
+# OpenAI GPT
+mix virtuoso.gen.agent MyAssistant --llm openai --model gpt-4o
+```
+
+This generates:
+- `lib/my_assistant.ex` — Bot module
+- `lib/my_assistant/agent.ex` — Agent with system prompt and tool config
+- `lib/my_assistant/tools/example.ex` — Example tool
+
+### Agent Configuration
+
+```elixir
+# config/dev.secret.exs
+config :virtuoso,
+  anthropic_api_key: "sk-ant-...",
+  # or
+  openai_api_key: "sk-..."
+```
+
+Or set environment variables: `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`.
+
+### Writing Tools
+
+Tools let your agent take actions. Implement the `Virtuoso.Agent.Tool` behaviour:
+
+```elixir
+defmodule MyAssistant.Tools.Weather do
+  use Virtuoso.Agent.Tool
+
+  @impl true
+  def name, do: "get_weather"
+
+  @impl true
+  def description, do: "Get current weather for a location."
+
+  @impl true
+  def parameters do
+    %{
+      type: "object",
+      properties: %{
+        location: %{type: "string", description: "City name"}
+      },
+      required: ["location"]
+    }
+  end
+
+  @impl true
+  def execute(%{"location" => location}, _context) do
+    # Call your weather API here
+    {:ok, "72°F and sunny in #{location}"}
+  end
+end
+```
+
+Then register it in your agent:
+
+```elixir
+defmodule MyAssistant.Agent do
+  use Virtuoso.Agent,
+    llm: Virtuoso.Agent.LLM.Anthropic,
+    model: "claude-sonnet-4-20250514"
+
+  @impl true
+  def system_prompt, do: "You are a weather assistant."
+
+  @impl true
+  def tools, do: [MyAssistant.Tools.Weather]
+end
+```
+
+### Custom LLM Providers
+
+Implement the `Virtuoso.Agent.LLM` behaviour to add support for other providers:
+
+```elixir
+defmodule MyApp.LLM.Custom do
+  @behaviour Virtuoso.Agent.LLM
+
+  @impl true
+  def chat(messages, tools, config) do
+    # Call your LLM API and return:
+    # {:ok, %{type: :text, content: "response"}}
+    # or
+    # {:ok, %{type: :tool_use, tool_calls: [...], content: [...]}}
+  end
+end
+```
+
 ### Todo
-- Dialogue Flow Client
-- Open API
-- Admin Portal
+- Streaming responses
+- Admin Portal agent testing
+- Multi-agent orchestration

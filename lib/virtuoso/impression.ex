@@ -15,5 +15,8 @@ defmodule Virtuoso.Impression do
             entities: nil,
             context: nil,
             responses: nil,
-            debug: false
+            debug: false,
+            # Agent fields
+            agent_module: nil,
+            metadata: %{}
 end
