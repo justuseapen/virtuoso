@@ -5,9 +5,10 @@ defmodule Virtuoso.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Virtuoso.Repo
+      Virtuoso.Repo,
+      # Registry + DynamicSupervisor for on-demand conversation processes.
+      Virtuoso.Conversation.Supervisor
       # Subsystems attach here as they land:
-      #   {Registry, ...}                (Phase 1: conversation registry)
       #   Virtuoso.Budget                (Phase 1: token budget)
       #   Virtuoso.Fabric.Supervisor     (Phase 3: Horde)
     ]
