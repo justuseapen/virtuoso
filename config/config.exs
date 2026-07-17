@@ -8,4 +8,7 @@ config :logger, :console,
 # the suite fully offline.
 config :virtuoso, :llm, Virtuoso.LLM.Anthropic
 
+# Anthropic adapter: API key from the environment (never committed).
+config :virtuoso, Virtuoso.LLM.Anthropic, api_key: {:system, "ANTHROPIC_API_KEY"}
+
 import_config "#{config_env()}.exs"

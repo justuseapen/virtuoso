@@ -109,7 +109,8 @@ lib/virtuoso/
 - **Success:** `mix compile --warnings-as-errors`, `mix test`, dialyzer clean on 1.15.6-otp-26
 
 #### Phase 1: Modern core — LLM SlowThinking + persistence (the useful single-node framework)
-- [ ] `Virtuoso.LLM` behaviour + Anthropic adapter (Req; streaming + non-streaming; typed errors for 429/529/timeout)
+- [x] `Virtuoso.LLM` behaviour + Anthropic adapter (Req; streaming + non-streaming; typed errors for 429/529/timeout)
+      → **Done:** behaviour (`complete/2`, `stream/3`), `LLM.Error` typed errors, offline `LLM.Mock`, Anthropic adapter on Req with SSE parsing + typed error mapping. 31 tests, dialyzer/credo/warnings-as-errors clean. Model IDs left open (adapter is model-agnostic); default `claude-opus-4-8` per current API docs. Streaming buffers the full response in v1 (see note in `anthropic.ex`) — incremental `:into` deferred to when generation is wired to the web-chat channel.
 - [ ] Conversation process + Postgres event log: append per message, dedup by channel message ID, rehydrate on start, per-conversation FIFO queue (message #2 waits for #1), history truncation/summarization policy for context window
 - [ ] Explicit routine registry replacing `String.to_atom` dispatch
 - [ ] Channel behaviour + web-chat adapter (Phoenix Channels; session identity); FB adapter ported with webhook signature verification + idempotent delivery (at-least-once → exactly-one reply)

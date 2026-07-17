@@ -35,7 +35,7 @@ defmodule Virtuoso.MixProject do
   defp deps do
     [
       # HTTP client for LLM adapters.
-      {:req, "~> 0.5"},
+      {:req, "~> 0.6"},
       {:jason, "~> 1.4"},
       # Persistence for the conversation event log (Phase 1).
       {:ecto_sql, "~> 3.11"},
