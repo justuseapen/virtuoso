@@ -1,5 +1,7 @@
 import Config
 
+config :virtuoso, ecto_repos: [Virtuoso.Repo]
+
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:conversation_id, :model]

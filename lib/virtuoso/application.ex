@@ -5,8 +5,8 @@ defmodule Virtuoso.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Virtuoso.Repo
       # Subsystems attach here as they land:
-      #   Virtuoso.Repo                  (Phase 1: event log)
       #   {Registry, ...}                (Phase 1: conversation registry)
       #   Virtuoso.Budget                (Phase 1: token budget)
       #   Virtuoso.Fabric.Supervisor     (Phase 3: Horde)
