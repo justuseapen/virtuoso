@@ -1,33 +1,27 @@
 defmodule Virtuoso.Application do
+  @moduledoc false
   use Application
 
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
+  @impl true
   def start(_type, _args) do
-    import Supervisor.Spec
-
-    # Define workers and child supervisors to be supervised
     children = [
-      # Start the endpoint when the application starts
-      supervisor(VirtuosoWeb.Endpoint, []),
-      # Start your own worker by calling: Virtuoso.Worker.start_link(arg1, arg2, arg3)
-      # worker(Virtuoso.Worker, [arg1, arg2, arg3]),
-      supervisor(Registry, [:unique, Virtuoso.Conversation.Registry],
-        id: Virtuoso.Conversation.Registry
-      ),
-      supervisor(Virtuoso.Conversation.Supervisor, [])
+      Virtuoso.Repo,
+      # Registry + DynamicSupervisor for on-demand conversation processes.
+      Virtuoso.Conversation.Supervisor,
+      # Cluster-global token budget (Phase 3: fabric-supervised singleton).
+      {Virtuoso.Budget, budget_opts()}
+      # Subsystems attach here as they land:
+      #   Virtuoso.Fabric.Supervisor     (Phase 3: Horde)
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Virtuoso.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
-  def config_change(changed, _new, removed) do
-    VirtuosoWeb.Endpoint.config_change(changed, removed)
-    :ok
+  # Default budget caps, overridable via `config :virtuoso, Virtuoso.Budget, ...`.
+  # Defaults are :infinity so the framework doesn't silently throttle a consumer
+  # who hasn't opted into caps; a host app sets real limits.
+  defp budget_opts do
+    Application.get_env(:virtuoso, Virtuoso.Budget, [])
   end
 end

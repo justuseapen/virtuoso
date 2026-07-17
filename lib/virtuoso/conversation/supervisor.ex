@@ -1,41 +1,38 @@
 defmodule Virtuoso.Conversation.Supervisor do
   @moduledoc """
-  Supervisor for conversation processes
-  """
+  Supervises conversation processes and the registry that addresses them.
 
+  Starts a `Registry` (keyed by conversation id) and a `DynamicSupervisor`.
+  `Virtuoso.Conversation.ensure_started/1` starts a conversation on demand
+  under this supervisor; a crashed conversation is simply restarted and
+  rehydrates from the event log.
+
+  In Phase 3 the registry and dynamic supervisor become their Horde equivalents
+  so conversations can live anywhere in the cluster; the single-node shape here
+  is the default.
+  """
   use Supervisor
 
-  alias Virtuoso.Conversation
-  alias Virtuoso.Conversation.Watcher
+  @registry Virtuoso.Conversation.Registry
+  @dynamic_supervisor Virtuoso.Conversation.DynamicSupervisor
 
-  @doc false
-  def start_link do
-    Supervisor.start_link(__MODULE__, nil, name: __MODULE__)
+  def start_link(opts \\ []) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  @doc """
-  Start a new conversation
-  """
-  @spec start_child(Conversation.sender_id()) :: {:ok, pid}
-  def start_child(sender_id) do
-    child_spec = worker(Conversation, [sender_id], id: sender_id, restart: :transient)
-    Supervisor.start_child(__MODULE__, child_spec)
-  end
-
-  @doc """
-  Stop a conversation
-  """
-  @spec delete_child(Conversation.sender_id()) :: {:ok, pid}
-  def delete_child(sender_id) do
-    Supervisor.delete_child(__MODULE__, sender_id)
-  end
-
-  @doc false
-  def init(_) do
+  @impl true
+  def init(_opts) do
     children = [
-      worker(Watcher, [])
+      {Registry, keys: :unique, name: @registry},
+      {DynamicSupervisor, name: @dynamic_supervisor, strategy: :one_for_one}
     ]
 
-    supervise(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
+
+  @doc "The registry name conversations register under."
+  def registry, do: @registry
+
+  @doc "The dynamic supervisor conversations run under."
+  def dynamic_supervisor, do: @dynamic_supervisor
 end

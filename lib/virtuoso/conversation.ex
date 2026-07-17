@@ -1,181 +1,170 @@
 defmodule Virtuoso.Conversation do
   @moduledoc """
-  GenServer to maintain conversation state
+  A per-conversation process — the unit of concurrency and ordering.
+
+  One GenServer per active conversation, addressed through the registry by
+  conversation id and started on demand. Two properties fall out of the OTP
+  design:
+
+    * **FIFO ordering per conversation.** A GenServer processes its mailbox
+      serially, so message #2 for a conversation cannot start until #1 finishes.
+      Ordering is the actor model, not an added queue.
+
+    * **Recovery by replay.** On start the process rebuilds its history from
+      `Virtuoso.Conversation.Log`, so a crash or (in Phase 3) a node handoff
+      loses at most the in-flight message. State is derived from the log, never
+      the sole copy.
+
+  `deliver/2` is the entry point: it routes the impression to the right
+  conversation process (starting it if needed) and returns the reply. The reply
+  itself is produced by a `:responder` function — a seam the thinking pipeline
+  (FastThinking → SlowThinking) plugs into later; tests inject a deterministic
+  one.
   """
 
   use GenServer
-  require Logger
 
-  alias Virtuoso.Conversation.Supervisor
-  alias Virtuoso.Executive
+  alias Virtuoso.Conversation.{Log, Supervisor}
+  alias Virtuoso.Impression
 
-  defmodule State do
-    @moduledoc """
-    Struct for Conversation state
-    """
-    @environment Application.get_env(:virtuoso, :environment)
-
-    @doc """
-    Conversation state
-
-    - `:sender_id` - the facebook sender id
-    - `:last_recieved_at` - when the last message was received for this conversation
-    - `:messages` - a list of sent and received responses
-    - `:pid` - the conversation process identification tuple
-    - `:session_id` - sessionID from Watson Assistant
-    - `:environment` - config enviroment var, used for ignoring Ecto-related code in process tests
-    """
-    defstruct [
-      :sender_id,
-      :last_recieved_at,
-      :messages,
-      :pid,
-      :session_id,
-      environment: @environment
-    ]
-  end
+  @typedoc "History entry as replayed from the log: {role, content}."
+  @type history_entry :: {Log.role(), String.t() | nil}
 
   @typedoc """
-  Conversation state
+  A responder turns an inbound impression + prior history into a reply.
+  Returning `{:reply, text}` sends `text` back to the channel; `:noreply`
+  processes the message without a reply.
   """
-  @type state :: %State{}
+  @type responder :: (Impression.t(), [history_entry()] -> {:reply, String.t()} | :noreply)
 
-  @typedoc """
-  Sender id for facebook messages
-  """
-  @type sender_id :: String.t()
+  @type reply :: {:reply, String.t()} | :noreply
 
-  # one minute
-  @timeout_period 60 * 1000
-
-  @doc false
-  def start_link(sender_id) do
-    GenServer.start_link(__MODULE__, sender_id, name: pid(sender_id))
-  end
+  # --- public API -----------------------------------------------------------
 
   @doc """
-  Helper for determining a conversation registered process name
+  Deliver an inbound impression to its conversation, returning the reply.
+
+  Options:
+
+    * `:responder` — the function that produces the reply (required until the
+      thinking pipeline is wired in as the default).
+    * `:timeout` — call timeout (default 30s).
   """
-  @spec pid(sender_id()) :: tuple()
-  def pid(sender_id) do
-    {:via, Registry, {Virtuoso.Conversation.Registry, sender_id}}
+  @spec deliver(Impression.t(), keyword()) :: reply()
+  def deliver(%Impression{} = imp, opts \\ []) do
+    responder = Keyword.fetch!(opts, :responder)
+    timeout = Keyword.get(opts, :timeout, 30_000)
+    call(imp, responder, timeout, _retries = 1)
   end
 
-  @doc """
-  A message is received. Ensure the process is alive and forward it
-  """
-  @spec received_message(map()) :: :ok
-  def received_message(%{sender_id: sender_id} = entry) do
-    ensure_process(sender_id)
-    GenServer.cast(pid(sender_id), {:received, entry})
-    conversation_pid = pid(sender_id)
+  # A conversation can die between ensure_started/1 and the call (a crash, or a
+  # racing kill during handoff). If the target is already gone, restart it and
+  # retry once — the new process rehydrates from the log, so no state is lost.
+  defp call(imp, responder, timeout, retries) do
+    pid = ensure_started(imp.conversation_id)
 
-    {entry, conversation_pid}
-    |> Executive.handles_message()
-  end
-
-  @doc """
-  A message is sent. Ensure the process is alive and forward it
-  """
-  @spec sent_message(sender_id(), map()) :: :ok
-  def sent_message(sender_id, response) do
-    ensure_process(sender_id)
-    GenServer.cast(pid(sender_id), {:sent, response})
-  end
-
-  @doc """
-  Ensure a process is alive before sending data to it
-  """
-  def get_session(sender_id) do
-    ensure_process(sender_id)
-    GenServer.call(pid(sender_id), :get_session)
-  end
-
-  @doc """
-  Ensure a process is alive before sending data to it
-  """
-  @spec ensure_process(sender_id()) :: :ok
-  def ensure_process(sender_id) do
-    case Registry.whereis_name({Virtuoso.Conversation.Registry, sender_id}) do
-      :undefined -> Supervisor.start_child(sender_id)
-      _ -> :ok
+    try do
+      GenServer.call(pid, {:deliver, imp, responder}, timeout)
+    catch
+      :exit, {reason, _} when reason in [:noproc, :normal, :killed] and retries > 0 ->
+        call(imp, responder, timeout, retries - 1)
     end
   end
 
-  @doc """
-  Terminate a conversation process
-  """
-  @spec terminate(sender_id()) :: :ok
-  def terminate(sender_id) do
-    GenServer.call(pid(sender_id), :terminate)
+  @doc "The pid of a conversation process, or nil if not running."
+  @spec whereis(String.t()) :: pid() | nil
+  def whereis(conversation_id) do
+    case Registry.lookup(Supervisor.registry(), conversation_id) do
+      [{pid, _}] -> pid
+      [] -> nil
+    end
   end
 
-  #
-  # Server
-  #
+  @doc "Start (or find) the conversation process for `conversation_id`."
+  @spec ensure_started(String.t()) :: pid()
+  def ensure_started(conversation_id) do
+    case whereis(conversation_id) do
+      pid when is_pid(pid) ->
+        if Process.alive?(pid), do: pid, else: start(conversation_id)
 
-  def init(sender_id) do
-    Logger.info("Starting conversation for #{sender_id}")
+      nil ->
+        start(conversation_id)
+    end
+  end
 
-    self() |> schedule_timeout()
+  defp start(conversation_id) do
+    spec = {__MODULE__, conversation_id}
 
-    thinker_client = Virtuoso.Thinker.module_thinker_client()
+    case DynamicSupervisor.start_child(Supervisor.dynamic_supervisor(), spec) do
+      {:ok, pid} -> pid
+      {:error, {:already_started, pid}} -> pid
+    end
+  end
 
-    session_id =
-      case thinker_client.create_session do
-        {:ok, %{body: body} = _response} ->
-          body
-          |> Poison.decode!()
-          |> Map.fetch!("session_id")
+  # --- process --------------------------------------------------------------
 
-        {:undefined} ->
-          sender_id
-      end
-
-    state = %State{
-      last_recieved_at: Timex.now(),
-      messages: [],
-      pid: pid(sender_id),
-      sender_id: sender_id,
-      session_id: session_id
+  @doc false
+  def child_spec(conversation_id) do
+    %{
+      id: {__MODULE__, conversation_id},
+      start: {__MODULE__, :start_link, [conversation_id]},
+      restart: :transient
     }
-
-    {:ok, state}
   end
 
-  def handle_call(:terminate, _from, state) do
-    Logger.info("Terminating process: #{inspect(state)}")
-
-    {:stop, :normal, :ok, state}
+  @doc false
+  def start_link(conversation_id) do
+    GenServer.start_link(__MODULE__, conversation_id, name: via(conversation_id))
   end
 
-  def handle_cast({:received, entry}, state) do
-    Logger.info("Received a message for #{state.sender_id}")
-
-    new_state =
-      state
-      |> Map.put(:last_recieved_at, Timex.now())
-      |> Map.put(:messages, [entry | state.messages])
-
-    {:noreply, new_state}
+  defp via(conversation_id) do
+    {:via, Registry, {Supervisor.registry(), conversation_id}}
   end
 
-  def handle_cast({:sent, response}, state) do
-    Logger.info("Sent a message to #{state.sender_id}")
+  @impl true
+  def init(conversation_id) do
+    # Rehydrate: state is a replay of the log, not an in-memory original.
+    history =
+      conversation_id
+      |> Log.events_for()
+      |> Enum.map(&{&1.role, &1.content})
 
-    new_state =
-      state
-      |> Map.put(:messages, [response | state.messages])
-
-    {:noreply, new_state}
+    {:ok, %{conversation_id: conversation_id, history: history}}
   end
 
-  def handle_call(:get_session, _from, %{session_id: _session_id} = state) do
-    {:reply, state, state}
+  @impl true
+  def handle_call({:deliver, imp, responder}, _from, state) do
+    case Log.append_inbound(imp) do
+      # Duplicate inbound (e.g. a replayed webhook): the message was already
+      # processed. Return the reply we already sent — do NOT re-run the responder
+      # (that would re-spend tokens and could return a divergent answer). State
+      # is unchanged; the reply is authoritative from the log.
+      {:ok, _inbound, :duplicate} ->
+        {:reply, replayed_reply(imp), state}
+
+      {:ok, _inbound, :inserted} ->
+        history = state.history ++ [{:user, imp.text}]
+        reply = responder.(imp, state.history)
+        new_state = commit_reply(reply, imp, %{state | history: history})
+        {:reply, reply, new_state}
+    end
   end
 
-  defp schedule_timeout(pid) do
-    Logger.debug(fn -> "Scheduling timeout for #{inspect(pid)}" end)
-    :erlang.send_after(@timeout_period, pid, :timeout)
+  # The reply previously logged for this message, or :noreply if none was
+  # recorded (e.g. crash after inbound-append, before the reply was committed —
+  # the message is genuinely unanswered; see todo 004 / architecture P2).
+  defp replayed_reply(imp) do
+    case Log.fetch_outbound("#{imp.message_id}:reply") do
+      %{content: text} when is_binary(text) -> {:reply, text}
+      _ -> :noreply
+    end
   end
+
+  defp commit_reply({:reply, text}, imp, state) do
+    reply_id = "#{imp.message_id}:reply"
+    {:ok, _outbound, _status} = Log.append_outbound(imp.conversation_id, reply_id, text)
+    %{state | history: state.history ++ [{:assistant, text}]}
+  end
+
+  defp commit_reply(:noreply, _imp, state), do: state
 end

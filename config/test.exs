@@ -1,18 +1,15 @@
-use Mix.Config
+import Config
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
-config :virtuoso, VirtuosoWeb.Endpoint,
-  http: [port: 4001],
-  server: false
+config :logger, level: :warning
 
-# Print only warnings and errors during test
-config :logger, level: :warn
+# The whole suite runs offline: the LLM behaviour is served by an in-process
+# mock that returns scripted responses instead of hitting the network.
+config :virtuoso, :llm, Virtuoso.LLM.Mock
 
-config :virtuoso, :fb_messenger_network, Virtuoso.FbMessenger.Network.Mock
-config :virtuoso, :nlp, Virtuoso.NLPMock
-config :virtuoso, :facebook_graph_api, Virtuoso.FacebookGraphApi.HttpMock
-
-config :virtuoso, :bots, [
-  BotMock
-]
+config :virtuoso, Virtuoso.Repo,
+  username: System.get_env("PGUSER", System.get_env("USER", "postgres")),
+  password: System.get_env("PGPASSWORD", ""),
+  hostname: System.get_env("PGHOST", "localhost"),
+  database: "virtuoso_test#{System.get_env("MIX_TEST_PARTITION")}",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: System.schedulers_online() * 2
