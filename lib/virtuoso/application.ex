@@ -9,7 +9,9 @@ defmodule Virtuoso.Application do
       # Registry + DynamicSupervisor for on-demand conversation processes.
       Virtuoso.Conversation.Supervisor,
       # Cluster-global token budget (Phase 3: fabric-supervised singleton).
-      {Virtuoso.Budget, budget_opts()}
+      {Virtuoso.Budget, budget_opts()},
+      # Task supervisor for ensemble member fan-out (async_stream_nolink).
+      {Task.Supervisor, name: Virtuoso.Ensemble.TaskSupervisor}
       # Subsystems attach here as they land:
       #   Virtuoso.Fabric.Supervisor     (Phase 3: Horde)
     ]
