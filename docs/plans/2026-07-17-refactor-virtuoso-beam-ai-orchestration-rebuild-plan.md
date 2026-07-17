@@ -113,10 +113,12 @@ lib/virtuoso/
       → **Done:** behaviour (`complete/2`, `stream/3`), `LLM.Error` typed errors, offline `LLM.Mock`, Anthropic adapter on Req with SSE parsing + typed error mapping. 31 tests, dialyzer/credo/warnings-as-errors clean. Model IDs left open (adapter is model-agnostic); default `claude-opus-4-8` per current API docs. Streaming buffers the full response in v1 (see note in `anthropic.ex`) — incremental `:into` deferred to when generation is wired to the web-chat channel.
 - [x] Conversation process + Postgres event log: append per message, dedup by channel message ID, rehydrate on start, per-conversation FIFO queue (message #2 waits for #1), history truncation/summarization policy for context window
       → **Done:** append-only `Conversation.Log` (unique dedup index, replay), `Conversation` GenServer (Registry + DynamicSupervisor, rehydrates from log on start, FIFO via serial mailbox), crash recovery verified (kill → next deliver rebuilds from log). Fixed a real race in `ensure_started/1` (caller racing a crash hit `:noproc`) with a liveness check + single rehydrating retry. History truncation policy still a stub (deferred to SlowThinking context-window work).
-- [ ] Explicit routine registry replacing `String.to_atom` dispatch
+- [x] Explicit routine registry replacing `String.to_atom` dispatch
+      → **Done:** `Virtuoso.Routine` — string-keyed map lookup, `fetch/2` returns `:error` (never creates an atom) for unknown/hostile/non-string names, `dispatch/4` runs the routine. Atom-exhaustion DoS closed; test asserts the evil string never becomes an atom.
 - [ ] Channel behaviour + web-chat adapter (Phoenix Channels; session identity); FB adapter ported with webhook signature verification + idempotent delivery (at-least-once → exactly-one reply)
 - [ ] `Virtuoso.Budget` v1: per-conversation and global daily caps, kill switch, defined refusal fallback
-- [ ] Telemetry events (documented as public API) for every LLM call: model, tokens, latency, outcome
+- [x] Telemetry events (documented as public API) for every LLM call: model, tokens, latency, outcome
+      → **Done:** `Virtuoso.LLM.complete/2` and `stream/3` (the single choke point every framework LLM call passes through) emit `[:virtuoso, :llm, :complete|:stream, :start|:stop|:exception]` — start `system_time`, stop `duration` + `model`/`outcome`/`usage`/`error_reason`, exception path re-raises after emitting. Event names documented in the module as public API.
 - **Success:** end-to-end chat via web channel with streamed replies; replaying a duplicate webhook yields exactly one reply and one billing event; suite passes fully offline via LLM mock
 
 #### Phase 2: Ensemble — actor-based parallel consensus (Roemmele concept a)
