@@ -124,9 +124,12 @@ lib/virtuoso/
 - **Success:** end-to-end chat via web channel with streamed replies; replaying a duplicate webhook yields exactly one reply and one billing event; suite passes fully offline via LLM mock
 
 #### Phase 2: Ensemble — actor-based parallel consensus (Roemmele concept a)
-- [ ] `Ensemble.run/3`: fan out N members (model/temperature/prompt variants) via `Task.Supervisor.async_stream_nolink`; K-of-N quorum with partial-failure policy (429/timeout members dropped; below quorum → single-model fallback)
-- [ ] Strategies as behaviour: `Majority` (canonicalized exact match on structured output), `Quorum` (first K agreeing), `Judge` (judge model with structurally separated inputs — member outputs fenced as data to resist prompt injection; judge failure → majority fallback)
-- [ ] Maker/checker (`Ensemble.Checker`): bounded (2 rejections → one tier escalation → flagged best-effort)
+- [x] `Ensemble.run/3`: fan out N members (model/temperature/prompt variants) via `Task.Supervisor.async_stream_nolink`; K-of-N quorum with partial-failure policy (429/timeout members dropped; below quorum → single-model fallback)
+      → **Done:** `async_stream_nolink` fan-out (crash/timeout = dropped member); pure members (LLM call + `:extract`, no side effects); `{:consensus | :fallback, decision, meta}` / `{:error, :all_members_failed}`. `:llm` seam for offline testing + budget gating.
+- [x] Strategies as behaviour: `Majority` (canonicalized exact match on structured output), `Quorum` (first K agreeing), `Judge` (judge model with structurally separated inputs — member outputs fenced as data to resist prompt injection; judge failure → majority fallback)
+      → **Done:** `Ensemble.Strategy` behaviour + `canonical/1` (recursive map-key sort so key order doesn't split a vote). Majority (strict-majority default, `min_agreement` override, tie/plurality → no-consensus), Quorum (K-of-N), Judge (member outputs fenced as untrusted data with framing-before-content; degrades to Majority on any judge failure — adversarial-injection test).
+- [x] Maker/checker (`Ensemble.Checker`): bounded (2 rejections → one tier escalation → flagged best-effort)
+      → **Done:** strictly bounded (≤ max_rejections+1 maker calls); base retry → escalate one tier once → `{:flagged, ...}`; holds even with no higher tier. Tests assert the exact maker-call sequence per path.
 - [ ] Wire into SlowThinking: routing/tool-selection decisions go through Ensemble; generation stays single-model streamed
 - [ ] Ensemble config surface: per-bot defaults, per-routine overrides (`ensemble: [n: 3, strategy: :majority, models: [...]]`)
 - [ ] Dashboard v1: live ensemble runs — votes, dissent, latency, cost per decision
