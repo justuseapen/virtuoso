@@ -1,23 +1,21 @@
 defmodule Virtuoso do
   @moduledoc """
-  Virtuoso keeps the contexts that define your domain
-  and business logic.
+  Virtuoso is a BEAM-native AI-agent orchestration framework.
 
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
+  It implements two architectural ideas as first-class OTP concerns:
+
+    * **Actor-based parallel consensus** (`Virtuoso.Ensemble`) — many lightweight
+      processes run LLM calls concurrently and aggregate their structured outputs
+      by consensus, judging, or quorum, instead of a single serial call chain.
+
+    * **Distributed compute fabric** (`Virtuoso.Fabric`) — a multi-node cluster
+      with automatic failure recovery and horizontal scaling of conversations.
+
+  The framework keeps the cognitive shape of a classic bot pipeline — a
+  deterministic fast path (`Virtuoso.Thinking.Fast`) ahead of an LLM reasoning
+  step (`Virtuoso.Thinking.Slow`) — but swaps the pre-LLM NLP guts for LLM
+  ensembles behind the `Virtuoso.LLM` behaviour.
+
+  Messages enter as channel-neutral `Virtuoso.Impression` envelopes.
   """
-
-  @doc """
-  Accepts params and delegates based on incoming message structure
-  """
-
-  alias Virtuoso.{Message}
-
-  def handle(%{"object" => object, "entry" => entry}) do
-    process_messages(object, entry)
-  end
-
-  def process_messages(object, entry) do
-    Message.received_message(entry["messaging"])
-  end
 end

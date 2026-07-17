@@ -1,94 +1,82 @@
-defmodule Virtuoso.Mixfile do
+defmodule Virtuoso.MixProject do
   use Mix.Project
+
+  @version "0.1.0-dev"
+  @source_url "https://github.com/justuseapen/virtuoso"
 
   def project do
     [
       app: :virtuoso,
-      version: "0.0.29",
-      elixir: "~> 1.4",
+      version: @version,
+      elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      elixirc_options: [warnings_as_errors: true],
       start_permanent: Mix.env() == :prod,
-      aliases: aliases(),
+      deps: deps(),
+      dialyzer: dialyzer(),
       description: description(),
       package: package(),
-      deps: deps(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test
-      ]
-      # if you want to use espec,
-      # test_coverage: [tool: ExCoveralls, test_task: "espec"]
+      name: "Virtuoso",
+      source_url: @source_url,
+      docs: docs()
     ]
   end
 
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Virtuoso.Application, []},
-      extra_applications: [
-        :httpoison,
-        :logger,
-        :runtime_tools,
-        :timex
-      ]
+      extra_applications: [:logger],
+      mod: {Virtuoso.Application, []}
     ]
   end
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:cowboy, "~> 2.5"},
-      {:ex_doc, "~> 0.19", only: :dev},
-      {:gettext, "~> 0.11"},
-      {:httpoison, "~> 0.13"},
-      {:phoenix, "~> 1.4"},
-      {:phoenix_html, "~> 2.10"},
-      {:phoenix_live_reload, "~> 1.0", only: :dev},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:postgrex, ">= 0.0.0"},
-      {:timex, "~> 3.1"},
-      {:jason, "~> 1.0"},
-      {:credo, "~> 0.9.1", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.8", only: :test},
-      {:phoenix_live_view, "~> 0.11.1"},
-      {:floki, ">= 0.0.0", only: :test}
+      # HTTP client for LLM adapters.
+      {:req, "~> 0.5"},
+      {:jason, "~> 1.4"},
+      # Persistence for the conversation event log (Phase 1).
+      {:ecto_sql, "~> 3.11"},
+      {:postgrex, "~> 0.18"},
+      # Observability: every LLM call emits telemetry.
+      {:telemetry, "~> 1.2"},
+      # Dev/test tooling.
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to create, migrate and run the seeds file at once:
-  #
-  #     $ mix ecto.setup
-  #
-  # See the documentation for `Mix` for more info on aliases.
-  defp aliases do
-    []
+  defp dialyzer do
+    [
+      plt_add_apps: [:ex_unit, :mix],
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+    ]
   end
 
   defp description do
     """
-    Phoenix-based framework for chatbot development and orchestration.
+    A BEAM-native AI-agent orchestration framework: actor-based parallel
+    consensus (ensembles) and a distributed compute fabric, built on OTP.
     """
   end
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README*"],
+      files: ~w(lib mix.exs README* LICENSE*),
       maintainers: ["Justus Eapen"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/justuseapen/virtuoso"}
+      links: %{"GitHub" => @source_url}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"],
+      source_ref: "v#{@version}"
     ]
   end
 end
