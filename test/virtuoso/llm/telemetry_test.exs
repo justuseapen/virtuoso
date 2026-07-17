@@ -40,6 +40,11 @@ defmodule Virtuoso.LLM.TelemetryTest do
       assert_received {:telemetry, [:virtuoso, :llm, :complete, :start], start_meas, start_meta}
       assert is_integer(start_meas.system_time)
       assert start_meta.model == "test-model"
+      # Shape only — the raw request (messages, system prompt) must NOT leak into
+      # telemetry, where any attached handler would serialize the transcript.
+      refute Map.has_key?(start_meta, :request)
+      assert start_meta.message_count == 1
+      assert start_meta.has_system == false
 
       assert_received {:telemetry, [:virtuoso, :llm, :complete, :stop], stop_meas, stop_meta}
       assert is_integer(stop_meas.duration)

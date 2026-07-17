@@ -134,20 +134,31 @@ defmodule Virtuoso.Conversation do
 
   @impl true
   def handle_call({:deliver, imp, responder}, _from, state) do
-    {:ok, _inbound, status} = Log.append_inbound(imp)
+    case Log.append_inbound(imp) do
+      # Duplicate inbound (e.g. a replayed webhook): the message was already
+      # processed. Return the reply we already sent — do NOT re-run the responder
+      # (that would re-spend tokens and could return a divergent answer). State
+      # is unchanged; the reply is authoritative from the log.
+      {:ok, _inbound, :duplicate} ->
+        {:reply, replayed_reply(imp), state}
 
-    # On a duplicate inbound, the message was already processed — don't append
-    # to history a second time, but still answer the caller.
-    history = maybe_append_history(state.history, {:user, imp.text}, status)
-
-    reply = responder.(imp, state.history)
-
-    new_state = commit_reply(reply, imp, %{state | history: history})
-    {:reply, reply, new_state}
+      {:ok, _inbound, :inserted} ->
+        history = state.history ++ [{:user, imp.text}]
+        reply = responder.(imp, state.history)
+        new_state = commit_reply(reply, imp, %{state | history: history})
+        {:reply, reply, new_state}
+    end
   end
 
-  defp maybe_append_history(history, _entry, :duplicate), do: history
-  defp maybe_append_history(history, entry, :inserted), do: history ++ [entry]
+  # The reply previously logged for this message, or :noreply if none was
+  # recorded (e.g. crash after inbound-append, before the reply was committed —
+  # the message is genuinely unanswered; see todo 004 / architecture P2).
+  defp replayed_reply(imp) do
+    case Log.fetch_outbound("#{imp.message_id}:reply") do
+      %{content: text} when is_binary(text) -> {:reply, text}
+      _ -> :noreply
+    end
+  end
 
   defp commit_reply({:reply, text}, imp, state) do
     reply_id = "#{imp.message_id}:reply"

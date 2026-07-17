@@ -11,6 +11,10 @@ defmodule Virtuoso.Budget do
     * a **global daily cap** — bound total spend across all conversations, and
     * a **kill switch** — an operator stop that refuses everything immediately.
 
+  Caps are genuinely *daily*: counters reset when the day (from `day_fun`,
+  default `Date.utc_today/0`) rolls over, so a cap self-heals at the day boundary
+  rather than becoming a permanent ceiling.
+
   Every LLM call passes `check/2` first; on refusal the framework short-circuits
   to a defined fallback response (`refusal_message/0`) instead of spending. The
   N-members-×-judge-×-checker cost multiplier is structural, so this gate exists
@@ -32,7 +36,9 @@ defmodule Virtuoso.Budget do
             global_daily: :infinity,
             kill_switch: false,
             per_conversation: %{},
-            global: 0
+            global: 0,
+            day: nil,
+            day_fun: &Date.utc_today/0
 
   # --- public API -----------------------------------------------------------
 
@@ -45,6 +51,16 @@ defmodule Virtuoso.Budget do
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  @doc false
+  # Derive the child-spec id from :name so multiple budgets (e.g. per-test, or a
+  # future per-tenant budget) can run under one supervisor without id collision.
+  def child_spec(opts) do
+    %{
+      id: Keyword.get(opts, :name, __MODULE__),
+      start: {__MODULE__, :start_link, [opts]}
+    }
   end
 
   @doc "The response used when a call is refused for budget reasons."
@@ -112,10 +128,14 @@ defmodule Virtuoso.Budget do
 
   @impl true
   def init(opts) do
+    day_fun = Keyword.get(opts, :day_fun, &Date.utc_today/0)
+
     state = %__MODULE__{
       per_conversation_daily: Keyword.get(opts, :per_conversation_daily, :infinity),
       global_daily: Keyword.get(opts, :global_daily, :infinity),
-      kill_switch: Keyword.get(opts, :kill_switch, false)
+      kill_switch: Keyword.get(opts, :kill_switch, false),
+      day_fun: day_fun,
+      day: day_fun.()
     }
 
     {:ok, state}
@@ -127,6 +147,7 @@ defmodule Virtuoso.Budget do
   end
 
   def handle_call({:check, conversation_id}, _from, state) do
+    state = roll_day(state)
     conv_spent = Map.get(state.per_conversation, conversation_id, 0)
 
     cond do
@@ -144,6 +165,7 @@ defmodule Virtuoso.Budget do
   def handle_call({:record, conversation_id, tokens}, _from, state) do
     new_state =
       state
+      |> roll_day()
       |> update_in([Access.key(:per_conversation), conversation_id], &((&1 || 0) + tokens))
       |> Map.update!(:global, &(&1 + tokens))
 
@@ -155,11 +177,24 @@ defmodule Virtuoso.Budget do
   end
 
   def handle_call({:spent, conversation_id}, _from, state) do
+    state = roll_day(state)
     {:reply, Map.get(state.per_conversation, conversation_id, 0), state}
   end
 
   def handle_call(:global_spent, _from, state) do
+    state = roll_day(state)
     {:reply, state.global, state}
+  end
+
+  # Daily caps: when the current day differs from the stored day, zero the
+  # counters before serving the request. This makes "daily" real — the cap
+  # self-heals at the UTC-day rollover (or whatever `day_fun` reports) instead
+  # of being a permanent process-lifetime ceiling.
+  defp roll_day(state) do
+    case state.day_fun.() do
+      same when same == state.day -> state
+      new_day -> %{state | day: new_day, per_conversation: %{}, global: 0}
+    end
   end
 
   # A cap is reached when spend meets or exceeds it. :infinity is never over.

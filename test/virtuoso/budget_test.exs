@@ -85,4 +85,39 @@ defmodule Virtuoso.BudgetTest do
       assert Budget.global_spent(b) == 50
     end
   end
+
+  describe "daily reset" do
+    # Inject the "current day" so the rollover is deterministic. An Agent holds
+    # the day the budget's clock function reads.
+    setup do
+      {:ok, clock} = Agent.start_link(fn -> ~D[2026-07-17] end)
+      day_fun = fn -> Agent.get(clock, & &1) end
+      name = :"budget_reset_#{System.unique_integer([:positive])}"
+
+      start_supervised!(
+        {Budget, name: name, per_conversation_daily: 100, global_daily: 250, day_fun: day_fun}
+      )
+
+      %{reset_budget: name, clock: clock}
+    end
+
+    test "counters reset when the day rolls over", %{reset_budget: b, clock: clock} do
+      Budget.record(b, "conv-1", 100)
+      assert {:error, :budget_exceeded} = Budget.check(b, "conv-1")
+      assert Budget.spent(b, "conv-1") == 100
+
+      # Advance to the next day — the cap should be fresh again.
+      Agent.update(clock, fn _ -> ~D[2026-07-18] end)
+
+      assert :ok = Budget.check(b, "conv-1")
+      assert Budget.spent(b, "conv-1") == 0
+      assert Budget.global_spent(b) == 0
+    end
+
+    test "spend within the same day still accumulates", %{reset_budget: b} do
+      Budget.record(b, "conv-1", 40)
+      Budget.record(b, "conv-1", 30)
+      assert Budget.spent(b, "conv-1") == 70
+    end
+  end
 end

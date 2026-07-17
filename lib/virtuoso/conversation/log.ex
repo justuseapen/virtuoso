@@ -104,6 +104,17 @@ defmodule Virtuoso.Conversation.Log do
     Repo.exists?(from(e in __MODULE__, where: e.dedup_key == ^dedup_key))
   end
 
+  @doc """
+  Fetch a previously-logged outbound reply by its reply id, or `nil`.
+
+  Used on the duplicate-inbound path to return the reply that was already sent,
+  rather than re-running the responder (no re-spend, no divergent answer).
+  """
+  @spec fetch_outbound(String.t()) :: t() | nil
+  def fetch_outbound(reply_id) do
+    Repo.one(from(e in __MODULE__, where: e.dedup_key == ^"outbound:#{reply_id}"))
+  end
+
   @doc "Total event count (test/introspection helper)."
   @spec count() :: non_neg_integer()
   def count, do: Repo.aggregate(__MODULE__, :count)

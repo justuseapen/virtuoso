@@ -55,6 +55,27 @@ defmodule Virtuoso.ConversationTest do
       assert Log.count() == 2
     end
 
+    test "a duplicate inbound does NOT re-run the responder (exactly-once)" do
+      imp = impression("conv-a", "m-1", "hello")
+      parent = self()
+
+      counting = fn %Impression{text: text}, _history ->
+        send(parent, :responder_ran)
+        {:reply, String.upcase(text)}
+      end
+
+      # First delivery runs the responder and persists "HELLO".
+      assert {:reply, "HELLO"} = Conversation.deliver(imp, responder: counting)
+      assert_received :responder_ran
+
+      # Duplicate delivery must return the ORIGINAL reply without re-running the
+      # responder (no re-spend, no divergent answer). Use a different responder
+      # to prove the original is returned, not a recomputation.
+      divergent = fn _imp, _history -> {:reply, "DIFFERENT"} end
+      assert {:reply, "HELLO"} = Conversation.deliver(imp, responder: divergent)
+      refute_received :responder_ran
+    end
+
     test "processes two messages from one conversation in order (FIFO)" do
       Conversation.deliver(impression("conv-a", "m-1", "one"), responder: echo_responder())
       Conversation.deliver(impression("conv-a", "m-2", "two"), responder: echo_responder())

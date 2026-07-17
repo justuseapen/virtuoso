@@ -99,7 +99,8 @@ defmodule Virtuoso.LLM do
   ## Telemetry (public API — versioned from 0.1.0)
 
     * `[:virtuoso, :llm, :complete, :start]` — measurements `%{system_time}`,
-      metadata `%{model, request}`.
+      metadata `%{model, message_count, has_system}`. The raw request (messages,
+      system prompt) is deliberately excluded so transcripts don't reach logs.
     * `[:virtuoso, :llm, :complete, :stop]` — measurements `%{duration}` (native
       time units), metadata `%{model, outcome: :ok | :error, usage,
       error_reason}`.
@@ -133,10 +134,14 @@ defmodule Virtuoso.LLM do
   defp instrument(op, request, fun) do
     start_time = System.monotonic_time()
 
-    :telemetry.execute([:virtuoso, :llm, op, :start], %{system_time: System.system_time()}, %{
-      model: request.model,
-      request: request
-    })
+    # Shape only — never the raw request. Message content and the system prompt
+    # must not reach telemetry, where any attached handler (a logger, a metrics
+    # exporter) would serialize the whole transcript. See start_metadata/1.
+    :telemetry.execute(
+      [:virtuoso, :llm, op, :start],
+      %{system_time: System.system_time()},
+      start_metadata(request)
+    )
 
     try do
       result = fun.()
@@ -163,6 +168,16 @@ defmodule Virtuoso.LLM do
 
         :erlang.raise(kind, reason, __STACKTRACE__)
     end
+  end
+
+  # Non-sensitive shape of the request. Deliberately excludes messages, system
+  # prompt, and metadata to keep transcripts out of logs/exporters.
+  defp start_metadata(request) do
+    %{
+      model: request.model,
+      message_count: length(request.messages),
+      has_system: request[:system] != nil
+    }
   end
 
   defp stop_metadata(request, {:ok, completion}) do
