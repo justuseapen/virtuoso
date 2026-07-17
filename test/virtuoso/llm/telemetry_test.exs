@@ -2,7 +2,7 @@ defmodule Virtuoso.LLM.TelemetryTest do
   use ExUnit.Case, async: true
 
   alias Virtuoso.LLM
-  alias Virtuoso.LLM.Mock
+  alias Virtuoso.LLM.{Error, Mock}
 
   @request %{model: "test-model", messages: [%{role: :user, content: "hi"}]}
 
@@ -51,7 +51,7 @@ defmodule Virtuoso.LLM.TelemetryTest do
     test "emits stop with outcome :error and the error reason on a typed error" do
       attach([:virtuoso, :llm, :complete, :stop])
 
-      Mock.expect_complete(fn _req -> {:error, LLM.Error.timeout()} end)
+      Mock.expect_complete(fn _req -> {:error, Error.timeout()} end)
       assert {:error, _} = LLM.complete(@request, [])
 
       assert_received {:telemetry, [:virtuoso, :llm, :complete, :stop], _meas, meta}
