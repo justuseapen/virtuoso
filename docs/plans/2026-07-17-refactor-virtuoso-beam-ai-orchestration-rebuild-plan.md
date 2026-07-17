@@ -116,7 +116,8 @@ lib/virtuoso/
 - [x] Explicit routine registry replacing `String.to_atom` dispatch
       → **Done:** `Virtuoso.Routine` — string-keyed map lookup, `fetch/2` returns `:error` (never creates an atom) for unknown/hostile/non-string names, `dispatch/4` runs the routine. Atom-exhaustion DoS closed; test asserts the evil string never becomes an atom.
 - [ ] Channel behaviour + web-chat adapter (Phoenix Channels; session identity); FB adapter ported with webhook signature verification + idempotent delivery (at-least-once → exactly-one reply)
-- [ ] `Virtuoso.Budget` v1: per-conversation and global daily caps, kill switch, defined refusal fallback
+- [x] `Virtuoso.Budget` v1: per-conversation and global daily caps, kill switch, defined refusal fallback
+      → **Done:** named GenServer (cluster-global singleton in the app tree; Phase 3 makes it fabric-supervised). `check/2` gates before each call; per-conversation + global daily caps; `kill_switch/1`; `with_budget/3` gates → runs → records usage → returns `{:error, reason, refusal_message()}` when over budget so callers can't forget to record. Defaults `:infinity` (opt-in caps).
 - [x] Telemetry events (documented as public API) for every LLM call: model, tokens, latency, outcome
       → **Done:** `Virtuoso.LLM.complete/2` and `stream/3` (the single choke point every framework LLM call passes through) emit `[:virtuoso, :llm, :complete|:stream, :start|:stop|:exception]` — start `system_time`, stop `duration` + `model`/`outcome`/`usage`/`error_reason`, exception path re-raises after emitting. Event names documented in the module as public API.
 - **Success:** end-to-end chat via web channel with streamed replies; replaying a duplicate webhook yields exactly one reply and one billing event; suite passes fully offline via LLM mock
