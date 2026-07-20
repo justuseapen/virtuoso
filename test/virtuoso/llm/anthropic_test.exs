@@ -91,6 +91,44 @@ defmodule Virtuoso.LLM.AnthropicTest do
       assert headers["x-api-key"] == ["sk-test"]
       assert headers["anthropic-version"] == ["2023-06-01"]
     end
+
+    test "hoists a system message anywhere in the list (not just the head)" do
+      parent = self()
+
+      adapter = fn request ->
+        send(parent, {:outgoing, request})
+
+        body = %{
+          "content" => [%{"type" => "text", "text" => "ok"}],
+          "stop_reason" => "end_turn",
+          "usage" => %{}
+        }
+
+        {request, %Req.Response{status: 200, body: body}}
+      end
+
+      # No top-level :system; a system turn sits mid-list. It must be hoisted,
+      # not silently dropped (which would leave the model unprompted).
+      req = %{
+        model: "claude-opus-4-8",
+        messages: [
+          %{role: :user, content: "hi"},
+          %{role: :system, content: "Be terse."},
+          %{role: :user, content: "again"}
+        ]
+      }
+
+      assert {:ok, _} = Anthropic.complete(req, req_options: [adapter: adapter], api_key: "k")
+
+      assert_received {:outgoing, out}
+      decoded = Jason.decode!(out.body)
+      assert decoded["system"] == "Be terse."
+
+      assert decoded["messages"] == [
+               %{"role" => "user", "content" => "hi"},
+               %{"role" => "user", "content" => "again"}
+             ]
+    end
   end
 
   describe "complete/2 — typed errors" do

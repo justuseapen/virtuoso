@@ -121,12 +121,20 @@ defmodule Virtuoso.Conversation do
     {:via, Registry, {Supervisor.registry(), conversation_id}}
   end
 
+  # How many recent turns to hold in process memory. The full history lives in
+  # the log (the audit/replay source); process state is a bounded working window,
+  # so rehydration cost and memory stay flat no matter how long a conversation
+  # runs. History is kept NEWEST-FIRST internally so appends are O(1); the
+  # responder receives it oldest-first via history/1.
+  @history_limit 100
+
   @impl true
   def init(conversation_id) do
-    # Rehydrate: state is a replay of the log, not an in-memory original.
+    # Rehydrate a bounded window from the log, newest-first in state.
     history =
       conversation_id
-      |> Log.events_for()
+      |> Log.recent_events_for(@history_limit)
+      |> Enum.reverse()
       |> Enum.map(&{&1.role, &1.content})
 
     {:ok, %{conversation_id: conversation_id, history: history}}
@@ -143,11 +151,20 @@ defmodule Virtuoso.Conversation do
         {:reply, replayed_reply(imp), state}
 
       {:ok, _inbound, :inserted} ->
-        history = state.history ++ [{:user, imp.text}]
-        reply = responder.(imp, state.history)
-        new_state = commit_reply(reply, imp, %{state | history: history})
+        # Responder sees history *before* this turn, oldest-first.
+        reply = responder.(imp, history(state))
+        state = push_history(state, {:user, imp.text})
+        new_state = commit_reply(reply, imp, state)
         {:reply, reply, new_state}
     end
+  end
+
+  # Oldest-first history for the responder (state holds it newest-first).
+  defp history(state), do: Enum.reverse(state.history)
+
+  # Prepend a turn (O(1)) and cap the working window to @history_limit.
+  defp push_history(state, entry) do
+    %{state | history: Enum.take([entry | state.history], @history_limit)}
   end
 
   # The reply previously logged for this message, or :noreply if none was
@@ -163,7 +180,7 @@ defmodule Virtuoso.Conversation do
   defp commit_reply({:reply, text}, imp, state) do
     reply_id = "#{imp.message_id}:reply"
     {:ok, _outbound, _status} = Log.append_outbound(imp.conversation_id, reply_id, text)
-    %{state | history: state.history ++ [{:assistant, text}]}
+    push_history(state, {:assistant, text})
   end
 
   defp commit_reply(:noreply, _imp, state), do: state

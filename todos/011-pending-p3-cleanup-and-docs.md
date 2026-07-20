@@ -66,3 +66,14 @@ _(fill during triage)_
 
 ## Triage Decision
 **DEFERRED** — Low-risk batch. Item #5 (Anthropic drops a mid-list system prompt) has a real correctness edge — worth doing soon; the rest are cosmetic. Fold into the next touch of these files.
+
+## Partial Resolution (this pass)
+- **#5 (Anthropic mid-list system prompt dropped) — FIXED.** `system_from_messages`
+  now hoists a `:system` message from ANYWHERE in the list (Enum.find_value), not
+  just the head; a mid-list system turn is no longer silently dropped. Test added.
+- **#1 (stream/2 doc) — FIXED.** LLM moduledoc corrected to `stream/3`.
+- **#3 (Log.count) — DECISION: keep.** Verified it's used by conversation/log tests
+  as an assertion helper; not dead. Left in place.
+- Remaining items (#2 Impression enforce-keys dup, #4 ensure_started belt-and-
+  suspenders, #6 from_status default arg, #7 Impression :version prose) are
+  cosmetic and left for a later touch of those files.

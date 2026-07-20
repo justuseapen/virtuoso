@@ -10,7 +10,7 @@ defmodule Virtuoso.LLM do
   Two capabilities:
 
     * `complete/2` — a single non-streaming request, returning the full message.
-    * `stream/2` — a streaming request; each chunk is delivered to a callback as
+    * `stream/3` — a streaming request; each chunk is delivered to a callback as
       it arrives. Streaming is what the user sees for generation, so first-token
       latency matters here.
 

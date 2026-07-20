@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "005"
 tags: [code-review, performance, memory, otp]
@@ -61,3 +61,12 @@ _(fill during triage)_
 
 ## Triage Decision
 **DEFERRED** — Real, but Medium effort touching rehydration + history representation. Not a Phase-1 *scope* blocker (no long-lived conversations in a not-yet-deployed framework). Do alongside the SlowThinking context-window work, before any real deployment. Pairs with 008.
+
+## Resolution (complete)
+**FIXED** (Solution A). Added `Log.recent_events_for/2` (last N, ordered, reversed);
+`Conversation.init/1` rehydrates a bounded window (@history_limit 100). History is
+held newest-first in state for O(1) prepend (`push_history/2`, capped with
+Enum.take), handed to the responder oldest-first via `history/1`. Full history
+remains in the log for audit. Tests: recent_events_for scope/limit, oldest-first
+responder order across turns; all existing rehydration/FIFO/exactly-once tests
+stay green. Landed with 008 (composite index).

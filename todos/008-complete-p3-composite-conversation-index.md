@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p3
 issue_id: "008"
 tags: [code-review, performance, database]
@@ -46,3 +46,8 @@ _(fill during triage)_
 
 ## Triage Decision
 **DEFERRED** — One-line index migration; do it together with 005 (bounded replay) so the two land as a unit.
+
+## Resolution (complete)
+**FIXED**. New migration drops the single-column conversation_id index and creates
+composite (conversation_id, id), so replay/recent-replay is a pure ordered range
+scan with no sort step (and it covers the prefix lookup). Migrated clean.

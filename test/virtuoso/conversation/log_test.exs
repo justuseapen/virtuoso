@@ -70,6 +70,26 @@ defmodule Virtuoso.Conversation.LogTest do
     end
   end
 
+  describe "recent_events_for/2" do
+    test "returns the most recent N events, oldest first" do
+      for i <- 1..10, do: Log.append_inbound(impression("conv-r", "m-#{i}", "msg-#{i}"))
+
+      recent = Log.recent_events_for("conv-r", 3)
+      assert Enum.map(recent, & &1.content) == ["msg-8", "msg-9", "msg-10"]
+    end
+
+    test "returns all events when fewer than the limit exist" do
+      Log.append_inbound(impression("conv-r", "m-1", "only"))
+      assert Log.recent_events_for("conv-r", 100) |> Enum.map(& &1.content) == ["only"]
+    end
+
+    test "scopes to the conversation" do
+      Log.append_inbound(impression("conv-a", "a1", "a"))
+      Log.append_inbound(impression("conv-b", "b1", "b"))
+      assert Log.recent_events_for("conv-a", 100) |> Enum.map(& &1.content) == ["a"]
+    end
+  end
+
   describe "processed?/1" do
     test "true only after the channel message has been appended" do
       imp = impression("conv-1", "m-1", "hello")

@@ -98,6 +98,26 @@ defmodule Virtuoso.Conversation.Log do
     )
   end
 
+  @doc """
+  The most recent `limit` events for a conversation, oldest first.
+
+  Bounds rehydration cost: a long-lived conversation loads at most `limit` events
+  into process memory instead of its entire history. The LLM context window caps
+  useful history anyway, and the full log remains the audit source. Backed by the
+  composite `(conversation_id, id)` index, this is a pure ordered range scan.
+  """
+  @spec recent_events_for(String.t(), pos_integer()) :: [t()]
+  def recent_events_for(conversation_id, limit) do
+    query =
+      from(e in __MODULE__,
+        where: e.conversation_id == ^conversation_id,
+        order_by: [desc: e.id],
+        limit: ^limit
+      )
+
+    query |> Repo.all() |> Enum.reverse()
+  end
+
   @doc "Whether a dedup key has already been appended (idempotency check)."
   @spec processed?(String.t()) :: boolean()
   def processed?(dedup_key) do
