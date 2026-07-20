@@ -130,7 +130,8 @@ lib/virtuoso/
       → **Done:** `Ensemble.Strategy` behaviour + `canonical/1` (recursive map-key sort so key order doesn't split a vote). Majority (strict-majority default, `min_agreement` override, tie/plurality → no-consensus), Quorum (K-of-N), Judge (member outputs fenced as untrusted data with framing-before-content; degrades to Majority on any judge failure — adversarial-injection test).
 - [x] Maker/checker (`Ensemble.Checker`): bounded (2 rejections → one tier escalation → flagged best-effort)
       → **Done:** strictly bounded (≤ max_rejections+1 maker calls); base retry → escalate one tier once → `{:flagged, ...}`; holds even with no higher tier. Tests assert the exact maker-call sequence per path.
-- [ ] Wire into SlowThinking: routing/tool-selection decisions go through Ensemble; generation stays single-model streamed
+- [x] Wire into SlowThinking: routing/tool-selection decisions go through Ensemble; generation stays single-model streamed
+      → **Done:** `Virtuoso.Thinking.{Fast, Slow}` + `Thinking.responder/1` (the `:responder` Conversation plugs in). FastThinking = zero-token pattern matches; on miss, SlowThinking routes via `Ensemble.run/3` (consensus over routine names) → dispatches through the `Routine` registry (no `String.to_atom`) → routine generates the reply single-model. Consensus on the decision, not the text (routine runs once under n:5 — tested); hallucinated route → defined fallback. End-to-end tested through Conversation (message → routed routine → logged reply).
 - [ ] Ensemble config surface: per-bot defaults, per-routine overrides (`ensemble: [n: 3, strategy: :majority, models: [...]]`)
 - [ ] Dashboard v1: live ensemble runs — votes, dissent, latency, cost per decision
 - [x] **Eval harness**: scripted task set proving N-way consensus beats single-call on routing/extraction accuracy — the flagship feature must justify its token multiplier
