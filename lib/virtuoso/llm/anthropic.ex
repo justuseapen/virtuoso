@@ -98,11 +98,14 @@ defmodule Virtuoso.LLM.Anthropic do
     end
   end
 
+  # Hoist a system message from anywhere in the list, not just the head — a
+  # mid-list system turn must not be silently dropped (which would leave the
+  # model unprompted). First system message wins.
   defp system_from_messages(messages) do
-    case messages do
-      [%{role: :system, content: content} | _] -> content
-      _ -> nil
-    end
+    Enum.find_value(messages, fn
+      %{role: :system, content: content} -> content
+      _ -> false
+    end)
   end
 
   defp user_messages(messages), do: Enum.reject(messages, &(&1.role == :system))

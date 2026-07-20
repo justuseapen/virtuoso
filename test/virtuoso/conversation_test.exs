@@ -114,5 +114,25 @@ defmodule Virtuoso.ConversationTest do
       assert {:reply, "recovered:2"} =
                Conversation.deliver(impression("conv-b", "m-2", "after"), responder: capture)
     end
+
+    test "the responder sees history oldest-first across several turns" do
+      Conversation.deliver(impression("conv-h", "m-1", "first"), responder: echo_responder())
+      Conversation.deliver(impression("conv-h", "m-2", "second"), responder: echo_responder())
+
+      # On the 3rd turn, history before it is: first, FIRST, second, SECOND —
+      # in chronological order.
+      capture = fn _imp, history -> {:reply, inspect(history)} end
+
+      assert {:reply, reply} =
+               Conversation.deliver(impression("conv-h", "m-3", "third"), responder: capture)
+
+      assert reply ==
+               inspect([
+                 {:user, "first"},
+                 {:assistant, "FIRST"},
+                 {:user, "second"},
+                 {:assistant, "SECOND"}
+               ])
+    end
   end
 end
