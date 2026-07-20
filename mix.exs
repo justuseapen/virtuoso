@@ -43,6 +43,10 @@ defmodule Virtuoso.MixProject do
       {:postgrex, "~> 0.18"},
       # Observability: every LLM call emits telemetry.
       {:telemetry, "~> 1.2"},
+      # Distributed fabric (Phase 3): cluster-wide registry/supervision.
+      {:horde, "~> 0.10"},
+      # Multi-node spike/chaos drills (test-only; @tag :distributed).
+      {:local_cluster, "~> 2.1", only: [:test]},
       # Dev/test tooling.
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

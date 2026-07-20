@@ -140,7 +140,8 @@ lib/virtuoso/
 - **Success:** consensus strategies covered by property/unit tests incl. tie, partial failure, judge failure; p95 user-visible latency under ensemble < 8s; eval shows measurable accuracy gain
 
 #### Phase 3: Fabric — distributed compute fabric (Roemmele concept b)
-- [ ] **Spike first (timeboxed):** validate Horde registry consistency under netsplit on 3 local nodes; if unacceptable, fall back to `:global` + takeover or Postgres-advisory-lock ownership (decision gate — Horde is the highest-uncertainty dependency)
+- [x] **Spike first (timeboxed):** validate Horde registry consistency under netsplit on 3 local nodes; if unacceptable, fall back to `:global` + takeover or Postgres-advisory-lock ownership (decision gate — Horde is the highest-uncertainty dependency)
+      → **GATE: GO on Horde** (horde 0.10.0). Scripted 3-node drill (`test/distributed/`, `@tag :distributed`): visibility 204–307ms; failover 52–307ms (target ≤5s); netsplit heal → exactly one survivor, uniform views, instantly. Findings carried into implementation: child-spec CRDT sync window (~1s) means Horde restart is a warm-process optimization — recovery stays `ensure_started`+rehydrate-from-log; conversation `start_link` must map `already_started`→`:ignore` (loser-restart after heal). Full report: `docs/spikes/2026-07-20-horde-spike-report.md`.
 - [ ] libcluster topology (gossip for dev, DNS for Fly.io); **single-node no-op default** so library consumers need zero cluster config
 - [ ] Conversation processes under Horde.Registry + Horde.DynamicSupervisor; handoff = stop → rehydrate from event log on new node (log is source of truth, so split-brain double-send is prevented by dedup on the *outbound* side: send-intent recorded in log before channel send)
 - [ ] Netsplit conflict resolution: on registry merge, loser process terminates without flushing sends; in-flight LLM tasks abandoned (cost accepted, logged)
