@@ -22,7 +22,7 @@ defmodule Virtuoso.Thinking.Slow do
     * `:system` — routing system prompt override.
   """
 
-  alias Virtuoso.{Ensemble, Impression, LLM, Routine}
+  alias Virtuoso.{Budget, Ensemble, Impression, LLM, Routine}
   alias Virtuoso.Ensemble.Strategy.Majority
 
   @default_fallback "I'm not sure how to help with that yet. Could you rephrase?"
@@ -32,16 +32,25 @@ defmodule Virtuoso.Thinking.Slow do
     routines = Keyword.fetch!(opts, :routines)
     ensemble = Keyword.get(opts, :ensemble, [])
     fallback = Keyword.get(opts, :fallback, @default_fallback)
+    budget = Keyword.get(opts, :budget, Budget.name())
 
-    case route(imp, routines, ensemble, opts) do
-      {:ok, name} -> dispatch(routines, name, imp, context, fallback)
-      :no_route -> {:reply, fallback}
+    # Turn-level gate: an exhausted budget (or kill switch) refuses the whole
+    # turn with the DEFINED refusal message before any member task spins up.
+    case Budget.check(budget, imp.conversation_id) do
+      {:error, _reason} ->
+        {:reply, Budget.refusal_message()}
+
+      :ok ->
+        case route(imp, routines, ensemble, budget, opts) do
+          {:ok, name} -> dispatch(routines, name, imp, context, fallback)
+          :no_route -> {:reply, fallback}
+        end
     end
   end
 
   # Run the routing decision through the ensemble; return the committed routine
   # name (consensus or single-model fallback), or :no_route on total failure.
-  defp route(imp, routines, ensemble, opts) do
+  defp route(imp, routines, ensemble, budget, opts) do
     names = Map.keys(routines)
     n = Keyword.get(ensemble, :n, 3)
     strategy = Keyword.get(ensemble, :strategy, Majority)
@@ -54,13 +63,28 @@ defmodule Virtuoso.Thinking.Slow do
       strategy: strategy,
       strategy_opts: strategy_opts,
       extract: &extract_route/1,
-      llm: llm
+      llm: gate_llm(llm, budget, imp.conversation_id)
     ]
 
     case Ensemble.run(routing_request(imp, names, opts), run_opts) do
       {:consensus, name, _meta} -> {:ok, name}
       {:fallback, name, _meta} -> {:ok, name}
       {:error, :all_members_failed, _meta} -> :no_route
+    end
+  end
+
+  # Every member call goes through Budget.with_budget: gated (a member that
+  # crosses a cap mid-turn is refused → dropped like any failed member) and its
+  # actual usage recorded. The 3-tuple refusal collapses to a 2-tuple error so
+  # Ensemble's partial-failure policy handles it uniformly.
+  defp gate_llm(llm, budget, conversation_id) do
+    fn request, call_opts -> gated_call(llm, budget, conversation_id, request, call_opts) end
+  end
+
+  defp gated_call(llm, budget, conversation_id, request, call_opts) do
+    case Budget.with_budget(budget, conversation_id, fn -> llm.(request, call_opts) end) do
+      {:error, reason, _refusal_message} -> {:error, reason}
+      other -> other
     end
   end
 
