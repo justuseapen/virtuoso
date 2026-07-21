@@ -10,7 +10,7 @@ defmodule Virtuoso.Ensemble.Config do
   modules and applying defaults.
 
   `to_ensemble_opts/1` renders the resolved config into the keyword shape
-  `Virtuoso.Thinking.Slow` / `Virtuoso.Ensemble.run/3` expect.
+  `Virtuoso.Thinking.Slow` / `Virtuoso.Ensemble.run/2` expect.
   """
 
   alias Virtuoso.Ensemble.Strategy.{Judge, Majority, Quorum}

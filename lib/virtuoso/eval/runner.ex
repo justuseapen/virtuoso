@@ -5,7 +5,7 @@ defmodule Virtuoso.Eval.Runner do
   For each task, the runner measures two strategies against the known answer:
 
     * **single-call** — one member's answer (the baseline).
-    * **ensemble** — `Virtuoso.Ensemble.run/3` with N noisy members voting by
+    * **ensemble** — `Virtuoso.Ensemble.run/2` with N noisy members voting by
       majority; the committed (or fallback) decision.
 
   Members err independently (`Virtuoso.Eval.NoisyMember`), so majority-of-N

@@ -21,3 +21,4 @@ cover/
 # Example apps manage their own builds/deps
 /examples/*/_build
 /examples/*/deps
+/virtuoso-*.tar

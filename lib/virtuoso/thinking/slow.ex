@@ -9,7 +9,7 @@ defmodule Virtuoso.Thinking.Slow do
   once, not once per member. Consensus is on the decision, not the text; N
   members never mean N replies (or N side effects).
 
-  Flow: build member variants → `Ensemble.run/3` votes on a routine name →
+  Flow: build member variants → `Ensemble.run/2` votes on a routine name →
   resolve the name through the `Virtuoso.Routine` registry (no `String.to_atom`)
   → the routine generates the reply. An unknown/hallucinated route or a failed
   ensemble degrades to a defined fallback reply, never a crash.
@@ -17,7 +17,7 @@ defmodule Virtuoso.Thinking.Slow do
   ## Options
     * `:routines` — `%{name => module}` registry (required).
     * `:ensemble` — `[n: 3, strategy: Majority, models: [...], strategy_opts: ...]`.
-    * `:llm` — the `Ensemble.run/3` `:llm` seam (default `&Virtuoso.LLM.complete/2`).
+    * `:llm` — the `Ensemble.run/2` `:llm` seam (default `&Virtuoso.LLM.complete/2`).
     * `:fallback` — reply text when routing can't resolve (has a sensible default).
     * `:system` — routing system prompt override.
   """
@@ -83,7 +83,7 @@ defmodule Virtuoso.Thinking.Slow do
 
   defp gated_call(llm, budget, conversation_id, request, call_opts) do
     case Budget.with_budget(budget, conversation_id, fn -> llm.(request, call_opts) end) do
-      {:error, reason, _refusal_message} -> {:error, reason}
+      {:refused, reason, _refusal_message} -> {:error, reason}
       other -> other
     end
   end
@@ -99,14 +99,18 @@ defmodule Virtuoso.Thinking.Slow do
     end
   end
 
+  # `:system` (from a bot's prompt file) replaces only the *preamble*; the valid
+  # intent list and reply format are always appended, so a custom prompt can't
+  # silently break routing by omitting the routine names.
   defp routing_request(imp, names, opts) do
-    system =
+    preamble =
       Keyword.get(opts, :system) ||
-        """
-        You are a router. Choose exactly one intent that best handles the user's \
-        message. Valid intents: #{Enum.join(names, ", ")}. Reply with ONLY the \
-        intent name, nothing else.
-        """
+        "You are a router. Choose exactly one intent that best handles the user's message."
+
+    system =
+      String.trim_trailing(preamble) <>
+        "\n\nValid intents: #{Enum.join(names, ", ")}. " <>
+        "Reply with ONLY the intent name, nothing else."
 
     %{
       system: system,

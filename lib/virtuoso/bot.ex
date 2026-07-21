@@ -47,6 +47,13 @@ defmodule Virtuoso.Bot do
   @doc "Default ensemble config for routing (default `[]` → framework defaults)."
   @callback ensemble() :: keyword()
 
+  @doc """
+  The routing system prompt (default `nil` → the framework's built-in router
+  prompt). Generators scaffold this as a **file** under `priv/prompts/` embedded
+  at compile time, not an inline string.
+  """
+  @callback system() :: String.t() | nil
+
   # The generated functions fully-qualify Virtuoso.Bot.* on purpose — aliases
   # don't cross the quote boundary into the using module — so AliasUsage's
   # suggestion doesn't apply to this macro.
@@ -64,7 +71,10 @@ defmodule Virtuoso.Bot do
       @impl true
       def ensemble, do: []
 
-      defoverridable fast: 0, routines: 0, ensemble: 0
+      @impl true
+      def system, do: nil
+
+      defoverridable fast: 0, routines: 0, ensemble: 0, system: 0
 
       @doc "The routine registry with per-routine overrides stripped to modules."
       def routine_registry, do: Virtuoso.Bot.routine_registry(routines())
@@ -109,7 +119,8 @@ defmodule Virtuoso.Bot do
       [
         fast: bot.fast(),
         routines: bot.routine_registry(),
-        ensemble: ensemble_opts
+        ensemble: ensemble_opts,
+        system: bot.system()
       ]
       |> Keyword.merge(opts)
 

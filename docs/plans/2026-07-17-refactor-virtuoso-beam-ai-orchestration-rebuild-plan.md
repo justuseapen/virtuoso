@@ -156,11 +156,16 @@ lib/virtuoso/
 - **Success:** kill -9 a node mid-conversation → conversation resumes on another node ≤ 5s with at most the in-flight message lost; 3-node partition/heal drill produces no duplicate outbound sends; suite still passes single-node with no cluster config
 
 #### Phase 4: Developer experience & polish
-- [ ] Generators updated: `virtuoso.gen.bot` (agent + FastThinking + prompts), `virtuoso.gen.routine`, `virtuoso.gen.tool`
-- [ ] Prompt/agent definitions as files scaffolded by generators (not inline strings)
-- [ ] Dashboard auth (host-app-provided plug), PII policy: transcripts redacted in telemetry/logs
-- [ ] README + hexdocs rewrite; publish `0.1.0` to Hex
+- [x] Generators updated: `virtuoso.gen.bot` (agent + FastThinking + prompts), `virtuoso.gen.routine`, `virtuoso.gen.tool`
+      → **Done:** `mix virtuoso.gen.bot Demo` scaffolds bot module + FastThinking greeting matcher (chats with zero tokens, no API key) + starter routine + prompt file; `gen.routine`/`gen.tool` scaffold registry-ready modules and print the registry entry (tools = post-consensus side-effect routines in 0.1.0). Tests generate into a tmp dir, compile the output, and drive the bot through `responder/1` with a crashing `:llm` seam to prove the zero-token path.
+- [x] Prompt/agent definitions as files scaffolded by generators (not inline strings)
+      → **Done:** `priv/prompts/<bot>/router.md` embedded at compile time via `@external_resource` (edits recompile). New core seam: `Virtuoso.Bot.system/0` overridable callback threads the prompt into SlowThinking; `:system` replaces only the router *preamble* — the valid-intent list is always appended, so a prompt file can't silently break routing.
+- [x] Dashboard auth (host-app-provided plug), PII policy: transcripts redacted in telemetry/logs
+      → **Done:** `config :virtuoso_dashboard, :auth, MyPlug | {MyPlug, opts}` consulted in the browser pipeline (unset = open, documented dev-only). PII policy documented in the dashboard README: transcripts live only in the event log; telemetry is shape-only (test-enforced); ensemble `decision` is a categorical label, never user text.
+- [x] README + hexdocs rewrite; publish `0.1.0` to Hex
+      → **Docs done:** README rewritten around the 0.1.0 surface (flagship numbers, 5-minute bot, `Virtuoso.Migrations` Oban-style install, `start_repo: false` escape hatch, clustering, telemetry contract); CHANGELOG.md added; MIT LICENSE added; ex_doc extras (README/CHANGELOG/rolling-deploys/spike report) + module groups; version `0.1.0`; `mix docs` zero warnings; `mix hex.build` produces a valid package. **Publish itself awaits explicit approval** (irreversible; needs the maintainer's Hex auth).
 - **Success:** `mix virtuoso.gen.bot Demo` produces a compiling, chatting bot in < 5 min from a fresh app
+      → Verified by test: generated files compile and the bot replies to "hi" via FastThinking with no API key and zero LLM calls.
 
 ## Alternative Approaches Considered
 

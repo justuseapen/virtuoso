@@ -147,10 +147,12 @@ defmodule Virtuoso.Budget do
   usage from its `{:ok, %{usage: ...}}` result, and return that result.
 
   When over budget or killed, `fun` is **not** run; returns
-  `{:error, reason, refusal_message()}` so the caller emits the fallback.
+  `{:refused, reason, refusal_message()}` so the caller emits the fallback.
+  The distinct `:refused` tag (rather than a 3-arity `:error`) means one `case`
+  cleanly separates ok / provider-error / budget-refusal.
   """
   @spec with_budget(name(), String.t(), (-> {:ok, map()} | {:error, term()})) ::
-          {:ok, map()} | {:error, term()} | {:error, atom(), String.t()}
+          {:ok, map()} | {:error, term()} | {:refused, atom(), String.t()}
   def with_budget(server \\ name(), conversation_id, fun) do
     case check(server, conversation_id) do
       :ok ->
@@ -159,7 +161,7 @@ defmodule Virtuoso.Budget do
         result
 
       {:error, reason} ->
-        {:error, reason, @refusal_message}
+        {:refused, reason, @refusal_message}
     end
   end
 

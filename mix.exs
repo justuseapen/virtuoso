@@ -1,7 +1,7 @@
 defmodule Virtuoso.MixProject do
   use Mix.Project
 
-  @version "0.1.0-dev"
+  @version "0.1.0"
   @source_url "https://github.com/justuseapen/virtuoso"
 
   def project do
@@ -80,7 +80,7 @@ defmodule Virtuoso.MixProject do
 
   defp package do
     [
-      files: ~w(lib mix.exs README* LICENSE*),
+      files: ~w(lib mix.exs README* LICENSE* CHANGELOG*),
       maintainers: ["Justus Eapen"],
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url}
@@ -90,7 +90,31 @@ defmodule Virtuoso.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"],
+      extras: [
+        "README.md",
+        "CHANGELOG.md",
+        "docs/operations/rolling-deploys.md",
+        "docs/spikes/2026-07-20-horde-spike-report.md"
+      ],
+      groups_for_extras: [
+        Operations: ~r/docs\/operations/,
+        Spikes: ~r/docs\/spikes/
+      ],
+      groups_for_modules: [
+        "Bot API": [Virtuoso.Bot, Virtuoso.Routine, Virtuoso.Thinking, Virtuoso.Thinking.Fast],
+        Ensemble: ~r/Virtuoso\.Ensemble/,
+        Conversations: [
+          Virtuoso.Conversation,
+          Virtuoso.Conversation.Log,
+          Virtuoso.Conversation.Event,
+          Virtuoso.Impression,
+          Virtuoso.Migrations
+        ],
+        "LLM layer": ~r/Virtuoso\.LLM/,
+        "Budget & Fabric": [Virtuoso.Budget, Virtuoso.Fabric],
+        Channels: ~r/Virtuoso\.Channel/,
+        Eval: ~r/Virtuoso\.Eval/
+      ],
       source_ref: "v#{@version}"
     ]
   end
