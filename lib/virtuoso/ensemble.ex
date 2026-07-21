@@ -36,6 +36,21 @@ defmodule Virtuoso.Ensemble do
     * `{:consensus, decision, meta}` — the strategy committed a decision.
     * `{:fallback, decision, meta}` — no consensus; a single survivor's decision.
     * `{:error, :all_members_failed, meta}` — no member produced a decision.
+
+  `meta` always carries `members_total`/`members_ok`/`members_dropped` and
+  `usage` (token totals summed across surviving members — the cost of the
+  decision).
+
+  ## Telemetry (public API — versioned from 0.1.0)
+
+    * `[:virtuoso, :ensemble, :run, :start]` — measurements `%{system_time}`,
+      metadata `%{strategy, members_total}`.
+    * `[:virtuoso, :ensemble, :run, :stop]` — measurements `%{duration}`,
+      metadata `%{strategy, outcome: :consensus | :fallback | :error, decision,
+      members_total, members_ok, members_dropped, usage}` plus the strategy's
+      meta (`:count` = agreeing members, so dissent = `members_ok - count`;
+      `:reason` on fallback/error). This is the dashboard's feed: votes,
+      dissent, latency, and cost per decision.
   """
 
   alias Virtuoso.Ensemble.Strategy
@@ -61,20 +76,43 @@ defmodule Virtuoso.Ensemble do
     timeout = Keyword.get(opts, :timeout, 30_000)
 
     total = length(members)
-    decisions = fan_out(base_request, members, extract, llm, timeout)
+    start_time = System.monotonic_time()
+
+    :telemetry.execute(
+      [:virtuoso, :ensemble, :run, :start],
+      %{system_time: System.system_time()},
+      %{strategy: strategy, members_total: total}
+    )
+
+    survivors = fan_out(base_request, members, extract, llm, timeout)
+    decisions = Enum.map(survivors, &elem(&1, 0))
     ok = length(decisions)
-    dropped = total - ok
 
-    base_meta = %{members_total: total, members_ok: ok, members_dropped: dropped}
+    base_meta = %{
+      members_total: total,
+      members_ok: ok,
+      members_dropped: total - ok,
+      usage: total_usage(survivors)
+    }
 
-    if ok == 0 do
-      {:error, :all_members_failed, base_meta}
-    else
-      aggregate(strategy, decisions, strategy_opts, base_meta)
-    end
+    result =
+      if ok == 0 do
+        {:error, :all_members_failed, base_meta}
+      else
+        aggregate(strategy, decisions, strategy_opts, base_meta)
+      end
+
+    :telemetry.execute(
+      [:virtuoso, :ensemble, :run, :stop],
+      %{duration: System.monotonic_time() - start_time},
+      stop_metadata(strategy, result)
+    )
+
+    result
   end
 
-  # Fan out members concurrently; keep only the ones that produced a decision.
+  # Fan out members concurrently; keep only the ones that produced a decision
+  # (paired with their token usage — the dashboard's cost-per-decision feed).
   # async_stream_nolink so a crashing member never takes down the caller — a
   # crash/exit becomes a dropped member, exactly like a 429.
   defp fan_out(base_request, members, extract, llm, timeout) do
@@ -87,7 +125,7 @@ defmodule Virtuoso.Ensemble do
       ordered: false
     )
     |> Enum.flat_map(fn
-      {:ok, {:ok, decision}} -> [decision]
+      {:ok, {:ok, decision, usage}} -> [{decision, usage}]
       _ -> []
     end)
   end
@@ -96,8 +134,42 @@ defmodule Virtuoso.Ensemble do
     request = Map.merge(base_request, member)
 
     case llm.(request, timeout: timeout) do
-      {:ok, completion} -> extract.(completion)
-      {:error, _reason} -> :error
+      {:ok, completion} ->
+        case extract.(completion) do
+          {:ok, decision} -> {:ok, decision, Map.get(completion, :usage, %{})}
+          :error -> :error
+        end
+
+      {:error, _reason} ->
+        :error
+    end
+  end
+
+  defp total_usage(survivors) do
+    Enum.reduce(survivors, %{input_tokens: 0, output_tokens: 0}, fn {_d, usage}, acc ->
+      %{
+        input_tokens: acc.input_tokens + Map.get(usage, :input_tokens, 0),
+        output_tokens: acc.output_tokens + Map.get(usage, :output_tokens, 0)
+      }
+    end)
+  end
+
+  ## Telemetry (public API — versioned from 0.1.0)
+  #
+  #   [:virtuoso, :ensemble, :run, :start] — %{system_time};
+  #     meta %{strategy, members_total}
+  #   [:virtuoso, :ensemble, :run, :stop]  — %{duration};
+  #     meta %{strategy, outcome: :consensus | :fallback | :error, decision,
+  #            members_total, members_ok, members_dropped, usage, ...strategy meta
+  #            (:count for agreement — dissent = members_ok - count, :reason on
+  #            fallback/error)}
+  defp stop_metadata(strategy, {outcome, decision_or_reason, meta}) do
+    base = Map.merge(meta, %{strategy: strategy})
+
+    case outcome do
+      :consensus -> Map.merge(base, %{outcome: :consensus, decision: decision_or_reason})
+      :fallback -> Map.merge(base, %{outcome: :fallback, decision: decision_or_reason})
+      :error -> Map.merge(base, %{outcome: :error, decision: nil, reason: decision_or_reason})
     end
   end
 
