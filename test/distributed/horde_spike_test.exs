@@ -142,39 +142,59 @@ defmodule Virtuoso.HordeSpikeTest do
     {:ok, pid_b} = :rpc.call(n3, DistHelper, :start_worker, ["conv-split"])
     assert pid_a != pid_b
 
-    # Heal: restore full membership on both sides; the CRDTs merge.
+    # Heal: restore full membership from the REJOINING side only. Per Horde's
+    # docs a single set_members propagates cluster-wide; concurrent set_members
+    # from both sides creates conflicting membership-CRDT writes that can churn
+    # for tens of seconds (observed ~50% flake with dual-sided heal).
     full_reg = for n <- nodes, do: {reg, n}
     full_sup = for n <- nodes, do: {sup, n}
-    :ok = :rpc.call(n1, Horde.Cluster, :set_members, [reg, full_reg])
-    :ok = :rpc.call(n1, Horde.Cluster, :set_members, [sup, full_sup])
     :ok = :rpc.call(n3, Horde.Cluster, :set_members, [reg, full_reg])
     :ok = :rpc.call(n3, Horde.Cluster, :set_members, [sup, full_sup])
 
     # After the CRDT merge, all nodes agree on ONE registration and only one
     # of the two processes is still alive.
     latency =
-      DistHelper.wait_until(
-        fn ->
+      try do
+        DistHelper.wait_until(
+          fn ->
+            views =
+              for n <- [n1, n2, n3] do
+                :rpc.call(n, DistHelper, :lookup, ["conv-split"])
+              end
+
+            alive =
+              Enum.count([pid_a, pid_b], fn p ->
+                :rpc.call(node(p), Process, :alive?, [p]) == true
+              end)
+
+            uniform? =
+              case Enum.uniq(views) do
+                [[{winner, _}]] when is_pid(winner) -> true
+                _ -> false
+              end
+
+            uniform? and alive == 1
+          end,
+          30_000
+        )
+      rescue
+        e in RuntimeError ->
+          # Diagnostic dump so a convergence failure is debuggable, not opaque.
           views =
-            for n <- [n1, n2, n3] do
-              :rpc.call(n, DistHelper, :lookup, ["conv-split"])
-            end
+            for n <- [n1, n2, n3], do: {n, :rpc.call(n, DistHelper, :lookup, ["conv-split"])}
 
-          alive =
-            Enum.count([pid_a, pid_b], fn p ->
-              :rpc.call(node(p), Process, :alive?, [p]) == true
-            end)
+          members = for n <- [n1, n2, n3], do: {n, :rpc.call(n, Horde.Cluster, :members, [reg])}
+          alive = for p <- [pid_a, pid_b], do: {p, :rpc.call(node(p), Process, :alive?, [p])}
 
-          uniform? =
-            case Enum.uniq(views) do
-              [[{winner, _}]] when is_pid(winner) -> true
-              _ -> false
-            end
+          IO.puts("""
+          [spike] heal did NOT converge:
+            views:   #{inspect(views)}
+            members: #{inspect(members)}
+            alive:   #{inspect(alive)}
+          """)
 
-          uniform? and alive == 1
-        end,
-        30_000
-      )
+          reraise e, __STACKTRACE__
+      end
 
     IO.puts("[spike] netsplit heal → single survivor + uniform registry: #{latency}ms")
 

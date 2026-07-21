@@ -45,6 +45,8 @@ defmodule Virtuoso.MixProject do
       {:telemetry, "~> 1.2"},
       # Distributed fabric (Phase 3): cluster-wide registry/supervision.
       {:horde, "~> 0.10"},
+      # Cluster formation (gossip for dev, DNS for Fly.io); no-op unless configured.
+      {:libcluster, "~> 3.3"},
       # Multi-node spike/chaos drills (test-only; @tag :distributed).
       {:local_cluster, "~> 2.1", only: [:test]},
       # Dev/test tooling.

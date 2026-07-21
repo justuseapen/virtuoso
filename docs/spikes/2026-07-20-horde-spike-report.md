@@ -55,6 +55,12 @@ membership, a minimal registered worker standing in for a conversation process:
    exercises the same merge code path; (b) OTP 25+'s `global` forcibly
    disconnects nodes on partial partitions and reads
    `prevent_overlapping_partitions` at boot only.
+5. **Heal with a single `set_members` from the rejoining side.** Horde documents
+   that one `set_members` propagates cluster-wide; issuing concurrent
+   `set_members` from both sides of a heal creates conflicting membership-CRDT
+   writes that churned convergence for tens of seconds (~50% drill flake).
+   Single-sided heal converges in a steady ~255ms (6/6). Production `:auto`
+   membership never takes the dual-write path.
 
 ## Verdict: **GO on Horde**
 
