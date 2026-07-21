@@ -17,3 +17,7 @@ cover/
 
 # Secret config must never be committed.
 /config/*.secret.exs
+
+# Example apps manage their own builds/deps
+/examples/*/_build
+/examples/*/deps
