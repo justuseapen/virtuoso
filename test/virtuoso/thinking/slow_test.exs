@@ -1,7 +1,7 @@
 defmodule Virtuoso.Thinking.SlowTest do
   use ExUnit.Case, async: true
 
-  alias Virtuoso.Impression
+  alias Virtuoso.{Budget, Impression}
   alias Virtuoso.Thinking.Slow
 
   # Routines: each returns a canned reply so we test routing, not generation.
@@ -73,6 +73,50 @@ defmodule Virtuoso.Thinking.SlowTest do
       assert reply =~ "not sure" or reply =~ "help"
     end
 
+    test "an exhausted budget short-circuits to the defined refusal message" do
+      name = :"slow_budget_#{System.unique_integer([:positive])}"
+      start_supervised!({Budget, name: name, per_conversation_daily: 0})
+
+      parent = self()
+
+      llm = fn _r, _o ->
+        send(parent, :llm_called)
+        {:ok, %{text: "book", model: "m", stop_reason: :end_turn, usage: %{}, raw: %{}}}
+      end
+
+      opts = [routines: @registry, ensemble: [n: 3], llm: llm, budget: name]
+
+      assert {:reply, reply} = Slow.respond(imp("book it"), %{}, opts)
+      assert reply == Budget.refusal_message()
+      # The whole turn was refused — no member ever ran.
+      refute_received :llm_called
+    end
+
+    test "member usage is recorded through the budget gate" do
+      name = :"slow_budget_#{System.unique_integer([:positive])}"
+      start_supervised!({Budget, name: name, per_conversation_daily: 1_000_000})
+
+      llm = fn _r, _o ->
+        {:ok,
+         %{
+           text: "book",
+           model: "m",
+           stop_reason: :end_turn,
+           usage: %{input_tokens: 2, output_tokens: 3},
+           raw: %{}
+         }}
+      end
+
+      opts = [routines: @registry, ensemble: [n: 3], llm: llm, budget: name]
+      the_imp = imp("book it")
+
+      assert {:reply, "Booked!"} = Slow.respond(the_imp, %{}, opts)
+
+      # record/3 is a cast from the member task processes — poll briefly.
+      wait_until(fn -> Budget.spent(name, the_imp.conversation_id) == 15 end)
+      assert Budget.spent(name, the_imp.conversation_id) == 15
+    end
+
     test "generation is single-model: the routine runs once, not per member" do
       # Even with n:5 members voting on the route, the routine (generation) runs
       # exactly once — consensus is on the decision, not the reply.
@@ -87,6 +131,24 @@ defmodule Virtuoso.Thinking.SlowTest do
       Slow.respond(imp("book"), %{counter: counter}, opts)
 
       assert Agent.get(counter, & &1) == 1
+    end
+  end
+
+  defp wait_until(fun, timeout_ms \\ 2_000) do
+    do_wait(fun, System.monotonic_time(:millisecond) + timeout_ms)
+  end
+
+  defp do_wait(fun, deadline) do
+    cond do
+      fun.() ->
+        :ok
+
+      System.monotonic_time(:millisecond) > deadline ->
+        :timeout
+
+      true ->
+        Process.sleep(20)
+        do_wait(fun, deadline)
     end
   end
 

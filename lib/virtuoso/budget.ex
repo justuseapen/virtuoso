@@ -27,6 +27,9 @@ defmodule Virtuoso.Budget do
 
   use GenServer
 
+  alias Virtuoso.Conversation.Supervisor, as: ConversationSupervisor
+  alias Virtuoso.Fabric
+
   @refusal_message "I've reached my usage limit for now. Please try again later."
 
   @type name :: atom() | pid()
@@ -43,14 +46,43 @@ defmodule Virtuoso.Budget do
   # --- public API -----------------------------------------------------------
 
   @doc """
+  The server name the default API targets.
+
+  Single-node (fabric disabled): the local name `Virtuoso.Budget`. Fabric
+  enabled: a via tuple through the fabric's registry, so there is **one** budget
+  cluster-wide (Anthropic limits are per-API-key) and every node's calls resolve
+  to it wherever it lives. On failover the singleton restarts on a survivor with
+  fresh counters — the caps are protective ceilings, not billing records, so a
+  reset on node loss is the accepted trade.
+  """
+  @spec name() :: name()
+  def name do
+    if Fabric.enabled?() do
+      Fabric.via(ConversationSupervisor.registry(), __MODULE__)
+    else
+      __MODULE__
+    end
+  end
+
+  @doc """
   Start a budget process.
 
-  Options: `:name`, `:per_conversation_daily`, `:global_daily` (token counts or
-  `:infinity`), `:kill_switch` (boolean).
+  Options: `:name` (atom or via tuple), `:per_conversation_daily`,
+  `:global_daily` (token counts or `:infinity`), `:kill_switch` (boolean).
   """
   def start_link(opts) do
-    name = Keyword.get(opts, :name, __MODULE__)
-    GenServer.start_link(__MODULE__, opts, name: name)
+    server = Keyword.get(opts, :name, __MODULE__)
+
+    case GenServer.start_link(__MODULE__, opts, name: server) do
+      {:ok, pid} ->
+        {:ok, pid}
+
+      # Fabric mode: every node races to start the singleton at boot; the losers
+      # map to :ignore so their supervisors drop the child quietly (the same
+      # pattern conversations use for netsplit-heal restarts).
+      {:error, {:already_started, _pid}} ->
+        :ignore
+    end
   end
 
   @doc false
@@ -75,31 +107,38 @@ defmodule Virtuoso.Budget do
   cap is already reached.
   """
   @spec check(name(), String.t()) :: check_result()
-  def check(server \\ __MODULE__, conversation_id) do
+  def check(server \\ name(), conversation_id) do
     GenServer.call(server, {:check, conversation_id})
   end
 
-  @doc "Record `tokens` spent by `conversation_id` against both caps."
+  @doc """
+  Record `tokens` spent by `conversation_id` against both caps.
+
+  A cast: the caller never used the `:ok`, and recording synchronously put two
+  round-trips on every LLM call's hot path (review finding 006, partial). Reads
+  (`spent/2`, `check/2`) from the same caller still observe the write — casts
+  and calls from one process are delivered in order.
+  """
   @spec record(name(), String.t(), non_neg_integer()) :: :ok
-  def record(server \\ __MODULE__, conversation_id, tokens) do
-    GenServer.call(server, {:record, conversation_id, tokens})
+  def record(server \\ name(), conversation_id, tokens) do
+    GenServer.cast(server, {:record, conversation_id, tokens})
   end
 
   @doc "Engage or release the global kill switch."
   @spec kill_switch(name(), boolean()) :: :ok
-  def kill_switch(server \\ __MODULE__, engaged?) do
+  def kill_switch(server \\ name(), engaged?) do
     GenServer.call(server, {:kill_switch, engaged?})
   end
 
   @doc "Tokens spent by a conversation today."
   @spec spent(name(), String.t()) :: non_neg_integer()
-  def spent(server \\ __MODULE__, conversation_id) do
+  def spent(server \\ name(), conversation_id) do
     GenServer.call(server, {:spent, conversation_id})
   end
 
   @doc "Total tokens spent across all conversations today."
   @spec global_spent(name()) :: non_neg_integer()
-  def global_spent(server \\ __MODULE__) do
+  def global_spent(server \\ name()) do
     GenServer.call(server, :global_spent)
   end
 
@@ -112,7 +151,7 @@ defmodule Virtuoso.Budget do
   """
   @spec with_budget(name(), String.t(), (-> {:ok, map()} | {:error, term()})) ::
           {:ok, map()} | {:error, term()} | {:error, atom(), String.t()}
-  def with_budget(server \\ __MODULE__, conversation_id, fun) do
+  def with_budget(server \\ name(), conversation_id, fun) do
     case check(server, conversation_id) do
       :ok ->
         result = fun.()
@@ -162,16 +201,6 @@ defmodule Virtuoso.Budget do
     end
   end
 
-  def handle_call({:record, conversation_id, tokens}, _from, state) do
-    new_state =
-      state
-      |> roll_day()
-      |> update_in([Access.key(:per_conversation), conversation_id], &((&1 || 0) + tokens))
-      |> Map.update!(:global, &(&1 + tokens))
-
-    {:reply, :ok, new_state}
-  end
-
   def handle_call({:kill_switch, engaged?}, _from, state) do
     {:reply, :ok, %{state | kill_switch: engaged?}}
   end
@@ -184,6 +213,17 @@ defmodule Virtuoso.Budget do
   def handle_call(:global_spent, _from, state) do
     state = roll_day(state)
     {:reply, state.global, state}
+  end
+
+  @impl true
+  def handle_cast({:record, conversation_id, tokens}, state) do
+    new_state =
+      state
+      |> roll_day()
+      |> update_in([Access.key(:per_conversation), conversation_id], &((&1 || 0) + tokens))
+      |> Map.update!(:global, &(&1 + tokens))
+
+    {:noreply, new_state}
   end
 
   # Daily caps: when the current day differs from the stored day, zero the

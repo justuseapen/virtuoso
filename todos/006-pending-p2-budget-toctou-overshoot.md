@@ -59,3 +59,15 @@ _(fill during triage)_
 
 ## Triage Decision
 **DEFERRED** — The overshoot only bites under fan-out concurrency, which is Phase 2 (Ensemble). Best done WITH Phase 2 (reserve-then-reconcile, or ETS counters) so the design matches the fan-out workload. Not a single-node Phase-1 blocker.
+
+## Partial Resolution (Phase 3 pass)
+- **record/3 → cast** (the perf half): the caller never used the `:ok`; one
+  round-trip removed from every LLM call's hot path. Same-caller cast→call
+  ordering keeps reads consistent.
+- **The gate is now actually enforced in the pipeline**: SlowThinking pre-checks
+  per turn and routes every ensemble member through `with_budget` (usage
+  recorded; mid-turn cap crossings drop members).
+- **Still open**: the check→record TOCTOU itself — concurrent members can
+  overshoot the cap by (concurrency × per-call cost). Reserve-then-reconcile or
+  atomic counters remain the full fix; also the singleton's counters reset on
+  fabric failover (documented as accepted in rolling-deploys.md).

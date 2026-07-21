@@ -25,7 +25,7 @@ defmodule Virtuoso.Conversation do
   use GenServer
 
   alias Virtuoso.Conversation.{Log, Supervisor}
-  alias Virtuoso.Impression
+  alias Virtuoso.{Fabric, Impression}
 
   @typedoc "History entry as replayed from the log: {role, content}."
   @type history_entry :: {Log.role(), String.t() | nil}
@@ -71,33 +71,63 @@ defmodule Virtuoso.Conversation do
     end
   end
 
-  @doc "The pid of a conversation process, or nil if not running."
+  @doc """
+  The pid of a conversation process, or nil if not running.
+
+  Registry cleanup after a process death is asynchronous, so a lookup can
+  briefly return a dead pid. For **local** pids we filter those out with
+  `Process.alive?`; a **remote** pid (fabric enabled) can't be liveness-checked
+  from here — a stale one surfaces as `:noproc` on the call, which `deliver/2`'s
+  retry recovers through a rehydrating restart.
+  """
   @spec whereis(String.t()) :: pid() | nil
   def whereis(conversation_id) do
-    case Registry.lookup(Supervisor.registry(), conversation_id) do
-      [{pid, _}] -> pid
+    case Fabric.lookup(Supervisor.registry(), conversation_id) do
+      [{pid, _}] -> if locally_dead?(pid), do: nil, else: pid
       [] -> nil
     end
   end
+
+  defp locally_dead?(pid), do: node(pid) == node() and not Process.alive?(pid)
 
   @doc "Start (or find) the conversation process for `conversation_id`."
   @spec ensure_started(String.t()) :: pid()
   def ensure_started(conversation_id) do
     case whereis(conversation_id) do
-      pid when is_pid(pid) ->
-        if Process.alive?(pid), do: pid, else: start(conversation_id)
-
-      nil ->
-        start(conversation_id)
+      pid when is_pid(pid) -> pid
+      nil -> start(conversation_id)
     end
   end
 
-  defp start(conversation_id) do
+  # Bounded: the :ignore → not-found window (a dead process whose registry entry
+  # hasn't been cleaned yet) resolves as soon as the registry processes the DOWN,
+  # so a short backoff always suffices.
+  defp start(conversation_id, attempts \\ 25) do
+    if attempts == 0 do
+      raise "could not start conversation #{conversation_id}: registry name unavailable"
+    end
+
     spec = {__MODULE__, conversation_id}
 
-    case DynamicSupervisor.start_child(Supervisor.dynamic_supervisor(), spec) do
-      {:ok, pid} -> pid
-      {:error, {:already_started, pid}} -> pid
+    case Fabric.start_child(Supervisor.dynamic_supervisor(), spec) do
+      {:ok, pid} ->
+        pid
+
+      {:error, {:already_started, pid}} ->
+        pid
+
+      # start_link mapped already_started → :ignore (see below): another process
+      # holds the name — either a live winner (return it) or a dead process
+      # whose registry entry is still being cleaned (back off briefly, retry).
+      :ignore ->
+        case whereis(conversation_id) do
+          pid when is_pid(pid) ->
+            pid
+
+          nil ->
+            Process.sleep(10)
+            start(conversation_id, attempts - 1)
+        end
     end
   end
 
@@ -114,11 +144,22 @@ defmodule Virtuoso.Conversation do
 
   @doc false
   def start_link(conversation_id) do
-    GenServer.start_link(__MODULE__, conversation_id, name: via(conversation_id))
+    case GenServer.start_link(__MODULE__, conversation_id, name: via(conversation_id)) do
+      {:ok, pid} ->
+        {:ok, pid}
+
+      # Spike finding 3: after a netsplit heals, the registry kills the conflict
+      # loser and its supervisor immediately restarts it — into a name the
+      # winner now holds. Returning :ignore makes the supervisor drop the child
+      # quietly instead of crash-looping. Same-node duplicate starts take this
+      # path too; ensure_started/1 then resolves the winner via lookup.
+      {:error, {:already_started, _pid}} ->
+        :ignore
+    end
   end
 
   defp via(conversation_id) do
-    {:via, Registry, {Supervisor.registry(), conversation_id}}
+    Fabric.via(Supervisor.registry(), conversation_id)
   end
 
   # How many recent turns to hold in process memory. The full history lives in
