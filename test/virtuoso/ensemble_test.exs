@@ -110,6 +110,85 @@ defmodule Virtuoso.EnsembleTest do
     end
   end
 
+  describe "run/3 — usage + telemetry (the dashboard's feed)" do
+    defp attach(event) do
+      ref = make_ref()
+      parent = self()
+      handler = "ens-test-#{inspect(ref)}"
+
+      :telemetry.attach(
+        handler,
+        event,
+        fn name, meas, meta, _ -> send(parent, {:telemetry, name, meas, meta}) end,
+        nil
+      )
+
+      on_exit(fn -> :telemetry.detach(handler) end)
+    end
+
+    defp usage_completion(text, input, output) do
+      %{
+        text: text,
+        model: "m",
+        stop_reason: :end_turn,
+        usage: %{input_tokens: input, output_tokens: output},
+        raw: %{}
+      }
+    end
+
+    test "meta aggregates token usage across members (cost per decision)" do
+      llm = fn _r, _o -> {:ok, usage_completion("route_x", 10, 5)} end
+
+      opts = [members: members(["a", "b", "c"]), strategy: Majority, extract: extract(), llm: llm]
+
+      assert {:consensus, "route_x", meta} = Ensemble.run(@base, opts)
+      assert meta.usage == %{input_tokens: 30, output_tokens: 15}
+    end
+
+    test "emits start and stop telemetry with outcome, votes, dissent, and usage" do
+      attach([:virtuoso, :ensemble, :run, :start])
+      attach([:virtuoso, :ensemble, :run, :stop])
+
+      llm = fn req, _o ->
+        text = if req.model == "c", do: "route_y", else: "route_x"
+        {:ok, usage_completion(text, 10, 5)}
+      end
+
+      opts = [members: members(["a", "b", "c"]), strategy: Majority, extract: extract(), llm: llm]
+      assert {:consensus, "route_x", _} = Ensemble.run(@base, opts)
+
+      assert_received {:telemetry, [:virtuoso, :ensemble, :run, :start], start_meas, start_meta}
+      assert is_integer(start_meas.system_time)
+      assert start_meta.members_total == 3
+      assert start_meta.strategy == Majority
+
+      assert_received {:telemetry, [:virtuoso, :ensemble, :run, :stop], stop_meas, stop_meta}
+      assert is_integer(stop_meas.duration)
+      assert stop_meta.outcome == :consensus
+      assert stop_meta.decision == "route_x"
+      # 2 of 3 agreed — one dissenter
+      assert stop_meta.count == 2
+      assert stop_meta.members_ok == 3
+      assert stop_meta.usage == %{input_tokens: 30, output_tokens: 15}
+    end
+
+    test "stop telemetry reports fallback and error outcomes" do
+      attach([:virtuoso, :ensemble, :run, :stop])
+
+      # all disagree → fallback
+      llm = fn req, _o -> {:ok, usage_completion("route_#{req.model}", 1, 1)} end
+      opts = [members: members(["a", "b", "c"]), strategy: Majority, extract: extract(), llm: llm]
+      assert {:fallback, _, _} = Ensemble.run(@base, opts)
+      assert_received {:telemetry, _, _, %{outcome: :fallback}}
+
+      # all fail → error
+      err_llm = fn _r, _o -> {:error, Error.timeout()} end
+      opts = [members: members(["a", "b"]), strategy: Majority, extract: extract(), llm: err_llm]
+      assert {:error, :all_members_failed, _} = Ensemble.run(@base, opts)
+      assert_received {:telemetry, _, _, %{outcome: :error}}
+    end
+  end
+
   describe "run/3 — purity" do
     test "members receive their model variant merged onto the base request" do
       parent = self()
