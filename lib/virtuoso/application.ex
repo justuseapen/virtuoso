@@ -11,8 +11,8 @@ defmodule Virtuoso.Application do
     # forms before the fabric's Horde components come up on it.
     children =
       Fabric.cluster_children() ++
+        repo_children() ++
         [
-          Virtuoso.Repo,
           # Conversation registry + dynamic supervisor, resolved through the
           # fabric (plain single-node pair by default; Horde when enabled).
           Virtuoso.Conversation.Supervisor,
@@ -24,6 +24,17 @@ defmodule Virtuoso.Application do
 
     opts = [strategy: :one_for_one, name: Virtuoso.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  # Consumers who only use the LLM/Ensemble layers (no conversations) can skip
+  # the Postgres requirement entirely:
+  #
+  #     config :virtuoso, :start_repo, false
+  #
+  # With the repo off, Conversation/Log APIs are unavailable (they raise on
+  # first use); everything else works.
+  defp repo_children do
+    if Application.get_env(:virtuoso, :start_repo, true), do: [Virtuoso.Repo], else: []
   end
 
   # Default budget caps, overridable via `config :virtuoso, Virtuoso.Budget, ...`.

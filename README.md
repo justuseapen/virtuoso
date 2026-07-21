@@ -2,112 +2,159 @@
 
 > "For as the body is one, and hath many members, and all the members of that one body, being many, are one body..."
 
-Virtuoso is a **BEAM-native AI-agent orchestration framework**. It runs many
-lightweight processes to reason with LLMs concurrently, aggregates their
-structured outputs by consensus, and (in later phases) spreads conversations
-across a self-healing cluster — the actor model applied to agent orchestration.
+Virtuoso is a **BEAM-native AI-agent orchestration framework**: the actor model
+applied to LLM agents.
 
-It is a rebuild of the original 2018 Phoenix chatbot framework: the cognitive
-shape is kept (a deterministic fast path ahead of an LLM reasoning step), but the
-pre-LLM NLP guts (Wit.ai / Watson intent classification) are replaced with LLM
-ensembles behind a clean behaviour.
+- **Parallel consensus (ensembles).** N lightweight processes query LLMs
+  concurrently; their *structured* outputs are aggregated by vote (majority,
+  quorum, or an LLM judge). Independently-noisy members cancel each other's
+  errors — in the bundled offline eval, majority-of-5 lifts accuracy from
+  **59.7% → 88.9%** at a 35% per-member error rate (`mix virtuoso.eval`).
+- **Distributed compute fabric.** Conversations and singletons run on a
+  [Horde](https://hex.pm/packages/horde)-backed cluster: a node dies, its
+  processes restart on survivors in tens of milliseconds and rehydrate from the
+  event log. Correctness never rests on the registry — it rests on the log.
+- **Exactly-once on at-least-once delivery.** An append-only Postgres event log
+  with a unique dedup key is the source of truth: duplicate webhooks collapse to
+  one event, replies to replayed messages are served from the log, and a crashed
+  conversation loses at most the in-flight message.
 
-> **Status:** Phase 1 — a useful modern single-node framework. The ensemble
-> (parallel consensus) and fabric (distributed compute) layers are the eventual
-> flagship features; see `docs/plans/` for the roadmap.
+Consensus is on **decisions, not text**: the ensemble votes on categorical
+outputs (routes, classifications, extractions), then the winning routine
+generates the reply or performs the side effect **once**. N members never mean
+N replies or N side effects.
 
-## Architecture (Phase 1)
+## Five-minute bot
+
+```sh
+mix virtuoso.gen.bot Demo
+```
+
+That scaffolds a complete bot — a FastThinking greeting matcher (deterministic,
+zero tokens), a starter routine reached by ensemble routing, and the routing
+system prompt as a **file** (`priv/prompts/demo/router.md`, embedded at compile
+time):
+
+```elixir
+imp = Virtuoso.Impression.new(
+  channel: :console, conversation_id: "c1", sender_id: "u1",
+  message_id: "m1", text: "hi"
+)
+
+Demo.Bot.responder().(imp, %{})
+#=> {:reply, "Hello! I'm Demo — ask me anything."}   # no API key needed
+```
+
+With `ANTHROPIC_API_KEY` set, non-greeting messages route through the ensemble
+to your routines. Add more with `mix virtuoso.gen.routine Demo Booking` and
+`mix virtuoso.gen.tool Demo Weather` (a *tool* is a routine whose job is a side
+effect, guaranteed post-consensus).
+
+## Installation
+
+```elixir
+def deps do
+  [{:virtuoso, "~> 0.1"}]
+end
+```
+
+Create the event log from your app's migration (the Oban pattern):
+
+```elixir
+defmodule MyApp.Repo.Migrations.AddVirtuoso do
+  use Ecto.Migration
+
+  def up, do: Virtuoso.Migrations.up()
+  def down, do: Virtuoso.Migrations.down()
+end
+```
+
+Point Virtuoso's repo at your Postgres:
+
+```elixir
+config :virtuoso, Virtuoso.Repo, url: System.get_env("DATABASE_URL")
+```
+
+Only using the LLM/Ensemble layers (no conversations)? Skip Postgres entirely:
+
+```elixir
+config :virtuoso, :start_repo, false
+```
+
+## Architecture
 
 ```
-channel → Impression v1 → conversation process → responder → reply
-             (translate)      (FIFO, rehydrates      (thinking
-                               from event log)        pipeline)
-                    │                                     │
-              event log ◀────── append inbound/outbound (dedup) ──────▶ event log
-                    │                                     │
+channel → Impression v1 → conversation process → thinking pipeline → reply
+             (translate)      (FIFO, rehydrates     Fast (0 tokens)
+                               from event log)      → Slow (ensemble routes,
+                    │                                  routine replies once)
+              event log ◀── append inbound/outbound (dedup) ──▶ event log
+                    │
               every LLM call passes the Budget gate and emits telemetry
 ```
 
-- **`Virtuoso.Impression`** — the channel-neutral, versioned message envelope
-  every channel translates to and from. `dedup_key/1` (`"<channel>:<id>"`) is the
-  event log's idempotency key.
-- **`Virtuoso.Conversation`** — one GenServer per conversation, addressed by a
-  Registry and started on demand. FIFO ordering per conversation falls out of the
-  serial mailbox; state is rehydrated from the event log on start, so a crash
-  loses at most the in-flight message.
-- **`Virtuoso.Conversation.Log`** — append-only Postgres event log, the source of
-  truth. A unique index on the dedup key gives exactly-once processing (a
-  duplicate webhook yields one event); recording outbound send-intent *before* the
-  channel send prevents double-sends.
-- **`Virtuoso.LLM`** — the behaviour every provider implements (`complete/2`,
-  `stream/3`), with a Req-based Anthropic adapter and typed `Virtuoso.LLM.Error`s
-  (429 → `:rate_limited`, 529 → `:overloaded`, timeout, …). Tests run fully
-  offline against `Virtuoso.LLM.Mock`.
-- **`Virtuoso.Budget`** — cluster-global token caps (per-conversation + global
-  daily) with a kill switch and a defined refusal fallback. Every LLM call is
-  gated.
-- **`Virtuoso.Routine`** — explicit string-keyed routine registry (replaces the
-  legacy `String.to_atom` dispatch and its atom-exhaustion DoS).
-- **`Virtuoso.Channel`** — the behaviour a channel adapter implements
-  (`translate_in/1`, `send_out/2`, `verify_webhook/2`). Web chat is first-class;
-  `Virtuoso.Channel.Signature` provides reusable HMAC-SHA256 webhook verification.
-
-The library core is **Phoenix-free**. Channel transports (Phoenix Channels /
-LiveView) and the telemetry dashboard live in an optional host application.
-
-## Public API & extension points
-
-Implement these behaviours to extend the framework:
-
-| Behaviour | Implement to… |
+| Module | Role |
 |---|---|
-| `Virtuoso.LLM` | add an LLM provider |
-| `Virtuoso.Channel` | add a messaging channel |
-| `Virtuoso.Routine` | add a routine/tool |
+| `Virtuoso.Bot` | `use Virtuoso.Bot` — declare fast-thinkers, routines, ensemble defaults, and the prompt file; get a plug-in `responder/1` |
+| `Virtuoso.Ensemble` | parallel member fan-out + consensus strategies (`Majority`, `Quorum`, `Judge`) with partial-failure tolerance |
+| `Virtuoso.Conversation` | one process per conversation; serial mailbox = FIFO; rehydrates from the log on start/failover |
+| `Virtuoso.Conversation.Log` | append-only Postgres event log; unique dedup index = exactly-once |
+| `Virtuoso.LLM` | provider behaviour (`complete/2`, `stream/3`); Req-based Anthropic adapter with typed errors; offline mock for tests |
+| `Virtuoso.Budget` | daily token caps (per-conversation + global) with kill switch and a defined refusal fallback; cluster-wide singleton on the fabric |
+| `Virtuoso.Fabric` | seam between single-node (Registry/DynamicSupervisor) and clustered (Horde) process placement |
+| `Virtuoso.Channel` | channel adapter behaviour + HMAC-SHA256 webhook verification |
 
-### Telemetry (stable, versioned from 0.1.0)
+The library core is **Phoenix-free**. The live telemetry dashboard (votes,
+dissent, latency, cost per decision) is a host app in `examples/dashboard`.
 
-Every LLM call through `Virtuoso.LLM.complete/2` and `stream/3` emits:
+## Clustering (optional)
 
-- `[:virtuoso, :llm, :complete | :stream, :start]` — `%{system_time}`;
-  metadata `%{model, request}`
-- `[:virtuoso, :llm, :complete | :stream, :stop]` — `%{duration}`;
-  metadata `%{model, outcome, usage, error_reason}`
-- `[:virtuoso, :llm, :complete | :stream, :exception]` — on a raised bug;
-  re-raised after the event
+```elixir
+config :virtuoso, Virtuoso.Fabric, enabled: true
+config :virtuoso, Virtuoso.Fabric, topologies: [
+  fly: [strategy: Cluster.Strategy.DNSPoll, config: [query: "myapp.internal", ...]]
+]
+```
 
-## Getting started (development)
+With the fabric on, conversations distribute across nodes and fail over
+automatically (measured 52–307ms in the chaos drills, target was 5s). See
+`docs/operations/rolling-deploys.md` for deploy invariants and
+`docs/spikes/2026-07-20-horde-spike-report.md` for the drill findings.
 
-Requires Elixir **1.15.6-otp-26** (pinned in `.tool-versions`) and a local
+## Telemetry (stable, versioned from 0.1.0)
+
+- `[:virtuoso, :llm, :complete | :stream, :start | :stop | :exception]` —
+  durations, model, outcome, token usage. **Shape-only: never transcripts**
+  (enforced by test — safe to ship to any metrics backend).
+- `[:virtuoso, :ensemble, :run, :start | :stop]` — outcome, decision (a
+  categorical label, not user text), vote count, members ok/dropped, usage.
+
+## Budget
+
+```elixir
+config :virtuoso, Virtuoso.Budget,
+  per_conversation_daily: 50_000,
+  global_daily: 1_000_000
+```
+
+Caps are genuinely daily (they reset at UTC rollover), the kill switch refuses
+everything immediately, and an over-budget turn gets a defined refusal message
+instead of spending. The N-members multiplier is structural, so the gate is not
+optional.
+
+## Development
+
+Requires Elixir **1.15.6-otp-26** (pinned in `.tool-versions`) and local
 Postgres.
 
 ```sh
 mix deps.get
-mix ecto.setup      # create + migrate the dev database
-mix test            # full suite — offline (no live LLM); needs local Postgres
+mix ecto.setup
+mix test                        # fully offline (mock LLM); needs Postgres
+mix test --include distributed  # multi-node chaos drills
+mix virtuoso.eval               # the consensus accuracy proof
 ```
-
-Configure the Anthropic API key (the default adapter reads it from the
-environment):
-
-```sh
-export ANTHROPIC_API_KEY="sk-ant-..."
-```
-
-Caps and adapter are configurable:
-
-```elixir
-# config/config.exs
-config :virtuoso, :llm, Virtuoso.LLM.Anthropic
-config :virtuoso, Virtuoso.Budget, per_conversation_daily: 50_000, global_daily: 1_000_000
-```
-
-## Testing
-
-`mix test` is fully offline — the LLM behaviour is served by an in-process mock,
-so no request ever hits the network. It does require a local Postgres (the event
-log is the persistence layer); "offline" means no live LLM, not no database.
 
 ## License
 
-MIT
+MIT — see [LICENSE](https://github.com/justuseapen/virtuoso/blob/master/LICENSE).

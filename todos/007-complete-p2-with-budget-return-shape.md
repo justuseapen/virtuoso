@@ -1,5 +1,5 @@
 ---
-status: pending
+status: complete
 priority: p2
 issue_id: "007"
 tags: [code-review, api, budget, ergonomics]
@@ -51,3 +51,8 @@ _(fill during triage)_
 
 ## Triage Decision
 **DEFERRED** — Real API wart but with_budget/3 has no production callers yet (the thinking pipeline isn't wired). Cheap to fix later with zero migration cost; fix when the first real caller lands so the shape is validated against use.
+
+## Resolution (complete — pre-publish)
+**FIXED** with `{:refused, reason, refusal_message}` (Solution A). Done as a
+Phase 4 pre-publish blocker: a Hex release creates external callers, after which
+the arity-overloaded `:error` would calcify. Spec/docstring/Slow/tests updated.

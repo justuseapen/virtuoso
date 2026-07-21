@@ -71,7 +71,7 @@ defmodule Virtuoso.BudgetTest do
           {:ok, %{usage: %{input_tokens: 1, output_tokens: 1}}}
         end)
 
-      assert result == {:error, :budget_exceeded, Budget.refusal_message()}
+      assert result == {:refused, :budget_exceeded, Budget.refusal_message()}
       refute_received :ran
     end
   end

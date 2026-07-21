@@ -27,5 +27,34 @@ framework's independently-noisy eval members (offline, no API key), and the
 run's votes/dissent/cost stream onto the page live. Roughly a third of runs
 show dissent or fall back, which is the interesting part.
 
-Dev-only: static secrets, `check_origin: false`, no auth (a host-provided auth
-plug is the Phase 4 item). Do not deploy as-is.
+## Auth
+
+The browser pipeline consults a host-provided plug on every request:
+
+```elixir
+config :virtuoso_dashboard, :auth, MyApp.AdminAuth
+# or with options:
+config :virtuoso_dashboard, :auth, {MyApp.BasicAuth, realm: "dashboard"}
+```
+
+Any plug works — e.g. `Plug.BasicAuth` wrapped in a module, or your app's
+existing admin auth. Unset means **open access**: fine on localhost, never in
+production.
+
+Dev-only defaults elsewhere too: static secrets and `check_origin: false`.
+Do not deploy as-is.
+
+## PII policy
+
+The dashboard never sees message content, by construction:
+
+- **Transcripts live only in the event log** (`conversation_events` in the
+  host's Postgres). Nothing here reads it.
+- **Telemetry is shape-only.** LLM start/stop events carry counts, durations,
+  model names, and token usage — no prompts, no completions. This is enforced
+  by a test in the framework (`llm_test.exs`), not just convention.
+- **Ensemble events carry decisions, not text.** The `decision` shown per run
+  is a categorical routing label (a routine name), never user input.
+
+So the dashboard can be shown on a team screen without leaking conversations —
+the only trust boundary you must add is the auth plug above.

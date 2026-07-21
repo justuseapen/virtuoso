@@ -42,7 +42,7 @@ defmodule Virtuoso.Eval.NoisyMember do
   end
 
   @doc """
-  An `Ensemble.run/3`-compatible `:llm` function bound to this task.
+  An `Ensemble.run/2`-compatible `:llm` function bound to this task.
 
   The runner sets `:member` on each member's request; this reads it to vary the
   response per member. Returns `{:ok, completion}` whose `text` is the answer.
