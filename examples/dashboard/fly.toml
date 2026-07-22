@@ -1,0 +1,25 @@
+# Deploy FROM THE REPO ROOT (the Dockerfile needs the path dep in context):
+#   fly deploy . -c examples/dashboard/fly.toml
+app = "virtuoso-showcase"
+primary_region = "iad"
+
+[build]
+  dockerfile = "examples/dashboard/Dockerfile"
+
+[env]
+  PHX_HOST = "virtuoso-showcase.fly.dev"
+  PORT = "8080"
+
+[deploy]
+  release_command = "/app/bin/virtuoso_dashboard eval VirtuosoDashboard.Release.migrate"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
