@@ -30,3 +30,14 @@ config :virtuoso, Virtuoso.LLM.Anthropic, api_key: {:system, "ANTHROPIC_API_KEY"
 
 config :logger, level: :info
 config :phoenix, :json_library, Jason
+
+if config_env() == :test do
+  # Offline + isolated: stub adapter, sandboxed dedicated database, no server.
+  config :virtuoso_dashboard, VirtuosoDashboardWeb.Endpoint, server: false
+
+  config :virtuoso, :llm, VirtuosoDashboard.LLMStub
+
+  config :virtuoso, Virtuoso.Repo,
+    database: "virtuoso_dashboard_test",
+    pool: Ecto.Adapters.SQL.Sandbox
+end
