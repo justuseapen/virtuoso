@@ -1437,7 +1437,7 @@ Boot `cd examples/dashboard && mix run --no-halt`, capture the chat + panel
 after a couple of messages (agent-browser or the Chrome tools), upload per the
 imgup skill, kill the server.
 
-- [ ] **Step 4: Push + PR**
+- [x] **Step 4: Push + PR**
 
 ```bash
 git push -u origin showcase/chat-demo
