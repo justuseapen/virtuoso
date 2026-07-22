@@ -31,6 +31,13 @@ config :virtuoso, Virtuoso.LLM.Anthropic, api_key: {:system, "ANTHROPIC_API_KEY"
 config :logger, level: :info
 config :phoenix, :json_library, Jason
 
+# Chat showcase models (env-tunable in prod via runtime.exs). Routing is a
+# categorical vote — cheap model ×N; generation is single-call quality.
+config :virtuoso_dashboard, :chat,
+  routing_model: "claude-haiku-4-5",
+  generation_model: "claude-opus-4-8",
+  max_tokens: 512
+
 if config_env() == :test do
   # Offline + isolated: stub adapter, sandboxed dedicated database, no server.
   config :virtuoso_dashboard, VirtuosoDashboardWeb.Endpoint, server: false
