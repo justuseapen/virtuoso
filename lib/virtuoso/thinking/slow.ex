@@ -63,7 +63,8 @@ defmodule Virtuoso.Thinking.Slow do
       strategy: strategy,
       strategy_opts: strategy_opts,
       extract: &extract_route/1,
-      llm: gate_llm(llm, budget, imp.conversation_id)
+      llm: gate_llm(llm, budget, imp.conversation_id),
+      telemetry_meta: %{conversation_id: imp.conversation_id}
     ]
 
     case Ensemble.run(routing_request(imp, names, opts), run_opts) do
