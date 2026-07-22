@@ -10,7 +10,7 @@ defmodule VirtuosoDashboardWeb.Layouts do
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
-        <title>Virtuoso Dashboard</title>
+        <title>Virtuoso — chat showcase</title>
         <style>
           :root { color-scheme: light dark; }
           body {
@@ -33,6 +33,26 @@ defmodule VirtuosoDashboardWeb.Layouts do
           .stat { display: inline-block; margin-right: 1.5rem; }
           .stat b { color: #88c0d0; }
           .empty { color: #4c566a; font-style: italic; padding: 0.5rem 0; }
+          .chat-page { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+                       gap: 2rem; max-width: 1100px; }
+          @media (max-width: 800px) { .chat-page { grid-template-columns: 1fr; } }
+          .messages { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0;
+                      min-height: 300px; }
+          .msg { max-width: 85%; padding: 0.5rem 0.75rem; border-radius: 8px; }
+          .msg p { margin: 0.15rem 0 0; white-space: pre-wrap; }
+          .msg .who { font-size: 0.7rem; color: #616e88; }
+          .msg.user { align-self: flex-end; background: #2e3440; }
+          .msg.assistant { align-self: flex-start; background: #1c2230; }
+          .msg.thinking p { color: #616e88; font-style: italic; }
+          #chat-form { display: flex; gap: 0.5rem; }
+          #chat-form input { flex: 1; background: #1c2230; color: #d8dee9; border: 1px solid #2e3440;
+                             border-radius: 4px; padding: 0.5rem 0.75rem; font: inherit; }
+          .run-card { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.78rem;
+                      border: 1px solid #2e3440; border-radius: 6px; padding: 0.5rem 0.7rem;
+                      margin-bottom: 0.5rem; }
+          .budget-row { font-size: 0.8rem; margin-bottom: 0.25rem; }
+          .budget-row b { color: #88c0d0; }
+          a { color: #81a1c1; }
         </style>
       </head>
       <body>

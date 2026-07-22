@@ -1,8 +1,13 @@
-# Virtuoso Dashboard (example host app)
+# Virtuoso Chat Showcase (example host app)
 
-Dashboard v1 from the rebuild plan: **live ensemble runs — votes, dissent,
-latency, cost per decision** — plus the LLM call stream and global budget
-spend, fed entirely by the framework's documented telemetry
+The public face of the framework: a ChatGPT-like chat at `/` where **every
+message runs through Virtuoso's real pipeline** — fast-path matchers, a
+3-member routing ensemble, budget-gated generation — beside a live "under the
+hood" panel showing the consensus machinery (route, votes, dissent, latency,
+cost, budget). The original ops dashboard lives at `/dashboard`: **live
+ensemble runs — votes, dissent, latency, cost per decision** — plus the LLM
+call stream and global budget spend, fed entirely by the framework's
+documented telemetry
 (`[:virtuoso, :ensemble, :run, :stop]`, `[:virtuoso, :llm, *, :stop]`).
 
 This is a *host application*: the Virtuoso library stays Phoenix-free; this app
@@ -19,13 +24,40 @@ repo root first if you haven't.
 cd examples/dashboard
 mix deps.get
 mix run --no-halt
-# open http://localhost:4040
+# open http://localhost:4040        — the chat showcase
+# open http://localhost:4040/dashboard — the ops dashboard
 ```
 
-Press **“Run demo ensemble”** — it fires a real `Ensemble.run/3` with the
-framework's independently-noisy eval members (offline, no API key), and the
-run's votes/dissent/cost stream onto the page live. Roughly a third of runs
-show dissent or fall back, which is the interesting part.
+Say "hi" in the chat for the zero-token fast path; ask anything else and the
+routing ensemble votes live in the panel (set `ANTHROPIC_API_KEY` for real
+replies). On `/dashboard`, press **“Run demo ensemble”** — it fires a real
+`Ensemble.run/3` with the framework's independently-noisy eval members
+(offline, no API key), and the run's votes/dissent/cost stream onto the page
+live. Roughly a third of runs show dissent or fall back, which is the
+interesting part.
+
+## Deploy (Fly.io)
+
+One-time, from the **repo root**:
+
+```sh
+fly launch --no-deploy -c examples/dashboard/fly.toml   # accept/adjust app name
+fly postgres create                                      # then: fly postgres attach
+fly secrets set -c examples/dashboard/fly.toml \
+  SECRET_KEY_BASE=$(openssl rand -hex 48) \
+  ANTHROPIC_API_KEY=sk-ant-... \
+  DASHBOARD_PASSWORD=... \
+  DASHBOARD_USER=...
+fly deploy . -c examples/dashboard/fly.toml
+```
+
+`DASHBOARD_USER` falls back to `admin` if unset — set it so the dashboard
+login isn't guessable-username + password only.
+
+Spend is bounded by `BUDGET_GLOBAL_DAILY` (default 500k tokens/day) and
+`BUDGET_PER_CONVERSATION_DAILY` (default 10k) — the framework's Budget refuses
+politely past the caps. Kill switch: `fly ssh console` →
+`bin/virtuoso_dashboard rpc "Virtuoso.Budget.kill_switch(true)"`.
 
 ## Auth
 

@@ -16,7 +16,10 @@ config :virtuoso_dashboard, VirtuosoDashboardWeb.Endpoint,
   render_errors: [formats: [html: VirtuosoDashboardWeb.ErrorHTML], layout: false]
 
 # The observed framework's repo (the dashboard boots :virtuoso as a dependency).
+# Registered under BOTH apps: :virtuoso owns it; :virtuoso_dashboard lists it so
+# this app's mix ecto.create/migrate (the test alias) can find it.
 config :virtuoso, ecto_repos: [Virtuoso.Repo]
+config :virtuoso_dashboard, ecto_repos: [Virtuoso.Repo]
 
 config :virtuoso, Virtuoso.Repo,
   username: System.get_env("PGUSER", System.get_env("USER", "postgres")),
@@ -30,3 +33,21 @@ config :virtuoso, Virtuoso.LLM.Anthropic, api_key: {:system, "ANTHROPIC_API_KEY"
 
 config :logger, level: :info
 config :phoenix, :json_library, Jason
+
+# Chat showcase models (env-tunable in prod via runtime.exs). Routing is a
+# categorical vote — cheap model ×N; generation is single-call quality.
+config :virtuoso_dashboard, :chat,
+  routing_model: "claude-haiku-4-5",
+  generation_model: "claude-opus-4-8",
+  max_tokens: 512
+
+if config_env() == :test do
+  # Offline + isolated: stub adapter, sandboxed dedicated database, no server.
+  config :virtuoso_dashboard, VirtuosoDashboardWeb.Endpoint, server: false
+
+  config :virtuoso, :llm, VirtuosoDashboard.LLMStub
+
+  config :virtuoso, Virtuoso.Repo,
+    database: "virtuoso_dashboard_test",
+    pool: Ecto.Adapters.SQL.Sandbox
+end

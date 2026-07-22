@@ -134,6 +134,37 @@ defmodule Virtuoso.Thinking.SlowTest do
     end
   end
 
+  describe "telemetry" do
+    test "routing runs carry the conversation_id" do
+      handler = "slow-telemetry-#{inspect(make_ref())}"
+      parent = self()
+
+      :telemetry.attach(
+        handler,
+        [:virtuoso, :ensemble, :run, :stop],
+        fn _name, _meas, meta, _ -> send(parent, {:run_stop, meta}) end,
+        nil
+      )
+
+      on_exit(fn -> :telemetry.detach(handler) end)
+
+      the_imp =
+        Impression.new(
+          channel: :test,
+          conversation_id: "slow-tel-1",
+          sender_id: "u1",
+          message_id: "m1",
+          text: "route me"
+        )
+
+      opts = [routines: @registry, ensemble: [n: 3], llm: all_vote("book")]
+      assert {:reply, "Booked!"} = Slow.respond(the_imp, %{}, opts)
+
+      assert_received {:run_stop, meta}
+      assert meta.conversation_id == "slow-tel-1"
+    end
+  end
+
   defp wait_until(fun, timeout_ms \\ 2_000) do
     do_wait(fun, System.monotonic_time(:millisecond) + timeout_ms)
   end

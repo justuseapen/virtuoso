@@ -49,7 +49,8 @@ defmodule VirtuosoDashboard.Collector do
       count: meta[:count],
       dissent: dissent(meta),
       usage: meta.usage,
-      reason: meta[:reason]
+      reason: meta[:reason],
+      conversation_id: meta[:conversation_id]
     }
 
     GenServer.cast(__MODULE__, {:ensemble_run, entry})
@@ -63,7 +64,8 @@ defmodule VirtuosoDashboard.Collector do
       model: meta.model,
       outcome: meta.outcome,
       usage: meta.usage,
-      error_reason: meta[:error_reason]
+      error_reason: meta[:error_reason],
+      conversation_id: meta[:conversation_id]
     }
 
     GenServer.cast(__MODULE__, {:llm_call, entry})
