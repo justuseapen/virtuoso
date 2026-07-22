@@ -35,7 +35,7 @@ defmodule VirtuosoDashboard.MixProject do
       {:phoenix_live_view, "~> 1.0"},
       {:bandit, "~> 1.0"},
       {:jason, "~> 1.4"},
-      {:floki, ">= 0.34.0", only: :test}
+      {:lazy_html, ">= 0.1.0", only: :test}
     ]
   end
 end

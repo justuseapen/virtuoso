@@ -16,7 +16,10 @@ config :virtuoso_dashboard, VirtuosoDashboardWeb.Endpoint,
   render_errors: [formats: [html: VirtuosoDashboardWeb.ErrorHTML], layout: false]
 
 # The observed framework's repo (the dashboard boots :virtuoso as a dependency).
+# Registered under BOTH apps: :virtuoso owns it; :virtuoso_dashboard lists it so
+# this app's mix ecto.create/migrate (the test alias) can find it.
 config :virtuoso, ecto_repos: [Virtuoso.Repo]
+config :virtuoso_dashboard, ecto_repos: [Virtuoso.Repo]
 
 config :virtuoso, Virtuoso.Repo,
   username: System.get_env("PGUSER", System.get_env("USER", "postgres")),

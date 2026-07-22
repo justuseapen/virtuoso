@@ -10,13 +10,37 @@ defmodule VirtuosoDashboardWeb.Router do
     plug :fetch_session
     plug :protect_from_forgery
     plug :put_root_layout, html: {VirtuosoDashboardWeb.Layouts, :root}
+    plug :put_conversation_id
+  end
+
+  # The ops dashboard is auth-gated (host-provided plug); chat is public.
+  pipeline :admin do
     plug :dashboard_auth
   end
 
   scope "/", VirtuosoDashboardWeb do
     pipe_through :browser
 
-    live "/", DashboardLive
+    live "/", ChatLive
+  end
+
+  scope "/", VirtuosoDashboardWeb do
+    pipe_through [:browser, :admin]
+
+    live "/dashboard", DashboardLive
+  end
+
+  # Every visitor gets a stable per-browser conversation id — the identity the
+  # event log, budget caps, and engine panel all key on.
+  defp put_conversation_id(conn, _opts) do
+    case get_session(conn, "conversation_id") do
+      nil ->
+        id = "web-" <> Base.url_encode64(:crypto.strong_rand_bytes(12), padding: false)
+        put_session(conn, "conversation_id", id)
+
+      _id ->
+        conn
+    end
   end
 
   # Host-provided auth hook: point the config at any plug and every dashboard
