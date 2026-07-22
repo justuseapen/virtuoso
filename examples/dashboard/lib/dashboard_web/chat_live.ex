@@ -30,6 +30,7 @@ defmodule VirtuosoDashboardWeb.ChatLive do
        messages: transcript(conversation_id),
        pending: false,
        runs: [],
+       runs_seen: 0,
        runs_at_send: 0
      )
      |> assign_budget()}
@@ -55,7 +56,7 @@ defmodule VirtuosoDashboardWeb.ChatLive do
 
       {:noreply,
        socket
-       |> assign(pending: true, runs_at_send: length(socket.assigns.runs))
+       |> assign(pending: true, runs_at_send: socket.assigns.runs_seen)
        |> update(:messages, &(&1 ++ [%{role: :user, text: text}]))
        |> start_async(:reply, fn -> Conversation.deliver(imp, responder: responder) end)}
     end
@@ -63,17 +64,24 @@ defmodule VirtuosoDashboardWeb.ChatLive do
 
   @impl true
   def handle_async(:reply, {:ok, result}, socket) do
-    socket =
+    {socket, reply_text} =
       case result do
-        {:reply, text} -> update(socket, :messages, &(&1 ++ [%{role: :assistant, text: text}]))
-        :noreply -> socket
+        {:reply, text} ->
+          {update(socket, :messages, &(&1 ++ [%{role: :assistant, text: text}])), text}
+
+        :noreply ->
+          {socket, nil}
       end
 
-    # No new ensemble run since send → this was the deterministic fast path.
-    # (The run's PubSub message beats the async result into our mailbox, so
-    # this check is ordered, not racy.)
+    # No new ensemble run since send → deterministic fast path. `runs_seen` is
+    # a monotonic counter (never derived from the capped @keep_runs list). A
+    # turn the budget gate refused never ran an ensemble either, so it's
+    # excluded rather than mislabeled. If a run's PubSub broadcast is still in
+    # flight when the reply lands, the run card simply arrives a beat later —
+    # worst case is one extra fast-path card, never a missing run.
     socket =
-      if length(socket.assigns.runs) == socket.assigns.runs_at_send do
+      if socket.assigns.runs_seen == socket.assigns.runs_at_send and
+           is_binary(reply_text) and reply_text != Budget.refusal_message() do
         update(
           socket,
           :runs,
@@ -102,6 +110,7 @@ defmodule VirtuosoDashboardWeb.ChatLive do
       {:noreply,
        socket
        |> update(:runs, &Enum.take([entry | &1], @keep_runs))
+       |> update(:runs_seen, &(&1 + 1))
        |> assign_budget()}
     else
       {:noreply, socket}
@@ -136,7 +145,7 @@ defmodule VirtuosoDashboardWeb.ChatLive do
             type="text"
             name="chat[text]"
             value=""
-            maxlength="500"
+            maxlength={max_input()}
             placeholder="say hi, or ask anything…"
             autocomplete="off"
             disabled={@pending}
@@ -187,16 +196,13 @@ defmodule VirtuosoDashboardWeb.ChatLive do
   end
 
   # Rebuild the transcript from the event log (chronological) — the log
-  # demoing itself across refreshes.
+  # demoing itself across refreshes. Roles are atoms on every path (Ecto.Enum).
   defp transcript(conversation_id) do
     conversation_id
     |> Log.recent_events_for(@transcript_window)
-    |> Enum.map(&%{role: role_atom(&1.role), text: &1.content})
+    |> Enum.map(&%{role: &1.role, text: &1.content})
     |> Enum.filter(&is_binary(&1.text))
   end
-
-  defp role_atom(role) when role in [:user, "user"], do: :user
-  defp role_atom(_role), do: :assistant
 
   defp assign_budget(socket) do
     caps = Application.get_env(:virtuoso, Virtuoso.Budget, [])
@@ -210,6 +216,9 @@ defmodule VirtuosoDashboardWeb.ChatLive do
       }
     )
   end
+
+  # In HEEx, @ means assigns — this exposes the module attribute to the template.
+  defp max_input, do: @max_input
 
   defp tokens(%{input_tokens: i, output_tokens: o}), do: i + o
   defp tokens(_usage), do: 0

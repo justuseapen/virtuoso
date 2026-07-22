@@ -3,6 +3,10 @@ defmodule VirtuosoDashboard.Bot do
   The showcase bot: greeting fast path, then a real 3-member ensemble votes on
   the route ("answer" vs "about_virtuoso") and the winning routine generates
   once.
+
+  The router prompt file is only the *preamble* — the framework appends the
+  valid intent list and reply format after it (`Virtuoso.Thinking.Slow`), so
+  the prompt can't silently break routing by omitting routine names.
   """
 
   use Virtuoso.Bot
@@ -27,7 +31,7 @@ defmodule VirtuosoDashboard.Bot do
 
   @impl true
   def ensemble do
-    chat = Application.get_env(:virtuoso_dashboard, :chat, [])
-    [n: 3, strategy: :majority, models: [Keyword.get(chat, :routing_model, "claude-haiku-4-5")]]
+    chat = Application.fetch_env!(:virtuoso_dashboard, :chat)
+    [n: 3, strategy: :majority, models: [Keyword.fetch!(chat, :routing_model)]]
   end
 end

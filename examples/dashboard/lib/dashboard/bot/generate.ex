@@ -12,12 +12,14 @@ defmodule VirtuosoDashboard.Bot.Generate do
 
   @spec reply(Impression.t(), map(), String.t()) :: {:reply, String.t()}
   def reply(%Impression{} = imp, context, system) do
-    chat = Application.get_env(:virtuoso_dashboard, :chat, [])
+    # Single source of truth for models/limits: config.exs (env-overridable in
+    # prod via runtime.exs). fetch! so a missing key fails loudly at call time.
+    chat = Application.fetch_env!(:virtuoso_dashboard, :chat)
 
     request = %{
-      model: Keyword.get(chat, :generation_model, "claude-opus-4-8"),
+      model: Keyword.fetch!(chat, :generation_model),
       system: system,
-      max_tokens: Keyword.get(chat, :max_tokens, 512),
+      max_tokens: Keyword.fetch!(chat, :max_tokens),
       messages: history_messages(context) ++ [%{role: :user, content: imp.text || ""}]
     }
 
@@ -28,15 +30,13 @@ defmodule VirtuosoDashboard.Bot.Generate do
     end
   end
 
+  # History roles are always :user | :assistant atoms — live entries are pushed
+  # as atoms and log rehydration goes through an Ecto.Enum field.
   defp history_messages(context) do
     context
     |> Map.get(:history, [])
     |> Enum.filter(fn {_role, content} -> is_binary(content) end)
     |> Enum.take(-@history_window)
-    |> Enum.map(fn {role, content} -> %{role: normalize_role(role), content: content} end)
+    |> Enum.map(fn {role, content} -> %{role: role, content: content} end)
   end
-
-  # Log-rehydrated roles may be strings; live ones are atoms.
-  defp normalize_role(role) when role in [:user, "user"], do: :user
-  defp normalize_role(_role), do: :assistant
 end

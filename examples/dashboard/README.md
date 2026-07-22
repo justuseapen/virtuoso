@@ -46,9 +46,13 @@ fly postgres create                                      # then: fly postgres at
 fly secrets set -c examples/dashboard/fly.toml \
   SECRET_KEY_BASE=$(openssl rand -hex 48) \
   ANTHROPIC_API_KEY=sk-ant-... \
-  DASHBOARD_PASSWORD=...
+  DASHBOARD_PASSWORD=... \
+  DASHBOARD_USER=...
 fly deploy . -c examples/dashboard/fly.toml
 ```
+
+`DASHBOARD_USER` falls back to `admin` if unset — set it so the dashboard
+login isn't guessable-username + password only.
 
 Spend is bounded by `BUDGET_GLOBAL_DAILY` (default 500k tokens/day) and
 `BUDGET_PER_CONVERSATION_DAILY` (default 10k) — the framework's Budget refuses

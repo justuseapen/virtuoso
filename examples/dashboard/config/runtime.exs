@@ -30,8 +30,9 @@ if config_env() == :prod do
           username: System.get_env("DASHBOARD_USER", "admin"),
           password: System.fetch_env!("DASHBOARD_PASSWORD")}
 
+  # Model overrides only — max_tokens keeps its config.exs value (Config
+  # deep-merges keyword lists).
   config :virtuoso_dashboard, :chat,
     routing_model: System.get_env("ROUTING_MODEL", "claude-haiku-4-5"),
-    generation_model: System.get_env("GENERATION_MODEL", "claude-opus-4-8"),
-    max_tokens: 512
+    generation_model: System.get_env("GENERATION_MODEL", "claude-opus-4-8")
 end

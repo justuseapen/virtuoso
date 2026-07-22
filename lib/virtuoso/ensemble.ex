@@ -168,6 +168,8 @@ defmodule Virtuoso.Ensemble do
   #            members_total, members_ok, members_dropped, usage, ...strategy meta
   #            (:count for agreement — dissent = members_ok - count, :reason on
   #            fallback/error)}
+  #   Both events also merge in caller-supplied :telemetry_meta keys (reserved
+  #   keys above always win on conflict).
   defp stop_metadata(strategy, {outcome, decision_or_reason, meta}, telemetry_meta) do
     base = telemetry_meta |> Map.merge(meta) |> Map.merge(%{strategy: strategy})
 

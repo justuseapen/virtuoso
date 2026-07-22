@@ -6,9 +6,12 @@ defmodule VirtuosoDashboard.Release do
     Application.ensure_all_started(:ssl)
     Application.load(:virtuoso)
 
+    # Run the SAME migration files dev/test use (the :virtuoso app's
+    # priv/repo/migrations, shipped in the release) — one schema_migrations
+    # history everywhere, and future framework migrations apply automatically.
     {:ok, _fun_return, _apps} =
       Ecto.Migrator.with_repo(Virtuoso.Repo, fn repo ->
-        Ecto.Migrator.run(repo, [{20_260_722_000_000, Virtuoso.Migrations}], :up, all: true)
+        Ecto.Migrator.run(repo, Ecto.Migrator.migrations_path(repo), :up, all: true)
       end)
   end
 end
