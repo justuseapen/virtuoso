@@ -53,7 +53,7 @@ only — library stays Phoenix-free), Postgres, Fly.io.
   `:members_dropped`, `:usage`, `:count`, `:reason`) always win over
   `telemetry_meta` on conflict.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append inside the existing
 `describe "run/3 — usage + telemetry (the dashboard's feed)"` block of
@@ -87,12 +87,12 @@ Append inside the existing
     end
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `export PGUSER=justuseapen PGPASSWORD="" && mix test test/virtuoso/ensemble_test.exs`
 Expected: FAIL — `start_meta.conversation_id` raises `KeyError` (metadata has no such key).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `lib/virtuoso/ensemble.ex`, inside `run/2` after
 `timeout = Keyword.get(opts, :timeout, 30_000)` add:
@@ -136,12 +136,12 @@ Document the option in the `@moduledoc` "## Options" list:
 and add one line to the moduledoc "## Telemetry" section: metadata also
 includes any caller-supplied `:telemetry_meta` keys.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `export PGUSER=justuseapen PGPASSWORD="" && mix test test/virtuoso/ensemble_test.exs`
 Expected: PASS (all tests in file).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/virtuoso/ensemble.ex test/virtuoso/ensemble_test.exs
@@ -161,7 +161,7 @@ git commit -m "feat(ensemble): telemetry_meta passthrough on run start/stop even
 - Produces: every ensemble run triggered by the thinking pipeline carries
   `%{conversation_id: imp.conversation_id}` in its start/stop telemetry metadata.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append a new test to `test/virtuoso/thinking/slow_test.exs`, reusing the
 file's existing helpers for building impressions/opts (read the file first;
@@ -214,12 +214,12 @@ opts construction to match the file's local conventions):
 (If `slow_test.exs` already defines an echo-style routine module, reuse it
 instead of adding `EchoRoutine`.)
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `export PGUSER=justuseapen PGPASSWORD="" && mix test test/virtuoso/thinking/slow_test.exs`
 Expected: FAIL — `meta.conversation_id` raises `KeyError`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `lib/virtuoso/thinking/slow.ex`, in `route/5`, add one entry to `run_opts`:
 
@@ -234,12 +234,12 @@ In `lib/virtuoso/thinking/slow.ex`, in `route/5`, add one entry to `run_opts`:
     ]
 ```
 
-- [ ] **Step 4: Run tests, then all framework gates**
+- [x] **Step 4: Run tests, then all framework gates**
 
 Run: `export PGUSER=justuseapen PGPASSWORD="" && mix test && mix format --check-formatted && mix credo --strict && mix dialyzer`
 Expected: 174+ tests, 0 failures; credo/dialyzer/format clean.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/virtuoso/thinking/slow.ex test/virtuoso/thinking/slow_test.exs
@@ -270,7 +270,7 @@ git commit -m "feat(thinking): conversation_id in ensemble run telemetry"
 - Produces: dashboard tests run against DB `virtuoso_dashboard_test` with the
   Ecto SQL sandbox; `mix test` in `examples/dashboard` creates/migrates it.
 
-- [ ] **Step 1: Wire the test env**
+- [x] **Step 1: Wire the test env**
 
 `examples/dashboard/mix.exs` — replace `project/0` and `deps/0`:
 
@@ -369,7 +369,7 @@ defmodule VirtuosoDashboard.LLMStub do
 end
 ```
 
-- [ ] **Step 2: Write the failing Collector test**
+- [x] **Step 2: Write the failing Collector test**
 
 Create `examples/dashboard/test/dashboard/collector_test.exs`:
 
@@ -405,13 +405,13 @@ defmodule VirtuosoDashboard.CollectorTest do
 end
 ```
 
-- [ ] **Step 3: Run to verify it fails**
+- [x] **Step 3: Run to verify it fails**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix deps.get && mix test`
 Expected: the collector test FAILS on `entry.conversation_id` (KeyError).
 (`ecto.create`/`ecto.migrate` should succeed first — they run via the alias.)
 
-- [ ] **Step 4: Implement**
+- [x] **Step 4: Implement**
 
 In `examples/dashboard/lib/dashboard/collector.ex`, add to BOTH entry maps
 (`:ensemble_run` and `:llm_call`):
@@ -420,12 +420,12 @@ In `examples/dashboard/lib/dashboard/collector.ex`, add to BOTH entry maps
       conversation_id: meta[:conversation_id],
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix test && mix compile --warnings-as-errors && mix format --check-formatted`
 Expected: PASS, clean compile/format.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add examples/dashboard
@@ -459,7 +459,7 @@ git commit -m "feat(showcase): dashboard test harness + conversation_id in colle
   `Application.get_env(:virtuoso_dashboard, :chat)` keys `:routing_model`,
   `:generation_model`, `:max_tokens`.
 
-- [ ] **Step 1: Config + prompt files**
+- [x] **Step 1: Config + prompt files**
 
 Append to `examples/dashboard/config/config.exs` (BEFORE the
 `if config_env() == :test` block):
@@ -516,7 +516,7 @@ Source: github.com/justuseapen/virtuoso.
 Answer concisely and concretely. If you don't know, say so.
 ```
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Create `examples/dashboard/test/dashboard/bot_test.exs`:
 
@@ -584,12 +584,12 @@ defmodule VirtuosoDashboard.BotTest do
 end
 ```
 
-- [ ] **Step 3: Run to verify failure**
+- [x] **Step 3: Run to verify failure**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix test test/dashboard/bot_test.exs`
 Expected: FAIL — `VirtuosoDashboard.Bot` is undefined.
 
-- [ ] **Step 4: Implement the bot**
+- [x] **Step 4: Implement the bot**
 
 Create `examples/dashboard/lib/dashboard/bot/fast/greeting.ex`:
 
@@ -743,7 +743,7 @@ defmodule VirtuosoDashboard.Bot do
 end
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix test && mix compile --warnings-as-errors && mix format --check-formatted`
 Expected: PASS. If the refusal test fails because the routine (not the turn
@@ -752,7 +752,7 @@ gate) sees the default budget: note that the turn-level gate in
 `Bot.responder(budget: :bot_test_budget)`, which reaches Slow through the
 responder's option passthrough, so the turn is refused before any member runs.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add examples/dashboard
@@ -779,7 +779,7 @@ git commit -m "feat(showcase): bot with prompt files, fast greeting, ensemble-ro
   DashboardLive; the browser pipeline seeds `"conversation_id"` in the session.
   The `:admin` pipeline (auth hook) wraps `/dashboard` only.
 
-- [ ] **Step 1: Write the failing LiveView test**
+- [x] **Step 1: Write the failing LiveView test**
 
 Create `examples/dashboard/test/dashboard_web/chat_live_test.exs`:
 
@@ -853,12 +853,12 @@ defmodule VirtuosoDashboardWeb.ChatLiveTest do
 end
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix test test/dashboard_web/chat_live_test.exs`
 Expected: FAIL — no route `/` for ChatLive (undefined module).
 
-- [ ] **Step 3: Router + session identity**
+- [x] **Step 3: Router + session identity**
 
 Replace `examples/dashboard/lib/dashboard_web/router.ex` contents:
 
@@ -925,7 +925,7 @@ defmodule VirtuosoDashboardWeb.Router do
 end
 ```
 
-- [ ] **Step 4: ChatLive**
+- [x] **Step 4: ChatLive**
 
 Create `examples/dashboard/lib/dashboard_web/chat_live.ex`:
 
@@ -1144,7 +1144,7 @@ defmodule VirtuosoDashboardWeb.ChatLive do
 end
 ```
 
-- [ ] **Step 5: Chat CSS**
+- [x] **Step 5: Chat CSS**
 
 In `examples/dashboard/lib/dashboard_web/layouts.ex`, inside the existing
 `<style>` block, append:
@@ -1174,12 +1174,12 @@ a { color: #81a1c1; }
 
 Also change the `<title>` to `Virtuoso — chat showcase`.
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix test && mix compile --warnings-as-errors && mix format --check-formatted`
 Expected: PASS, all dashboard tests.
 
-- [ ] **Step 7: Manual smoke test**
+- [x] **Step 7: Manual smoke test**
 
 Run: `cd examples/dashboard && mix run --no-halt` then open
 `http://localhost:4040` — say "hi" (fast-path card), ask a question (with
@@ -1187,7 +1187,7 @@ Run: `cd examples/dashboard && mix run --no-halt` then open
 refresh (transcript persists), open `/dashboard` (runs visible globally).
 Kill the server when done (`Ctrl-C` / `pkill -f "mix run --no-halt"`).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add examples/dashboard
@@ -1217,7 +1217,7 @@ git commit -m "feat(showcase): ChatLive — chat with live ensemble engine panel
   (default 500000), `DASHBOARD_USER` (default "admin"), `ROUTING_MODEL`,
   `GENERATION_MODEL`.
 
-- [ ] **Step 1: Runtime config**
+- [x] **Step 1: Runtime config**
 
 Create `examples/dashboard/config/runtime.exs`:
 
@@ -1261,7 +1261,7 @@ if config_env() == :prod do
 end
 ```
 
-- [ ] **Step 2: Basic auth plug + release migrator**
+- [x] **Step 2: Basic auth plug + release migrator**
 
 Create `examples/dashboard/lib/dashboard_web/basic_auth.ex`:
 
@@ -1298,7 +1298,7 @@ defmodule VirtuosoDashboard.Release do
 end
 ```
 
-- [ ] **Step 3: Dockerfile + fly.toml**
+- [x] **Step 3: Dockerfile + fly.toml**
 
 Create `examples/dashboard/Dockerfile` (build context = **repo root**, because
 of the `{:virtuoso, path: "../.."}` dep):
@@ -1367,7 +1367,7 @@ primary_region = "iad"
   memory = "512mb"
 ```
 
-- [ ] **Step 4: README**
+- [x] **Step 4: README**
 
 Rewrite the "Run it" section of `examples/dashboard/README.md` to cover: the
 app is now the chat showcase (`/` chat, `/dashboard` ops); local run
@@ -1394,7 +1394,7 @@ politely past the caps. Kill switch: `fly ssh console` →
 `bin/virtuoso_dashboard rpc "Virtuoso.Budget.kill_switch(true)"`.
 ```
 
-- [ ] **Step 5: Verify prod compile + full local suites**
+- [x] **Step 5: Verify prod compile + full local suites**
 
 Run: `cd examples/dashboard && MIX_ENV=prod mix deps.get && MIX_ENV=prod mix compile --warnings-as-errors`
 Expected: clean compile (runtime.exs is not evaluated at compile time, so no
@@ -1406,7 +1406,7 @@ Expected: PASS.
 Do NOT run `fly launch`/`fly deploy` — deployment is user-gated (outward
 action; needs the user's Fly account and secrets).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add examples/dashboard
@@ -1420,18 +1420,18 @@ git commit -m "feat(showcase): Fly.io deployment — runtime config, release mig
 **Files:**
 - Modify: `docs/plans/2026-07-22-chat-showcase-plan.md` (check off tasks)
 
-- [ ] **Step 1: Root gates**
+- [x] **Step 1: Root gates**
 
 Run from repo root:
 `export PGUSER=justuseapen PGPASSWORD="" && mix format --check-formatted && mix compile --warnings-as-errors && mix test && mix credo --strict && mix dialyzer`
 Expected: all clean (the framework changed in Tasks 1–2).
 
-- [ ] **Step 2: Dashboard gates**
+- [x] **Step 2: Dashboard gates**
 
 Run: `cd examples/dashboard && export PGUSER=justuseapen PGPASSWORD="" && mix format --check-formatted && mix compile --warnings-as-errors && mix test`
 Expected: all clean.
 
-- [ ] **Step 3: Screenshot for the PR**
+- [x] **Step 3: Screenshot for the PR**
 
 Boot `cd examples/dashboard && mix run --no-halt`, capture the chat + panel
 after a couple of messages (agent-browser or the Chrome tools), upload per the
