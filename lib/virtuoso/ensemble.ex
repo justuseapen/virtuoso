@@ -31,6 +31,8 @@ defmodule Virtuoso.Ensemble do
       defaults to `&Virtuoso.LLM.complete/2`. The seam that keeps `run/3`
       testable and lets a caller gate members through the budget.
     * `:timeout` — per-member timeout (default 30s).
+    * `:telemetry_meta` — map merged into run start/stop telemetry metadata
+      (e.g. `%{conversation_id: id}`); reserved keys always win on conflict.
 
   ## Returns
     * `{:consensus, decision, meta}` — the strategy committed a decision.
@@ -51,6 +53,8 @@ defmodule Virtuoso.Ensemble do
       meta (`:count` = agreeing members, so dissent = `members_ok - count`;
       `:reason` on fallback/error). This is the dashboard's feed: votes,
       dissent, latency, and cost per decision.
+
+  Both events' metadata also include any caller-supplied `:telemetry_meta` keys.
   """
 
   alias Virtuoso.Ensemble.Strategy
@@ -74,6 +78,7 @@ defmodule Virtuoso.Ensemble do
     extract = Keyword.fetch!(opts, :extract)
     llm = Keyword.get(opts, :llm, &LLM.complete/2)
     timeout = Keyword.get(opts, :timeout, 30_000)
+    telemetry_meta = opts |> Keyword.get(:telemetry_meta, %{}) |> Map.new()
 
     total = length(members)
     start_time = System.monotonic_time()
@@ -81,7 +86,7 @@ defmodule Virtuoso.Ensemble do
     :telemetry.execute(
       [:virtuoso, :ensemble, :run, :start],
       %{system_time: System.system_time()},
-      %{strategy: strategy, members_total: total}
+      Map.merge(telemetry_meta, %{strategy: strategy, members_total: total})
     )
 
     survivors = fan_out(base_request, members, extract, llm, timeout)
@@ -105,7 +110,7 @@ defmodule Virtuoso.Ensemble do
     :telemetry.execute(
       [:virtuoso, :ensemble, :run, :stop],
       %{duration: System.monotonic_time() - start_time},
-      stop_metadata(strategy, result)
+      stop_metadata(strategy, result, telemetry_meta)
     )
 
     result
@@ -163,8 +168,8 @@ defmodule Virtuoso.Ensemble do
   #            members_total, members_ok, members_dropped, usage, ...strategy meta
   #            (:count for agreement — dissent = members_ok - count, :reason on
   #            fallback/error)}
-  defp stop_metadata(strategy, {outcome, decision_or_reason, meta}) do
-    base = Map.merge(meta, %{strategy: strategy})
+  defp stop_metadata(strategy, {outcome, decision_or_reason, meta}, telemetry_meta) do
+    base = telemetry_meta |> Map.merge(meta) |> Map.merge(%{strategy: strategy})
 
     case outcome do
       :consensus -> Map.merge(base, %{outcome: :consensus, decision: decision_or_reason})

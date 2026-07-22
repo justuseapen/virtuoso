@@ -187,6 +187,31 @@ defmodule Virtuoso.EnsembleTest do
       assert {:error, :all_members_failed, _} = Ensemble.run(@base, opts)
       assert_received {:telemetry, _, _, %{outcome: :error}}
     end
+
+    test "telemetry_meta is merged into start and stop metadata" do
+      attach([:virtuoso, :ensemble, :run, :start])
+      attach([:virtuoso, :ensemble, :run, :stop])
+
+      llm = fn _r, _o -> {:ok, usage_completion("route_x", 1, 1)} end
+
+      opts = [
+        members: members(["a", "b", "c"]),
+        strategy: Majority,
+        extract: extract(),
+        llm: llm,
+        telemetry_meta: %{conversation_id: "c-123", outcome: :spoofed}
+      ]
+
+      assert {:consensus, "route_x", _} = Ensemble.run(@base, opts)
+
+      assert_received {:telemetry, [:virtuoso, :ensemble, :run, :start], _, start_meta}
+      assert start_meta.conversation_id == "c-123"
+
+      assert_received {:telemetry, [:virtuoso, :ensemble, :run, :stop], _, stop_meta}
+      assert stop_meta.conversation_id == "c-123"
+      # Reserved keys can't be spoofed by telemetry_meta.
+      assert stop_meta.outcome == :consensus
+    end
   end
 
   describe "run/3 — purity" do
